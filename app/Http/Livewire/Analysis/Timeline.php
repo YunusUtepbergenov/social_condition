@@ -1,0 +1,37 @@
+<?php
+
+namespace App\Http\Livewire\Analysis;
+
+use App\Models\BsScorePrediction;
+use Carbon\Carbon;
+use Livewire\Component;
+
+class Timeline extends Component
+{
+    public $months = [];
+
+    protected $listeners = ['changeMonths'];
+
+    public function mount(){
+        $latestDate = BsScorePrediction::max('date');
+
+        $this->months = BsScorePrediction::
+                        select('date')
+                        ->distinct('date')
+                        ->whereBetween('date', [Carbon::parse($latestDate)->subMonth(18), $latestDate])
+                        ->orderBy('date', 'ASC')
+                        ->get()
+                        ->pluck('date')
+                        ->toArray();
+    }
+
+    public function render()
+    {
+        return view('livewire.analysis.timeline');
+    }
+
+    public function changeMonths($dates){
+        $this->months = $dates;
+        $this->emit('changeTimeline', $dates);
+    }
+}

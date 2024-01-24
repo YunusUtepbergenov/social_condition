@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Providers;
+use App\Models\TableName;
 
 use Illuminate\Support\ServiceProvider;
 
@@ -23,6 +24,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        $records = TableName::all();
+        $translates = [];
+        foreach($records as $record){
+            $translates[$record->merged_name] = $record->column_uz;
+        }
+        view()->share('translates', $translates);
     }
 }
