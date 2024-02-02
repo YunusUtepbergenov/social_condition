@@ -17,7 +17,6 @@ use App\Models\Range;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
-use Illuminate\Contracts\Database\Eloquent\Builder;
 class Visualization extends Component
 {
     public $vil_val, $active_tum, $indicators, $activeIndicator, $activeRegion = 'republic';
@@ -26,7 +25,9 @@ class Visualization extends Component
     public $top_districts, $dates = array(), $monthlyAvg = array(), $actualAvg = array();
     public $type = 'mood';
     public $sum;
+
     protected $listeners = ['radioType', 'regionClicked', 'dateChanged', 'indicatorChanged', 'regionChanged'];
+    
     public $ranges, $clusters;
     public $avg_indicators = [
                 'weather_temperature', 'weather_precipitation', 'weather_pollution', 
@@ -51,6 +52,17 @@ class Visualization extends Component
 
     public function render(){
         return view('livewire.analysis.visualization');
+    }
+
+    public function openModal($feature){
+        $tum_pop = intval(Merged::select('demography_population as population')->where('date', $this->date)->where('district_code', $this->active_tum)->first()->population);
+        $population = intval(Merged::select(DB::raw('SUM(demography_population) as population'))->where('date', $this->date)->groupBy('date')->first()->population);
+        
+        $data = Merged::select(DB::raw($feature .' as score'), 'date')->where('district_code', $this->active_tum)->whereIn('date', $this->dates)->orderBy('date')->get()->pluck('score', 'date')->toArray();
+        $dataAvg = Merged::select(DB::raw($feature .' / '. $tum_pop. '*'. 100000 .' as score'), 'date')->where('district_code', $this->active_tum)->whereIn('date', $this->dates)->orderBy('date')->get()->pluck('score')->toArray();
+
+        $this->emit('showInfoModal', $feature, $this->active_tum, $data, $dataAvg ,$this->date, $this->dates, $population, $tum_pop);
+        $this->regionClicked($this->active_tum);
     }
 
     public function regionChanged($region){
@@ -87,7 +99,7 @@ class Visualization extends Component
             if($region == 'republic'){
                 $this->indicatorChanged($this->activeIndicator);
             }else{
-                $indicatorSum = Merged::select('date',  DB::raw('SUM('.$this->activeIndicator.') as sum'))
+                $indicatorSum = MergedOrg::select('date',  DB::raw('SUM('.$this->activeIndicator.') as sum'))
                                         ->where('district_code', 'LIKE', $region.'%')
                                         ->where('date', '<=', $this->date)
                                         ->groupBy('date')->orderBy('date')
@@ -194,7 +206,7 @@ class Visualization extends Component
         $actual_avg = $this->getTumActualAvg();
 
         if($this->type == 'mood'){
-            $this->indicators = MutualInfo::where('district_code', $tuman)->whereDate('date', $this->date)->get();
+            $this->indicators = MutualInfo::where('district_code', $tuman)->whereDate('date', $this->date)->orderBy('mutual_info', 'DESC')->get();
 
             $this->indicators->map(function($indicator) use ($population, $tum_pop){
                 if(in_array($indicator->feature_name, $this->avg_indicators)){
@@ -224,19 +236,8 @@ class Visualization extends Component
         }
         else if($this->type == 'clusters'){
             $this->calcClusters();
-            // $sameClusters = DistrictCluster::select('district_code')->where('date', $this->date)->where('cluster_id', end($tum_avg))->get()->pluck('district_code')->toArray();
-            // $clusterPopulation = intval(Merged::select(DB::raw('SUM(demography_population) as population'))
-            //                                     ->whereIn('district_code', $sameClusters)
-            //                                     ->where('date', $this->date)
-            //                                     ->groupBy('date')->first()->population);
             
             $this->indicators = ClusterDistance::where('district_code', $tuman)->where('date', $this->date)->orderBy('distance', 'ASC')->get();
-            // $this->indicators->map(function($indicator) use ($population, $tum_pop, $sameClusters, $clusterPopulation){
-            //     $indicator->average = (Merged::select(DB::raw('SUM('. $indicator->feature_name. ') as sum'))->whereDate('date', $this->date)->groupBy('date')->first()->sum / $population) * 100000;
-            //     $indicator->clusterAverage = (Merged::select(DB::raw('SUM('. $indicator->feature_name. ') as sum'))->whereDate('date', $this->date)->whereIn('district_code', $sameClusters)->groupBy('date')->first()->sum / $clusterPopulation) * 100000;
-            //     $indicator->value = (Merged::select($indicator->feature_name. ' as indicator')->whereDate('date', $this->date)->where('district_code', $this->active_tum)->first()->indicator / $tum_pop) * 100000;
-            //     return $indicator;
-            // });
         }
         $this->emit('changeTable', $tuman, $tum_avg, $actual_avg, $participants, $this->dates, $this->date, $this->type);
     }

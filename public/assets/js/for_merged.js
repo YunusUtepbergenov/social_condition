@@ -135,7 +135,6 @@ function changeTableContentsandChart(data, actual, dates, type, label){
 }
 
 function changeProtestChart(data, actual, dates, type, label, participants){
-    console.log(data);
     max_participants = Math.max(...actual);
     colors = actual.map(value => {
         opacity = scale(value, max_participants, 0, 1, 0.1);

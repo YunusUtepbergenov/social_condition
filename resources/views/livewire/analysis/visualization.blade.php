@@ -19,7 +19,7 @@
                                                     $color = 'rgb(115, 115, 115)';
                                                 else
                                                     $color = '#be4343';
-                                            @endphp                                    
+                                            @endphp
                                         @endif
                                         <div class="form-check">
                                             @if ($type == 'indicator')
@@ -31,7 +31,7 @@
                                             @else
                                                 <a href="#" class="form-check-label district_label" id="{{$district->district_code}}" style="font-weight:{{($district->district_code == $active_tum) ? 'bold': ''}};" wire:click="$emit('regionClicked', '{{$district->district_code}}')">
                                                     {{ $key + 1 }}. {{ $district->district->name}}
-                                                </a>                                     
+                                                </a>
                                             @endif
                                         </div>
                                     </div>
@@ -70,56 +70,52 @@
                                     </div>                                    
                                 </div>
                             @endforeach
-                        
                         @else
                             @foreach ($clusters as $cluster)
-                            <p>{{$cluster->name}}</p>
-                            <hr>
+                                <p>{{$cluster->name}}</p>
+                                <hr>
                                 @foreach ($cluster->clusters as $key=>$district)
-                                {{-- @dd($district) --}}
-                                @php
-                                    if($district->cluster_id == 1)
-                                        $color = 'rgb(115, 182, 107)';
-                                    elseif ($district->cluster_id == 2)
-                                        $color = 'rgb(41, 162, 198)';
-                                    elseif($district->cluster_id == 3)
-                                        $color = 'rgb(160, 160, 160)';
-                                    elseif ($district->cluster_id == 4)
-                                        $color = 'rgb(250, 167, 63)';
-                                    elseif ($district->cluster_id == 5)
-                                        $color = 'rgb(220, 85, 100)';
+                                    @php
+                                        if($district->cluster_id == 1)
+                                            $color = 'rgb(115, 182, 107)';
+                                        elseif ($district->cluster_id == 2)
+                                            $color = 'rgb(41, 162, 198)';
+                                        elseif($district->cluster_id == 3)
+                                            $color = 'rgb(160, 160, 160)';
+                                        elseif ($district->cluster_id == 4)
+                                            $color = 'rgb(250, 167, 63)';
+                                        elseif ($district->cluster_id == 5)
+                                            $color = 'rgb(220, 85, 100)';
 
-                                    if($district->diff > 0){
-                                        $class = 'bx bxs-up-arrow-alt';
-                                    }elseif ($district->diff < 0) {
-                                        $class = 'bx bxs-down-arrow-alt';
-                                    }else {
-                                        $class = 'd-none';
-                                    }
-                                @endphp
-                                <div class="row" style="padding: 2px 5px">
-                                    <div class="{{($type == 'clusters') ? 'col-lg-5' : 'col-lg-5'}} user_name">
-                                                                  
-                                        <div class="form-check">
-                                            <a href="#" id="{{$district->district_code}}" class="form-check-label district_label" style="font-weight:{{($district->district_code == $active_tum) ? 'bold': ''}};" wire:click="$emit('regionClicked', '{{$district->district_code}}')"> 
-                                                {{ $key + 1 }}. {{ $district->district->name}} <i class='{{$class}}'>{{abs($district->diff)}}</i>
-                                            </a>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-7 progress_indicator">
-                                        <div class="progress">
-                                            <div class="progress-bar" 
-                                                role="progressbar" 
-                                                style="background-color:{{$color}}; color: white;width:100%" 
-                                                aria-valuemin="0" 
-                                                aria-valuemax="100">
-                                                {{$cluster->name}}
+                                        if($district->diff > 0){
+                                            $class = 'bx bxs-up-arrow-alt';
+                                        }elseif ($district->diff < 0) {
+                                            $class = 'bx bxs-down-arrow-alt';
+                                        }else {
+                                            $class = 'd-none';
+                                        }
+                                    @endphp
+                                    <div class="row" style="padding: 2px 5px">
+                                        <div class="{{($type == 'clusters') ? 'col-lg-5' : 'col-lg-5'}} user_name">                                                                    
+                                            <div class="form-check">
+                                                <a href="#" id="{{$district->district_code}}" class="form-check-label district_label" style="font-weight:{{($district->district_code == $active_tum) ? 'bold': ''}};" wire:click="$emit('regionClicked', '{{$district->district_code}}')"> 
+                                                    {{ $key + 1 }}. {{ $district->district->name}} <i class='{{$class}}'>{{abs($district->diff)}}</i>
+                                                </a>
                                             </div>
                                         </div>
-                                    </div>                                    
-                                </div>                                
+                                        <div class="col-lg-7 progress_indicator">
+                                            <div class="progress">
+                                                <div class="progress-bar" 
+                                                    role="progressbar" 
+                                                    style="background-color:{{$color}}; color: white;width:100%" 
+                                                    aria-valuemin="0" 
+                                                    aria-valuemax="100">
+                                                    {{$cluster->name}}
+                                                </div>
+                                            </div>
+                                        </div>                                    
+                                    </div>                                
                                 @endforeach
-
                             @endforeach
                         @endif
                     </div>
@@ -181,29 +177,12 @@
                             <thead class="thead-light" id="thead">
                                 <tr>
                                   <th scope="col">#</th>
-                                  <th scope="col">Индикатор</th>
-                                  {{-- @if ($type == 'mood')
-                                      <th>Ўлчов бирлиги</th>
-                                  @else 
-                                      <th scope="col">Ўзгариши %</th>                                
-                                  @endif --}}
-                                  <th scope="col">Республикадаги ўртача қиймат <br>
-                                    @if ($type != 'clusters')
-                                        (ҳар 100 000 аҳолига)
-                                    @endif
-                                  </th>
+                                  <th scope="col">Индикатор @if ($type != 'clusters') <br> (ҳар 100 000 аҳолига) @endif </th>
+                                  <th scope="col">Республикадаги ўртача қиймат <br></th>
                                   @if ($type == 'clusters')
-                                      <th>Кластердаги ўртача қиймат <br>
-                                        @if ($type != 'clusters')
-                                            (ҳар 100 000 аҳолига)
-                                        @endif
-                                    </th>
+                                      <th>Кластердаги ўртача қиймат <br></th>
                                   @endif
-                                  <th scope="col">Тумандаги қиймат <br>
-                                    @if ($type != 'clusters')
-                                        (ҳар 100 000 аҳолига)
-                                    @endif
-                                  </th>
+                                  <th scope="col">Тумандаги қиймат <br></th>
                                  </tr>
                             </thead>
                             <tbody id="indikatorlar">
@@ -212,11 +191,10 @@
                                         <tr>
                                             <td>{{$key + 1 }}</td>
                                             @if ($type != 'clusters')
-                                                <td>{{ $translates[$indicator->feature_name] }}</td>                                                
+                                                <td><a href="#" wire:click="openModal('{{$indicator->feature_name}}')">{{ $translates[$indicator->feature_name] }}</a></td>                                                
                                             @else
                                                 <td>{{ $indicator->indicator }}</td>                                                                                                
                                             @endif
-                                            {{-- <td>{{ $indicator->feature_name }}</td> --}}
                                             <td>{{ number_format(round($indicator->average, 1 ), 1, ',', ' ') }}</td>
                                             @if ($type == 'clusters')
                                                 <td>{{ number_format(round($indicator->clusterAverage, 1), 1, ',', ' ') }}</td>
@@ -245,12 +223,12 @@
                             <div class="col-md-6">
                                 <h4><span style="color: rgb(68, 119, 170);font-size: 122.991%;">{{number_format( $top_districts->first()->score, 0, ',', ' ' )}}</span></h4>
                             </div>
-                            <div class="col-md-6">
+                            {{-- <div class="col-md-6">
                                 <h4 style="text-align: center; font-weight:100;float:right">Минимум қиймат:</h4>
                             </div>
                             <div class="col-md-6">
                                 <h4><span style="color: rgb(68, 119, 170);font-size: 122.991%;">{{number_format( $top_districts->last()->score, 0, ',', ' ' )}}</span></h4>
-                            </div>
+                            </div> --}}
                             <div class="col-md-6">
                                 <h4 style="text-align: center; font-weight:100;float:right">Умумий қиймат:</h4>
                             </div>
