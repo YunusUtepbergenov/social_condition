@@ -201,6 +201,7 @@ function changeProtestChart(data, actual, dates, type, label, participants){
 }
 
 function changeIndicatorChart(data, dates){
+    console.log(data);
     chart.data = {
         labels: dates,
         datasets: [{

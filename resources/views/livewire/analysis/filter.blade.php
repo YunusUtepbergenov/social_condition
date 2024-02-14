@@ -1,7 +1,7 @@
 <div>
-    {{-- <div wire:loading wire:target="indicator_clicke0d">
-      <div class="loading">Loading&#8230;</div>
-    </div> --}}
+  <div wire:loading>
+      <div class="loading"></div>
+  </div>
     <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme" style="height:99vh;;width:16.25rem;background:#34444c">
       <div class="app-brand demo">
         <a href="#" class="app-brand-link">

@@ -1,20 +1,39 @@
 <div>
+    @php
+        $months = array(
+            "January" => "январь",
+            "February" => "февраль",
+            "March" => "март",
+            "April" => "апрель",
+            "May" => "май",
+            "June" => "июнь",
+            "July" => "июль",
+            "August" => "август",
+            "September" => "сентябрь",
+            "October" => "октябрь",
+            "November" => "ноябрь",
+            "December" => "декабрь"
+        );
+    @endphp
     <div class="modal fade" id="infomodal" tabindex="-1" aria-labelledby="formModalLabel" aria-hidden="true">
         <div class="modal-dialog">		
            <div class="modal-content">
-              <div class="modal-header box-shadow-1" style="text-shadow: 1px 1px 2px #7DA0B1">
-                  <button type="button" class="close" wire:click="$emit('closeFormModal')" style="background-color: #c9c9c9" aria-label="{{ __('Close') }}">
-                      <span aria-hidden="true"><strong>&times;</strong></span>
-                  </button>
-              </div>
+                <div class="modal-header box-shadow-1">
+                    <h5 class="card-header">@isset($activeIndicator) {{$translates[$activeIndicator]}} ({{findDistrict($activeDistrict)}}) @endisset</h5>
+                    <button type="button" class="close" wire:click="$emit('closeFormModal')" style="background-color: #c9c9c9" aria-label="{{ __('Close') }}">
+                        <span aria-hidden="true"><strong>&times;</strong></span>
+                    </button>
+                </div>
                 <div class="modal-body">
                     <div class="card">
-                        <div class="row">
+                        <div class="row" style="margin-bottom: 20px">
                             <div class="col-sm-12">
-                                <h5 class="card-header timeline">@isset($activeIndicator) {{$translates[$activeIndicator]}} ({{findDistrict($activeDistrict)}}) @endisset</h5>
-                            </div>                        
+                                <div class="chart-meta">
+                                    <p>{{$date}}</p>
+                                </div>      
+                            </div>
                         </div>
-                        <div class="card-body" style="position: relative;padding: 0 1.5rem; height: 25vh;width:100%;">
+                        <div class="card-body" style="position: relative;padding: 0 1.5rem; height: 28vh;width:100%;">
                             <div class="wrapper2">
                                 <canvas id="linechart"></canvas>
                             </div>
@@ -44,21 +63,54 @@
                                             <td>Вилоят бўйича ўртача</td>
                                             <td>{{number_format($vilAvg['score'], 1, ',', ' ' )}}</td>
                                             <td>{{number_format($vilAvgNor['score'], 1, ',', ' ' )}}</td>
-                                        </tr>
+                                        </tr>                                        
                                         <tr>
                                             <td>Ўтган ойдаги қиймат</td>
                                             <td>{{number_format($lastMonth[$activeIndicator], 1, ',', ' ' ) }}</td>
                                             <td>{{number_format($lastMonthNor['score'], 1, ',', ' ' ) }}</td>
                                         </tr>
                                         <tr>
-                                            <td>Ўтган йилги қиймат</td>
+                                            <td>Бир йил олдинги қиймат</td>
                                             <td>{{number_format($lastYear[$activeIndicator], 1, ',', ' ' ) }}</td>
                                             <td>{{number_format($lastYearNor['score'], 1, ',', ' ' ) }}</td>
-                                        </tr>                                        
-                                    </tbody>
-                                </table>                                       
-                            @endisset
+                                        </tr>
 
+                                        @if ($lastMonth[$activeIndicator] != 0)
+                                            <tr>
+                                                <td>Ўтган ойга нисбатан ўсиш</td>
+                                                <td colspan="2">{{number_format( ($curVal[$activeIndicator] - $lastMonth[$activeIndicator]) * 100 / abs($lastMonth[$activeIndicator]), 1, ',', ' ' ) }}%</td>
+                                            </tr>                                            
+                                        @endif
+                                        @if ($lastYear[$activeIndicator])
+                                            <tr>
+                                                <td>Бир йил олдинги қийматга нисбатан ўсиш</td>
+                                                <td colspan="2">{{number_format(($curVal[$activeIndicator] - $lastYear[$activeIndicator]) * 100 / abs($lastYear[$activeIndicator]), 1, ',', ' ' ) }}%</td>
+                                            </tr>                                            
+                                        @endif
+                                        @if ( date('F', strtotime($date)) != "January")
+                                            <tr>
+                                                <td>{{date('Y', strtotime($date))}} йил январь - {{$months[date('F', strtotime($date))]}} </td>
+                                                <td>{{number_format($cumilativeThisYear['feature'], 1, ',', ' ' ) }}</td>
+                                                <td>{{number_format($cumilativeThisYearNor['feature'], 1, ',', ' ' ) }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>{{date('Y', strtotime($lastYearDate))}} йил январь - {{$months[date('F', strtotime($lastYearDate))]}}</td>
+                                                <td>{{number_format($cumilativeLastYear['feature'], 1, ',', ' ' ) }}</td>
+                                                <td>{{number_format($cumilativeLastYearNor['feature'], 1, ',', ' ' ) }}</td>
+                                            </tr>                                            
+                                        @endif
+
+                                        <tr>
+                                            <td>Вилоятдаги улуши</td>
+                                            <td colspan="2">{{number_format( ($curVal[$activeIndicator] / $ovrReg['feature']) * 100 , 1, ',', ' ' ) }}%</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Республикадаги улуши</td>
+                                            <td colspan="2">{{number_format( ($curVal[$activeIndicator] / $ovrRep['feature']) * 100 , 1, ',', ' ' ) }}%</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            @endisset
                         </div>
                     </div>
                 </div>
@@ -134,8 +186,9 @@
                     tooltip: {
                         callbacks: {
                             label: function (context) {
-                                var roundedValue = Number(dataAvg[context.dataIndex]).toFixed(1);
-                                return [context.dataset.label + ': ' + context.formattedValue, ' Ҳар 100 000 аҳолига: ' + roundedValue ];
+                                let number = Number(dataAvg[context.dataIndex]);
+                                let formattedNumber = number.toLocaleString(undefined, {minimumFractionDigits: 1, maximumFractionDigits: 1});
+                                return [context.dataset.label + ': ' + context.formattedValue, ' Ҳар 100 000 аҳолига: ' + formattedNumber ];
                             }
                         }
                     }

@@ -3910,7 +3910,7 @@ textarea.form-control-lg {
 }
 
 .card-header {
-  padding: 1.5rem 1.5rem;
+  padding: 0.5rem 0.5rem;
   margin-bottom: 0;
   background-color: transparent;
   border-bottom: 0 solid #d9dee3;
@@ -4723,7 +4723,12 @@ textarea.form-control-lg {
 .modal-body {
   position: relative;
   flex: 1 1 auto;
-  padding: 1.5rem;
+  padding: 0.5rem;
+}
+
+.modal-header .close {
+  padding: 0.2rem 0.2rem;
+  margin: -3rem -1rem 0rem auto;
 }
 
 .modal-footer {
@@ -15419,10 +15424,10 @@ html:not(.layout-menu-fixed) .menu-inner-shadow {
     margin-left: 0 !important;
   }
 
-  .layout-menu-fixed:not(.layout-menu-collapsed) .layout-page,
+  /* .layout-menu-fixed:not(.layout-menu-collapsed) .layout-page,
 .layout-menu-fixed-offcanvas:not(.layout-menu-collapsed) .layout-page {
     padding-left: 16.25rem;
-  }
+  } */
 }
 html:not(.layout-navbar-fixed):not(.layout-menu-fixed):not(.layout-menu-fixed-offcanvas) .layout-page,
 html:not(.layout-navbar-fixed) .layout-content-navbar .layout-page {

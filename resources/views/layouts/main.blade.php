@@ -40,13 +40,14 @@
   <body>
     <div class="layout-wrapper layout-content-navbar">
       <div class="layout-container">
-        @livewire('analysis.filter')
+      {{-- @livewire('analysis.filter') --}}
       <div class="layout-page">
         @livewire('analysis.navbar')
         <div class="content-wrapper">
               <div class="flex-grow-1 p-4">
-                @livewire('analysis.visualization')
-                @livewire('analysis.timeline')
+                  {{-- @livewire('analysis.visualization') --}}
+                  @livewire('vizual')
+                  @livewire('analysis.timeline')
               </div>
         </div>
       </div>

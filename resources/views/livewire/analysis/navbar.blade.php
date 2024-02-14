@@ -77,10 +77,10 @@
                 <span>{{ Auth::user()->name }}</span>
               </a>
               <div class="dropdown-menu">
-                {{-- <a class="dropdown-item" href="#">Настройки</a> --}}
+                <a class="dropdown-item" href="{{route('task.download')}}">Топшириқ</a>
                 <form action="{{ route('logout') }}" method="POST">
                   @csrf
-                  <button class="dropdown-item">Выйти</button>
+                  <button class="dropdown-item">Чиқиш</button>
                 </form>
               </div>
             </li>

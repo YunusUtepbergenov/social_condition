@@ -15,14 +15,13 @@ class Timeline extends Component
     public function mount(){
         $latestDate = BsScorePrediction::max('date');
 
-        $this->months = BsScorePrediction::
-                        select('date')
-                        ->distinct('date')
-                        ->whereBetween('date', [Carbon::parse($latestDate)->subMonth(18), $latestDate])
-                        ->orderBy('date', 'ASC')
-                        ->get()
-                        ->pluck('date')
-                        ->toArray();
+        $this->months = BsScorePrediction::select('date')
+                                            ->distinct('date')
+                                            ->whereBetween('date', [Carbon::parse($latestDate)->subMonth(23), $latestDate])
+                                            ->orderBy('date', 'ASC')
+                                            ->get()
+                                            ->pluck('date')
+                                            ->toArray();
     }
 
     public function render()
@@ -31,7 +30,8 @@ class Timeline extends Component
     }
 
     public function changeMonths($dates){
-        $this->months = $dates;
-        $this->emit('changeTimeline', $dates);
+        
+        $this->months = array_slice($dates, -24);
+        $this->emit('changeTimeline', $this->months);
     }
 }
