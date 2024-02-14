@@ -192,7 +192,7 @@
                                         <tr>
                                             <td>{{$key + 1 }}</td>
                                             @if ($type != 'clusters')
-                                                <td><a href="#" wire:click="openModal('{{$indicator->feature_name}}')">{{ $translates[$indicator->feature_name] }}</a></td>                                                
+                                                <td><a href="#" wire:click="openModal('{{$indicator->feature_name}}')" wire:loading.class="loadingg">{{ $translates[$indicator->feature_name] }}</a></td>                                                
                                             @else
                                                 <td>{{ $indicator->indicator }}</td>                                                                                                
                                             @endif

@@ -12,6 +12,12 @@
     padding: 0.5rem;
 }
 
+
+.loadingg{
+    pointer-events: none;
+    color: #ccc;
+}
+
 .layout-navbar {
     position: relative;
     padding-top: 0.25rem;
