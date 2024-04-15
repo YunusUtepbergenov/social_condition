@@ -43,31 +43,23 @@
                                                 <div class="progress-bar" role="progressbar" style="transition-duration: 600ms; color: white;width:{{($district->score > 9) ? $district->score: '9' }}%" aria-valuemin="0" aria-valuemax="100">{{ number_format( $district->score, 1, ',', ' ' )}}</div>
                                             @elseif($type == 'indicator')
                                                 @if ($top_districts->first()->score)
-                                                    <div class="progress-bar" role="progressbar" 
-                                                        style="transition-duration: 600ms;background-color:rgb(68, 119, 170);color: white;width:{{(($district->score / $top_districts->first()->score)*100 > 15) ? ($district->score / $top_districts->first()->score)*100 : '15' }}%" 
-                                                        aria-valuemin="0" 
+                                                    <div class="progress-bar" role="progressbar"
+                                                        style="transition-duration: 600ms;background-color:rgb(68, 119, 170);color: white;width:{{(($district->score / $top_districts->first()->score)*100 > 15) ? ($district->score / $top_districts->first()->score)*100 : '15' }}%"
+                                                        aria-valuemin="0"
                                                         aria-valuemax="100">
                                                         {{ number_format( round($district->score, 1), 1, ',', ' ' )}}
-                                                    </div>                                              
-                                                @else
-                                                    <div class="progress-bar" role="progressbar" 
-                                                        style="transition-duration: 600ms;background-color:rgb(68, 119, 170);color: white;width:10%" 
-                                                        aria-valuemin="0" 
-                                                        aria-valuemax="100">
-                                                        {{ number_format( round($district->score, 1), 1, ',', ' ' )}}
-                                                    </div>                                                                                        
-                                                @endif
-                                                @elseif ($type == 'clusters')
-                                                    <div class="progress-bar" 
-                                                        role="progressbar" 
-                                                        style="background-color:{{$color}}; color: white;width:100%" 
-                                                        aria-valuemin="0" 
-                                                        aria-valuemax="100">
-                                                        {{$district->score}}-кластер
                                                     </div>
+                                                @else
+                                                    <div class="progress-bar" role="progressbar"
+                                                        style="transition-duration: 600ms;background-color:rgb(68, 119, 170);color: white;width:10%"
+                                                        aria-valuemin="0"
+                                                        aria-valuemax="100">
+                                                        {{ number_format( round($district->score, 1), 1, ',', ' ' )}}
+                                                    </div>
+                                                @endif
                                             @endif
                                         </div>
-                                    </div>                                    
+                                    </div>
                                 </div>
                             @endforeach
 
@@ -97,25 +89,25 @@
                                         }
                                     @endphp
                                     <div class="row" style="padding: 2px 5px">
-                                        <div class="{{($type == 'clusters') ? 'col-lg-5' : 'col-lg-5'}} user_name">                                                                    
+                                        <div class="{{($type == 'clusters') ? 'col-lg-5' : 'col-lg-5'}} user_name">
                                             <div class="form-check">
-                                                <a href="#" id="{{$district->district_code}}" class="form-check-label district_label" style="font-weight:{{($district->district_code == $active_tum) ? 'bold': ''}};" wire:click="$emit('regionClicked', '{{$district->district_code}}')"> 
+                                                <a href="#" id="{{$district->district_code}}" class="form-check-label district_label" style="font-weight:{{($district->district_code == $active_tum) ? 'bold': ''}};" wire:click="$emit('regionClicked', '{{$district->district_code}}')">
                                                     {{ $key + 1 }}. {{ $district->district->name}} <i class='{{$class}}'>{{abs($district->diff)}}</i>
                                                 </a>
                                             </div>
                                         </div>
                                         <div class="col-lg-7 progress_indicator">
                                             <div class="progress">
-                                                <div class="progress-bar" 
-                                                    role="progressbar" 
-                                                    style="background-color:{{$color}}; color: white;width:100%" 
-                                                    aria-valuemin="0" 
+                                                <div class="progress-bar"
+                                                    role="progressbar"
+                                                    style="background-color:{{$color}}; color: white;width:100%"
+                                                    aria-valuemin="0"
                                                     aria-valuemax="100">
                                                     {{$cluster->name}}
                                                 </div>
                                             </div>
-                                        </div>                                    
-                                    </div>                                
+                                        </div>
+                                    </div>
                                 @endforeach
                             @endforeach
                         @endif
@@ -135,7 +127,7 @@
                         else if ($type == 'protests')
                             $string = "Оммавий норозилик бўлиш эҳтимоли (";
                         else if ($type == 'clusters')
-                            $string = "Ҳудудлар кластери (";
+                            $string = "Ҳудудлар тоифаси (";
                         else
                             $string = $translates[$activeIndicator]. ' (';
                     @endphp
@@ -143,17 +135,17 @@
                         @if (isset($active_tum))
                             <div class="col-sm-12">
                                 <h5 class="card-header timeline">{{$string}} {{findDistrict($active_tum)}} )</h5>
-                            </div>                        
+                            </div>
                         @else
                             <div class="col-sm-12">
                                 <h5 class="card-header timeline">{{ $string }} Республика бўйича )</h5>
                             </div>
-                        @endif                        
+                        @endif
                     @else
                         @if (isset($active_tum))
                             <div class="col-sm-12">
                                 <h5 class="card-header timeline">{{$string}} {{findDistrict($active_tum)}} )</h5>
-                            </div>                        
+                            </div>
                         @else
                             <div class="col-sm-12">
                                 <h5 class="card-header timeline">{{ $string.' '  }} {{findRegion($activeRegion)}} бўйича )</h5>
@@ -161,7 +153,7 @@
                         @endif
                     @endif
                 </div>
-        
+
                 <div class="card-body" style="position: relative;padding: 0 1.5rem; height: 25vh;width:100%;" wire:ignore>
                     <div class="wrapper2">
                         <canvas id="myChart1"></canvas>
@@ -177,13 +169,13 @@
                         <table class="table" id="district_stat">
                             <thead class="thead-light" id="thead">
                                 <tr>
-                                  <th scope="col">#</th>
-                                  <th scope="col">Индикатор @if ($type != 'clusters') <br> (ҳар 100 000 аҳолига) @endif </th>
-                                  <th scope="col">Республикадаги ўртача қиймат <br></th>
-                                  @if ($type == 'clusters')
-                                      <th>Кластердаги ўртача қиймат <br></th>
-                                  @endif
-                                  <th scope="col">Тумандаги қиймат <br></th>
+                                    <th scope="col">#</th>
+                                    <th scope="col">Индикатор @if ($type != 'clusters') <br> (ҳар 100 000 аҳолига) @endif </th>
+                                    <th scope="col">Республикадаги ўртача қиймат <br></th>
+                                    @if ($type == 'clusters')
+                                        <th>Кластердаги ўртача қиймат <br></th>
+                                    @endif
+                                    <th scope="col">Тумандаги қиймат <br></th>
                                  </tr>
                             </thead>
                             <tbody id="indikatorlar">
@@ -192,30 +184,27 @@
                                         <tr>
                                             <td>{{$key + 1 }}</td>
                                             @if ($type != 'clusters')
-                                                <td><a href="#" wire:click="openModal('{{$indicator->feature_name}}')" wire:loading.class="loadingg">{{ $translates[$indicator->feature_name] }}</a></td>                                                
+                                                <td><a href="#" wire:click="openModal('{{$indicator->feature_name}}')" wire:loading.class="loadingg">{{ $translates[$indicator->feature_name] }}</a></td>
                                             @else
-                                                <td>{{ $indicator->indicator }}</td>                                                                                                
+                                                <td><a href="#" wire:click="clusterModal('{{$indicator->indicator}}')" wire:loading.class="loadingg">{{ $translates[$indicator->indicator] }}</a></td>
                                             @endif
                                             <td>{{ number_format(round($indicator->average, 1 ), 1, ',', ' ') }}</td>
                                             @if ($type == 'clusters')
                                                 <td>{{ number_format(round($indicator->clusterAverage, 1), 1, ',', ' ') }}</td>
                                             @endif
-                                            <td>{{ number_format(round($indicator->value, 1), 1, ',', ' ') }}</td>                                
+                                            <td>{{ number_format(round($indicator->value, 1), 1, ',', ' ') }}</td>
                                         </tr>
                                     @endforeach
                                 @endisset
                             </tbody>
                         </table>
-                        @elseif ($type == 'clusters')
-                        
                         @else
                         <h5 class="card-header timeline">
                             @if ($activeRegion == 'republic')
-                                {{ "Республика бўйича ".$translates[$activeIndicator] }} ({{$date}} ойи учун)                            
+                                {{ "Республика бўйича ".$translates[$activeIndicator] }} ({{$date}} ойи учун)
                             @else
-                                {{ findRegion($activeRegion). " бўйича ".$translates[$activeIndicator] }} ({{$date}} ойи учун:)                                                        
+                                {{ findRegion($activeRegion). " бўйича ".$translates[$activeIndicator] }} ({{$date}} ойи учун:)
                             @endif
-                            {{-- {{ ($active_tum) ? $active_tum : "Республика бўйича ".$activeIndicator }} ({{$date}} ойи учун:) --}}
                         </h5>
                         <div class="row" style="padding: 10px">
                             <div class="col-md-6">
@@ -224,12 +213,6 @@
                             <div class="col-md-6">
                                 <h4><span style="color: rgb(68, 119, 170);font-size: 122.991%;">{{number_format( $top_districts->first()->score, 0, ',', ' ' )}}</span></h4>
                             </div>
-                            {{-- <div class="col-md-6">
-                                <h4 style="text-align: center; font-weight:100;float:right">Минимум қиймат:</h4>
-                            </div>
-                            <div class="col-md-6">
-                                <h4><span style="color: rgb(68, 119, 170);font-size: 122.991%;">{{number_format( $top_districts->last()->score, 0, ',', ' ' )}}</span></h4>
-                            </div> --}}
                             <div class="col-md-6">
                                 <h4 style="text-align: center; font-weight:100;float:right">Умумий қиймат:</h4>
                             </div>
@@ -244,7 +227,7 @@
                             </div>
                         </div>
                         @endif
-                    </div>                        
+                    </div>
                 </div>
             </div>
         </div>
@@ -257,7 +240,6 @@
                 center: [41.311, 63.2505],
                 zoom: 6,
                 zoomControl: false,
-                // dragging: false,
                 minZoom: 6,
                 maxZoom: 10,
                 attributionControl:false
@@ -451,6 +433,6 @@
             Livewire.on('updateClusterChart', (dates, percentages, type) => {
                 changeClusterChart(dates, percentages, type);
             });
-        </script>    
+        </script>
     @endprepend
 </div>

@@ -16,7 +16,7 @@
         );
     @endphp
     <div class="modal fade" id="infomodal" tabindex="-1" aria-labelledby="formModalLabel" aria-hidden="true">
-        <div class="modal-dialog">		
+        <div class="modal-dialog">
            <div class="modal-content">
                 <div class="modal-header box-shadow-1">
                     <h5 class="card-header">@isset($activeIndicator) {{$translates[$activeIndicator]}} ({{findDistrict($activeDistrict)}}) @endisset</h5>
@@ -30,7 +30,7 @@
                             <div class="col-sm-12">
                                 <div class="chart-meta">
                                     <p>{{$date}}</p>
-                                </div>      
+                                </div>
                             </div>
                         </div>
                         <div class="card-body" style="position: relative;padding: 0 1.5rem; height: 28vh;width:100%;">
@@ -51,9 +51,9 @@
                                     <tbody>
                                         <tr>
                                             <td>Тумандаги қиймат</td>
-                                            <td>{{ number_format( $curVal[$activeIndicator], 1, ',', ' ' ) }}</td>
+                                            <td>{{ number_format( $curVal, 1, ',', ' ' ) }}</td>
                                             <td>{{number_format($curValNor['score'], 1, ',', ' ' )}}</td>
-                                        </tr>    
+                                        </tr>
                                         <tr>
                                             <td>Республика бўйича ўртача</td>
                                             <td>{{number_format($repAvg['score'], 1, ',', ' ' )}}</td>
@@ -63,29 +63,29 @@
                                             <td>Вилоят бўйича ўртача</td>
                                             <td>{{number_format($vilAvg['score'], 1, ',', ' ' )}}</td>
                                             <td>{{number_format($vilAvgNor['score'], 1, ',', ' ' )}}</td>
-                                        </tr>                                        
+                                        </tr>
                                         <tr>
                                             <td>Ўтган ойдаги қиймат</td>
-                                            <td>{{number_format($lastMonth[$activeIndicator], 1, ',', ' ' ) }}</td>
+                                            <td>{{number_format($lastMonth, 1, ',', ' ' ) }}</td>
                                             <td>{{number_format($lastMonthNor['score'], 1, ',', ' ' ) }}</td>
                                         </tr>
                                         <tr>
                                             <td>Бир йил олдинги қиймат</td>
-                                            <td>{{number_format($lastYear[$activeIndicator], 1, ',', ' ' ) }}</td>
+                                            <td>{{number_format($lastYear, 1, ',', ' ' ) }}</td>
                                             <td>{{number_format($lastYearNor['score'], 1, ',', ' ' ) }}</td>
                                         </tr>
 
-                                        @if ($lastMonth[$activeIndicator] != 0)
+                                        @if ($lastMonth != 0)
                                             <tr>
                                                 <td>Ўтган ойга нисбатан ўсиш</td>
-                                                <td colspan="2">{{number_format( ($curVal[$activeIndicator] - $lastMonth[$activeIndicator]) * 100 / abs($lastMonth[$activeIndicator]), 1, ',', ' ' ) }}%</td>
-                                            </tr>                                            
+                                                <td colspan="2">{{number_format( ($curVal - $lastMonth) * 100 / abs($lastMonth), 1, ',', ' ' ) }}%</td>
+                                            </tr>
                                         @endif
-                                        @if ($lastYear[$activeIndicator])
+                                        @if ($lastYear)
                                             <tr>
                                                 <td>Бир йил олдинги қийматга нисбатан ўсиш</td>
-                                                <td colspan="2">{{number_format(($curVal[$activeIndicator] - $lastYear[$activeIndicator]) * 100 / abs($lastYear[$activeIndicator]), 1, ',', ' ' ) }}%</td>
-                                            </tr>                                            
+                                                <td colspan="2">{{number_format(($curVal - $lastYear) * 100 / abs($lastYear), 1, ',', ' ' ) }}%</td>
+                                            </tr>
                                         @endif
                                         @if ( date('F', strtotime($date)) != "January")
                                             <tr>
@@ -97,16 +97,16 @@
                                                 <td>{{date('Y', strtotime($lastYearDate))}} йил январь - {{$months[date('F', strtotime($lastYearDate))]}}</td>
                                                 <td>{{number_format($cumilativeLastYear['feature'], 1, ',', ' ' ) }}</td>
                                                 <td>{{number_format($cumilativeLastYearNor['feature'], 1, ',', ' ' ) }}</td>
-                                            </tr>                                            
+                                            </tr>
                                         @endif
 
                                         <tr>
                                             <td>Вилоятдаги улуши</td>
-                                            <td colspan="2">{{number_format( ($curVal[$activeIndicator] / $ovrReg['feature']) * 100 , 1, ',', ' ' ) }}%</td>
+                                            <td colspan="2">{{number_format( ($curVal / $ovrReg['feature']) * 100 , 1, ',', ' ' ) }}%</td>
                                         </tr>
                                         <tr>
                                             <td>Республикадаги улуши</td>
-                                            <td colspan="2">{{number_format( ($curVal[$activeIndicator] / $ovrRep['feature']) * 100 , 1, ',', ' ' ) }}%</td>
+                                            <td colspan="2">{{number_format( ($curVal / $ovrRep['feature']) * 100 , 1, ',', ' ' ) }}%</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -132,8 +132,8 @@
 @prepend('scripts')
     <script>
         var ctx3 = document.getElementById('linechart');
-        var chart12 = new Chart(ctx3, { 
-            type: 'line', 
+        var chart12 = new Chart(ctx3, {
+            type: 'line',
             data: {},
             options: {
                 plugins: {
@@ -153,7 +153,7 @@
                         },
                     },
                 }
-            },       
+            },
         });
 
         window.addEventListener('openFormModal', event => {
@@ -205,9 +205,9 @@
                         },
                     },
                 }
-            }
+            };
 
             chart12.update('none');
         });
-    </script>    
+    </script>
 @endprepend

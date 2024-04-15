@@ -29,7 +29,7 @@ class InfoModal extends Component
         return $date->format('Y-m-d');
     }
 
-    public function showInfoModal($feature, $district, $data, $dataAvg ,$date, $dates, $population, $tum_pop){
+    public function showInfoModal($feature, $district, $data, $dataAvg , $date, $dates, $population, $tum_pop){
         $multiplier = 100000;
 
         $this->activeDistrict = $district;
@@ -39,105 +39,95 @@ class InfoModal extends Component
         $this->date = $date;
         $lastMonth = date("Y-m-d", strtotime($date . "-1 month"));
         $lastYear = date("Y-m-d", strtotime($date . "-12 month"));
+        $nextMonth = date("Y-m-d", strtotime($date . "+1 month"));
+
         $this->lastYearDate = $lastYear;
 
         $startYear = $this->getFirstDateOfYearUsingDateTime($date);
         $startOfLastYear = $this->getFirstDateOfYearUsingDateTime($lastYear);
 
-        $vil_pop = intval(Merged::select(DB::raw('SUM(demography_population) as population'))->where('date', $date)->where('district_code', 'LIKE', substr($district, 0, 4).'%')->groupBy('date')->first()->population);
+        $vil_pop = intval(Merged::select(DB::raw('SUM(demography_population) as population'))->where('date', $nextMonth)->where('district_code', 'LIKE', substr($district, 0, 4).'%')->groupBy('date')->first()->population);
 
-        $this->curVal = Merged::select($feature)
-                                ->where([
-                                    ['date', '=', $date],
-                                    ['district_code', '=', $district],   
-                                ])->first();
+        $this->curVal = end($data);
 
-        $this->repAvg = Merged::select(DB::raw('AVG('. $feature .') as score'))
+
+        $this->repAvg = MergedOrg::select(DB::raw('AVG('. $feature .') as score'))
                                 ->where('date', '=', $date)
                                 ->groupBY('date')
                                 ->first();
 
-        $this->vilAvg = Merged::select(DB::raw('AVG('. $feature .') as score'))
+        $this->vilAvg = MergedOrg::select(DB::raw('AVG('. $feature .') as score'))
                                 ->where([
                                     ['date', '=', $date],
-                                    ['district_code', 'LIKE', substr($district, 0, 4).'%'],   
+                                    ['district_code', 'LIKE', substr($district, 0, 4).'%'],
                                 ])->groupBY('date')->first();
 
-        $this->lastMonth = Merged::select($feature)
-                                    ->where([
-                                        ['date', '=', $lastMonth],
-                                        ['district_code', '=', $district],   
-                                    ])->first();
-        
-        $this->lastYear = Merged::select($feature)
-                                ->where([
-                                    ['date', '=', $lastYear],
-                                    ['district_code', '=', $district],   
-                                ])->first();
+        $this->lastMonth = $data[$lastMonth];
+        $this->lastYear = $data[$lastYear];
 
-        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        $this->curValNor = Merged::select( DB::raw($feature .' / '. $tum_pop. '*'. $multiplier .' as score'))
+        $this->curValNor = MergedOrg::select( DB::raw($feature .' / '. $tum_pop. '*'. $multiplier .' as score'))
                                 ->where([
                                     ['date', '=', $date],
-                                    ['district_code', '=', $district],   
+                                    ['district_code', '=', $district],
                                 ])->first();
 
-        $this->repAvgNor = Merged::select(DB::raw('SUM('. $feature .')'. ' / '. $population. '*'. $multiplier .' as score'))
+        $this->repAvgNor = MergedOrg::select(DB::raw('SUM('. $feature .')'. ' / '. $population. '*'. $multiplier .' as score'))
                                 ->where('date', '=', $date)
                                 ->groupBY('date')
                                 ->first();
 
-        $this->vilAvgNor = Merged::select(DB::raw('SUM('. $feature .')'. ' / '. $vil_pop. '*'. $multiplier .' as score'))
+        $this->vilAvgNor = MergedOrg::select(DB::raw('SUM('. $feature .')'. ' / '. $vil_pop. '*'. $multiplier .' as score'))
                                 ->where([
                                     ['date', '=', $date],
-                                    ['district_code', 'LIKE', substr($district, 0, 4).'%'],   
+                                    ['district_code', 'LIKE', substr($district, 0, 4).'%'],
                                 ])->groupBY('date')->first();
 
-        $this->lastMonthNor = Merged::select(DB::raw($feature .' / '. $tum_pop. '*'. $multiplier .' as score'))
+        $this->lastMonthNor = MergedOrg::select(DB::raw($feature .' / '. $tum_pop. '*'. $multiplier .' as score'))
                                     ->where([
                                         ['date', '=', $lastMonth],
-                                        ['district_code', '=', $district],   
+                                        ['district_code', '=', $district],
                                     ])->first();
 
-        $this->lastYearNor = Merged::select(DB::raw($feature .' / '. $tum_pop. '*'. $multiplier .' as score'))
+        $this->lastYearNor = MergedOrg::select(DB::raw($feature .' / '. $tum_pop. '*'. $multiplier .' as score'))
                                 ->where([
                                     ['date', '=', $lastYear],
-                                    ['district_code', '=', $district],   
+                                    ['district_code', '=', $district],
                                 ])->first();
 
-        ///////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        $this->cumilativeLastYear = Merged::select(DB::raw('SUM('. $feature .') as feature'))
+        $this->cumilativeLastYear = MergedOrg::select(DB::raw('SUM('. $feature .') as feature'))
                                     ->where('district_code', $district)
                                     ->whereBetween('date', [$startOfLastYear, $lastYear])
                                     ->first();
 
-        $this->cumilativeLastYearNor = Merged::select(DB::raw('SUM('. $feature .')' .' / '. $tum_pop. '*'. $multiplier. 'as feature'))
+        $this->cumilativeLastYearNor = MergedOrg::select(DB::raw('SUM('. $feature .')' .' / '. $tum_pop. '*'. $multiplier. 'as feature'))
                                     ->where('district_code', $district)
                                     ->whereBetween('date', [$startOfLastYear, $lastYear])
                                     ->first();
 
-
-        $this->cumilativeThisYear = Merged::select(DB::raw('SUM('. $feature .') as feature'))
+        $this->cumilativeThisYear = MergedOrg::select(DB::raw('SUM('. $feature .') as feature'))
                                     ->where('district_code', $district)
                                     ->whereBetween('date', [$startYear, $date])
                                     ->first();
-        $this->cumilativeThisYearNor = Merged::select(DB::raw('SUM('. $feature .')' .' / '. $tum_pop. '*'. $multiplier .'as feature'))
+        $this->cumilativeThisYearNor = MergedOrg::select(DB::raw('SUM('. $feature .')' .' / '. $tum_pop. '*'. $multiplier .'as feature'))
                                     ->where('district_code', $district)
                                     ->whereBetween('date', [$startYear, $date])
                                     ->first();
 
-        $this->ovrReg = Merged::select(DB::raw('SUM('. $feature .') as feature'))
+        $this->ovrReg = MergedOrg::select(DB::raw('SUM('. $feature .') as feature'))
                                     ->where('district_code', 'Like', $regionCode.'%')
                                     ->where('date', $date)
                                     ->first();
 
-        $this->ovrRep = Merged::select(DB::raw('SUM('. $feature .') as feature'))
+        $this->ovrRep = MergedOrg::select(DB::raw('SUM('. $feature .') as feature'))
                                     ->where('date', $date)
                                     ->first();
 
         $this->dispatchBrowserEvent('openFormModal');
+        $last_date = array_pop($dates);
         $this->emit('buildCharts', $data, $dataAvg, $dates);
     }
 }

@@ -29,13 +29,22 @@ class IndicatorType extends DataType {
                             ->get();
     }
 
-    public function getRepublicData(){
-        return MergedOrg::select('date',  DB::raw('SUM('.$this->activeIndicator.') as sum'))
-                        ->groupBy('date')
-                        ->orderBy('date')
-                        ->get()
-                        ->pluck('sum')
-                        ->toArray();
+    public function getRepublicData($bool){
+        if($bool){
+            return MergedOrg::select('date',  DB::raw('AVG('.$this->activeIndicator.') as sum'))
+                            ->groupBy('date')
+                            ->orderBy('date')
+                            ->get()
+                            ->pluck('sum')
+                            ->toArray();
+        }else{
+            return MergedOrg::select('date',  DB::raw('SUM('.$this->activeIndicator.') as sum'))
+                            ->groupBy('date')
+                            ->orderBy('date')
+                            ->get()
+                            ->pluck('sum')
+                            ->toArray();
+        }
     }
 
     public function getRegionData($region, $date){

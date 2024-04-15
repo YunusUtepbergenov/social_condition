@@ -11,9 +11,9 @@ function style(feature, max) {
         if(label == 1){
             num = scale(score_val, date_data['neg_range'][0], date_data['neg_range'][1], 1, 0.5);
         }else if (label == 2){
-            num = scale(score_val, date_data['neu_range'][0], date_data['neu_range'][1], 0.5, 1); 
+            num = scale(score_val, date_data['neu_range'][0], date_data['neu_range'][1], 0.5, 1);
         }else if(label == 3){
-            num = scale(score_val, date_data['pos_range'][0], date_data['pos_range'][1], 0.7, 1); 
+            num = scale(score_val, date_data['pos_range'][0], date_data['pos_range'][1], 0.7, 1);
         }
         // num = scale(label, feature.label_neg_min, feature.label_neg_max, 0.1, 1);
     }
@@ -39,9 +39,9 @@ function style1(feature, max, ranges) {
         if(label == 1){
             num = scale(score_val, range['neg_range_from'], range['neg_range_to'], 1, 0.5);
         }else if (label == 2){
-            num = scale(score_val, range['neu_range_from'], range['neu_range_to'], 0.5, 1); 
+            num = scale(score_val, range['neu_range_from'], range['neu_range_to'], 0.5, 1);
         }else if(label == 3){
-            num = scale(score_val, range['pos_range_from'], range['pos_range_to'], 0.7, 1); 
+            num = scale(score_val, range['pos_range_from'], range['pos_range_to'], 0.7, 1);
         }
     }
     return {
@@ -62,11 +62,11 @@ function getColor(d, labell) {
             return 'rgb(255, 0, 0,' + d + ' )'
         }
         else if (labell == 2) {
-            return 'rgb(115, 115, 115,' + d + ' )'             
+            return 'rgb(115, 115, 115,' + d + ' )'
         }
         else if (labell == 3){
-            return 'rgb(4, 117, 53,' + d + ' )'        
-        } 
+            return 'rgb(4, 117, 53,' + d + ' )'
+        }
     }
 }
 
@@ -201,7 +201,6 @@ function changeProtestChart(data, actual, dates, type, label, participants){
 }
 
 function changeIndicatorChart(data, dates){
-    console.log(data);
     chart.data = {
         labels: dates,
         datasets: [{
@@ -239,9 +238,10 @@ function changeClusterChart2(data, dates){
         datasets: [{
             label: 'Кўрсаткич қиймати',
             data: data,
-            borderWidth: 2,
+            borderWidth: 3,
+            lineTension: 0.1,
             borderColor: 'rgb(68, 119, 170)',
-            backgroundColor: '#bbdefb',
+            backgroundColor: '#fff',
             yAxisID: 'y',
         }],
     }
@@ -253,10 +253,10 @@ function changeClusterChart2(data, dates){
         },
         scales: {
             y: {
-                beginAtZero: true,
                 position: 'left',
                 min: 0,
                 max: 6,
+                reverse:true,
                 ticks: {
                     stepSize: 1, // Show ticks for every 1 unit
                 }
@@ -273,7 +273,7 @@ function changeClusterChart(dates, percentages, type){
         labels: years,
         datasets: [
             {
-                label: '1-кластердаги туманлар',
+                label: '1-тоифадаги туманлар',
                 data: filterCluster(percentages, 1),
                 borderWidth: 2,
                 fill: 'origin',
@@ -282,7 +282,7 @@ function changeClusterChart(dates, percentages, type){
                 yAxisID: 'y',
             },
             {
-                label: '2-кластердаги туманлар',
+                label: '2-тоифадаги туманлар',
                 data: filterCluster(percentages, 2),
                 borderWidth: 2,
                 fill: 'origin',
@@ -291,7 +291,7 @@ function changeClusterChart(dates, percentages, type){
                 yAxisID: 'y',
             },
             {
-                label: '3-кластердаги туманлар',
+                label: '3-тоифадаги туманлар',
                 data: filterCluster(percentages, 3),
                 borderWidth: 2,
                 fill: 'origin',
@@ -300,7 +300,7 @@ function changeClusterChart(dates, percentages, type){
                 yAxisID: 'y',
             },
             {
-                label: '4-кластердаги туманлар',
+                label: '4-тоифадаги туманлар',
                 data: filterCluster(percentages, 4),
                 borderWidth: 2,
                 fill: 'origin',
@@ -309,7 +309,7 @@ function changeClusterChart(dates, percentages, type){
                 yAxisID: 'y',
             },
             {
-                label: '5-кластердаги туманлар',
+                label: '5-тоифадаги туманлар',
                 data: filterCluster(percentages, 5),
                 borderWidth: 2,
                 fill: 'origin',
@@ -323,8 +323,8 @@ function changeClusterChart(dates, percentages, type){
         responsive: true,
         maintainAspectRatio: false,
         aspectRatio: 1,
-        interaction: { 
-            intersect: false, 
+        interaction: {
+            intersect: false,
         },
         scales: {
             y: {
@@ -390,7 +390,7 @@ function styleIndicator(feature, max){
         label = null;
     }else{
         score_val = feature.factors.score;
-        num = scale(score_val, max, 0, 1 , 0.2);
+        num = scale(score_val, max, 0, 1, 0.2);
     }
 
     return {
@@ -403,6 +403,7 @@ function styleIndicator(feature, max){
     };
 }
 function styleCluster(feature){
+    console.log(feature);
     if(feature.factors == undefined){
         label = -1;
     }else{
@@ -431,7 +432,7 @@ function getClusterColor(d) {
         return '#bababa';
     }
     else if (d == 1){
-        return 'rgb(115, 182, 107,' + d + ' )' 
+        return 'rgb(115, 182, 107,' + d + ' )'
     }
     else if (d == 2){
         return 'rgb(41, 162, 198,' + d + ' )'

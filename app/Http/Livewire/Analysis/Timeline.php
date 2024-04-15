@@ -30,7 +30,6 @@ class Timeline extends Component
     }
 
     public function changeMonths($dates){
-        
         $this->months = array_slice($dates, -24);
         $this->emit('changeTimeline', $this->months);
     }

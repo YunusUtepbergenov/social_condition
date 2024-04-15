@@ -31,7 +31,7 @@
                 <div class="form-check form-check-inline">
                   <input class="form-check-input" type="radio" wire:model="radio" wire:click="radioChanged('clusters')" id="gridRadios4" value="clusters">
                   <label class="form-check-label filter-texts" for="gridRadios4">
-                      Ҳудудлар кластери
+                      Ҳудудлар тоифалари
                   </label>
                 </div>
                 <div class="form-check form-check-inline">
@@ -77,7 +77,7 @@
                 <span>{{ Auth::user()->name }}</span>
               </a>
               <div class="dropdown-menu">
-                <a class="dropdown-item" href="{{route('task.download')}}">Топшириқ</a>
+                {{-- <a class="dropdown-item" href="{{route('task.download')}}">Топшириқ</a> --}}
                 <form action="{{ route('logout') }}" method="POST">
                   @csrf
                   <button class="dropdown-item">Чиқиш</button>

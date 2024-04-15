@@ -40,12 +40,11 @@
   <body>
     <div class="layout-wrapper layout-content-navbar">
       <div class="layout-container">
-      {{-- @livewire('analysis.filter') --}}
-      <div class="layout-page">
+          @livewire('analysis.filter')
+      <div class="layout-page" style="padding-left: 16.25rem">
         @livewire('analysis.navbar')
         <div class="content-wrapper">
               <div class="flex-grow-1 p-4">
-                  {{-- @livewire('analysis.visualization') --}}
                   @livewire('vizual')
                   @livewire('analysis.timeline')
               </div>
@@ -53,6 +52,7 @@
       </div>
       </div>
       @livewire('info-modal')
+      @livewire('cluster-modal')
     </div>
     <script src="{{asset('assets/vendor/libs/jquery/jquery.js')}}"></script>
     <script src="{{asset('assets/vendor/libs/popper/popper.js')}}"></script>

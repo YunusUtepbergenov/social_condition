@@ -24,15 +24,15 @@ class ProtestType extends DataType{
     }
 
     public function getIndicators($tuman, $date, $population, $tum_pop, $avg_indicators){
-        $indicators = MiProtest::select('feature_name')->where('district_code', $tuman)->whereDate('date', $date)->get();
+        $indicators = MiProtest::select('feature_name')->where('district_code', $tuman)->whereDate('date', $date)->orderBy('mutual_info', 'DESC')->get();
 
         return $indicators->map(function($indicator) use ($tuman, $date, $population, $tum_pop, $avg_indicators){
             if(in_array($indicator->feature_name, $avg_indicators)){
                 $indicator->average = (Merged::select(DB::raw('AVG('. $indicator->feature_name. ') as sum'))->whereDate('date', $date)->groupBy('date')->first()->avg);
-                $indicator->value = Merged::select($indicator->feature_name. ' as indicator')->whereDate('date', $date)->where('district_code', $tuman)->first()->indicator;    
+                $indicator->value = Merged::select($indicator->feature_name. ' as indicator')->whereDate('date', $date)->where('district_code', $tuman)->first()->indicator;
             }else{
                 $indicator->average = (Merged::select(DB::raw('SUM('. $indicator->feature_name. ') as sum'))->whereDate('date', $date)->groupBy('date')->first()->sum / $population) *100000;
-                $indicator->value = (Merged::select($indicator->feature_name. ' as indicator')->whereDate('date', $date)->where('district_code', $tuman)->first()->indicator / $tum_pop) * 100000;    
+                $indicator->value = (Merged::select($indicator->feature_name. ' as indicator')->whereDate('date', $date)->where('district_code', $tuman)->first()->indicator / $tum_pop) * 100000;
             }
             return $indicator;
         });

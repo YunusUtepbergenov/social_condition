@@ -21,7 +21,7 @@
                     var opt = $(this).data().uiSlider.options;
                     var vals = opt.max - opt.min;
                     var arrayLength = dates.length;
-                    
+
                     for (var i = 0; i < arrayLength; i++) {
                         var el = $('<label>' + (dates[i].substring(2, 7)) + '</label>').css('left', (i / vals * 100) + '%');
                         $("#slider").append(el);
@@ -29,9 +29,9 @@
                 });
             });
 
-
             Livewire.on('changeTimeline', (dates) => {
                 $("#slider").slider("destroy");
+                console.log(dates);
                 $("#slider").slider({
                     max: dates.length - 1,
                     value: 100,
@@ -43,13 +43,17 @@
                     var opt = $(this).data().uiSlider.options;
                     var vals = opt.max - opt.min;
                     var arrayLength = dates.length;
-                    
+
                     for (var i = 0; i < arrayLength; i++) {
-                        var el = $('<label>' + (dates[i].substring(2, 7)) + '</label>').css('left', (i / vals * 100) + '%');
+                        if(jQuery.type(dates[i]) == "number"){
+                            var el = $('<label>' + (dates[i]) + '</label>').css('left', (i / vals * 100) + '%');
+                        }else{
+                            var el = $('<label>' + (dates[i].substring(2, 7)) + '</label>').css('left', (i / vals * 100) + '%');
+                        }
                         $("#slider").append(el);
                     }
                 });
             });
-        </script>    
+        </script>
     @endprepend
 </div>

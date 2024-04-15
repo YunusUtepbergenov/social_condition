@@ -12,4 +12,8 @@ class Cluster extends Model
     public function clusters(){
         return $this->hasMany(DistrictCluster::class, 'cluster_id', 'id');
     }
+
+    public function ntl(){
+        return $this->hasMany(NtlData::class, 'cluster_ascending', 'id');
+    }
 }

@@ -20,12 +20,18 @@
               <div data-i18n="Analytics">Бош саҳифа</div>
             </a>
           </li> --}}
-          <li class="menu-item active">
-            <a href="#" class="menu-link">
+          <li class="menu-item {{ Request::path() == '/' ? 'active' : '' }}">
+            <a href="/" class="menu-link">
               <i class="menu-icon tf-icons bx bxs-coin-stack"></i>
-              <div data-i18n="Analytics">Аҳоли кайфияти</div>
+              <div data-i18n="Analytics">Туманлар кесимида таҳлиллар</div>
             </a>
-          </li>          
+          </li>
+          <li class="menu-item {{ Request::path() == 'sentiment' ? 'active' : '' }}">
+            <a href="{{ route('sentiment') }}" class="menu-link">
+              <i class="menu-icon tf-icons bx bxs-coin-stack"></i>
+              <div data-i18n="Analytics">Аҳоли кайфияти индекси</div>
+            </a>
+          </li>
           {{-- <li class="menu-item">
             <a href="#" class="menu-link">
               <i class='menu-icon tf-icons bx bxs-cog'></i>

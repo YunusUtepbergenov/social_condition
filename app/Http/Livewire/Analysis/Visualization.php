@@ -27,10 +27,10 @@ class Visualization extends Component
     public $sum;
 
     protected $listeners = ['radioType', 'regionClicked', 'dateChanged', 'indicatorChanged', 'regionChanged'];
-    
+
     public $ranges, $clusters;
     public $avg_indicators = [
-                'weather_temperature', 'weather_precipitation', 'weather_pollution', 
+                'weather_temperature', 'weather_precipitation', 'weather_pollution',
                 'weather_wind', 'weather_pressure', 'weather_humidity',
                 'electr_population_price', 'electr_pop_nogas_price', 'electr_other_price',
                 'electr_budget_price', 'electr_public_utilities_price', 'electr_industry_price',
@@ -45,7 +45,7 @@ class Visualization extends Component
         $this->ranges = Range::where('date', $this->date)->get();
         $this->monthlyAvg = BsScorePrediction::with('district')->select('date', DB::raw('AVG(score) as average'))->groupBy('date')->orderBy('date')->get()->pluck('average')->toArray();
         $this->actualAvg = BsScore::with('district')->select('date', DB::raw('AVG(bs_score_cur) as average'))->whereIn('date', $this->dates)->groupBy('date')->orderBy('date')->get()->pluck('average')->toArray();
-        
+
         $this->top_districts = $this->getTopDistricts();
         $this->makeGeoJson();
     }
@@ -57,7 +57,7 @@ class Visualization extends Component
     public function openModal($feature){
         $tum_pop = intval(Merged::select('demography_population as population')->where('date', $this->date)->where('district_code', $this->active_tum)->first()->population);
         $population = intval(Merged::select(DB::raw('SUM(demography_population) as population'))->where('date', $this->date)->groupBy('date')->first()->population);
-        
+
         $data = Merged::select(DB::raw($feature .' as score'), 'date')->where('district_code', $this->active_tum)->whereIn('date', $this->dates)->orderBy('date')->get()->pluck('score', 'date')->toArray();
         $dataAvg = Merged::select(DB::raw($feature .' / '. $tum_pop. '*'. 100000 .' as score'), 'date')->where('district_code', $this->active_tum)->whereIn('date', $this->dates)->orderBy('date')->get()->pluck('score')->toArray();
 
@@ -70,7 +70,7 @@ class Visualization extends Component
         $this->activeRegion = $region;
         $this->active_tum = null;
         $this->indicators = null;
-        $this->top_districts = $this->getTopDistricts();
+        $this->top_districts = $this->getTopDistricts();    
 
         if($this->type == 'mood'){
             if($region == 'republic'){
@@ -105,7 +105,7 @@ class Visualization extends Component
                                         ->groupBy('date')->orderBy('date')
                                         ->get()->pluck('sum')
                                         ->toArray();
-                
+
                 $this->makeGeoJson();
                 $this->emit('updateChart', $this->dates, $indicatorSum, [], [], $this->type);
                 $this->emit('updateMap', $this->type, $this->json, $this->top_districts, $this->ranges);
@@ -121,7 +121,7 @@ class Visualization extends Component
                                                 ->get()
                                                 ->pluck('average')
                                                 ->toArray();
-                
+
                 $this->actualAvg = Protest::select('date', DB::raw('SUM(count) as average'))
                                                 ->where('date', '<=', $this->date)
                                                 ->where('district_code', 'LIKE', $region.'%')
@@ -130,7 +130,7 @@ class Visualization extends Component
                                                 ->get()
                                                 ->pluck('average')
                                                 ->toArray();
-                
+
                 $participants = Protest::select('date', DB::raw('SUM(participants) as score'))
                                                 ->whereIn('date', $this->dates)
                                                 ->where('district_code', 'LIKE', $region.'%')
@@ -140,8 +140,8 @@ class Visualization extends Component
                                                 ->pluck('score')
                                                 ->toArray();
                 $this->makeGeoJson();
-                $this->emit('updateChart', $this->dates, $monthlyAvg1, $this->actualAvg, $participants, $this->type);    
-                $this->emit('updateMap', $this->type, $this->json, $this->top_districts, $this->ranges);           
+                $this->emit('updateChart', $this->dates, $monthlyAvg1, $this->actualAvg, $participants, $this->type);
+                $this->emit('updateMap', $this->type, $this->json, $this->top_districts, $this->ranges);
             }
         }else if ($this->type == 'clusters'){
             if($region == 'republic'){
@@ -176,7 +176,7 @@ class Visualization extends Component
                 $this->top_districts = MergedOrg::with('district')->select(['district_code', 'district_name', DB::raw($indicator . ' as score')])->where('date', $this->date)->orderByRaw('score DESC nulls last')->get();
                 $this->makeGeoJson();
                 $this->emit('updateChart', $this->dates, $indicatorSum, [], [], $this->type);
-                $this->emit('updateMap', $this->type, $this->json, $this->top_districts, $this->ranges);                
+                $this->emit('updateMap', $this->type, $this->json, $this->top_districts, $this->ranges);
             }
         }
     }
@@ -211,10 +211,10 @@ class Visualization extends Component
             $this->indicators->map(function($indicator) use ($population, $tum_pop){
                 if(in_array($indicator->feature_name, $this->avg_indicators)){
                     $indicator->average = (Merged::select(DB::raw('AVG('. $indicator->feature_name. ') as avg'))->whereDate('date', $this->date)->groupBy('date')->first()->avg);
-                    $indicator->value = Merged::select($indicator->feature_name. ' as indicator')->whereDate('date', $this->date)->where('district_code', $this->active_tum)->first()->indicator;    
+                    $indicator->value = Merged::select($indicator->feature_name. ' as indicator')->whereDate('date', $this->date)->where('district_code', $this->active_tum)->first()->indicator;
                 }else{
                     $indicator->average = (Merged::select(DB::raw('SUM('. $indicator->feature_name. ') as sum'))->where('date', $this->date)->groupBy('date')->first()->sum / $population) * 100000;
-                    $indicator->value = (Merged::select($indicator->feature_name. ' as indicator')->where('date', $this->date)->where('district_code', $this->active_tum)->first()->indicator / $tum_pop) * 100000;    
+                    $indicator->value = (Merged::select($indicator->feature_name. ' as indicator')->where('date', $this->date)->where('district_code', $this->active_tum)->first()->indicator / $tum_pop) * 100000;
                 }
                 return $indicator;
             });
@@ -226,17 +226,17 @@ class Visualization extends Component
             $this->indicators->map(function($indicator) use ($population, $tum_pop){
                 if(in_array($indicator->feature_name, $this->avg_indicators)){
                     $indicator->average = (Merged::select(DB::raw('AVG('. $indicator->feature_name. ') as sum'))->whereDate('date', $this->date)->groupBy('date')->first()->avg);
-                    $indicator->value = Merged::select($indicator->feature_name. ' as indicator')->whereDate('date', $this->date)->where('district_code', $this->active_tum)->first()->indicator;    
+                    $indicator->value = Merged::select($indicator->feature_name. ' as indicator')->whereDate('date', $this->date)->where('district_code', $this->active_tum)->first()->indicator;
                 }else{
                     $indicator->average = (Merged::select(DB::raw('SUM('. $indicator->feature_name. ') as sum'))->whereDate('date', $this->date)->groupBy('date')->first()->sum / $population) *100000;
-                    $indicator->value = (Merged::select($indicator->feature_name. ' as indicator')->whereDate('date', $this->date)->where('district_code', $this->active_tum)->first()->indicator / $tum_pop) * 100000;    
+                    $indicator->value = (Merged::select($indicator->feature_name. ' as indicator')->whereDate('date', $this->date)->where('district_code', $this->active_tum)->first()->indicator / $tum_pop) * 100000;
                 }
                 return $indicator;
             });
         }
         else if($this->type == 'clusters'){
             $this->calcClusters();
-            
+
             $this->indicators = ClusterDistance::where('district_code', $tuman)->where('date', $this->date)->orderBy('distance', 'ASC')->get();
         }
         $this->emit('changeTable', $tuman, $tum_avg, $actual_avg, $participants, $this->dates, $this->date, $this->type);
@@ -268,15 +268,15 @@ class Visualization extends Component
                 }
                 else if($this->type == "mood"){
                     $monthlyAvg1 = BsScorePrediction::select('date', DB::raw('AVG(score) as average'))->where('date', '<=', $this->date)->groupBy('date')->orderBy('date')->get()->pluck('average')->toArray();
-                    $this->actualAvg = BsScore::select('date', DB::raw('AVG(bs_score_cur) as average'))->whereIn('date', $this->dates)->groupBy('date')->orderBy('date')->get()->pluck('average')->toArray();    
+                    $this->actualAvg = BsScore::select('date', DB::raw('AVG(bs_score_cur) as average'))->whereIn('date', $this->dates)->groupBy('date')->orderBy('date')->get()->pluck('average')->toArray();
                     $this->emit('updateChart', $this->dates, $monthlyAvg1, $this->actualAvg, $participants, $this->type);
                 }
                 else if($this->type == 'protests'){
                     $monthlyAvg1 = ProtestPrediction::select('date', DB::raw('AVG(prediction) as average'))->where('date', '<=', $this->date)->groupBy('date')->orderBy('date')->get()->pluck('average')->toArray();
                     $this->actualAvg = Protest::select('date', DB::raw('SUM(count) as average'))->whereIn('date', $this->dates)->groupBy('date')->orderBy('date')->get()->pluck('average')->toArray();
                     $participants = Protest::select('date', DB::raw('SUM(participants) as score'))->whereIn('date', $this->dates)->groupBy('date')->orderBy('date')->get()->pluck('score')->toArray();
-    
-                    $this->emit('updateChart', $this->dates, $monthlyAvg1, $this->actualAvg, $participants, $this->type);         
+
+                    $this->emit('updateChart', $this->dates, $monthlyAvg1, $this->actualAvg, $participants, $this->type);
                 }
                 else if($this->type == "clusters"){
                     $this->calcClusters();
@@ -386,7 +386,7 @@ class Visualization extends Component
     public function getTumAvg(){
         $dates = array_fill_keys($this->dates, null);
         if($this->type == "indicator"){
-            $data = MergedOrg::select(DB::raw($this->activeIndicator .' as score'), 'date')->where('district_code', $this->active_tum)->whereIn('date', $this->dates)->orderBy('date')->get()->pluck('score', 'date')->toArray(); 
+            $data = MergedOrg::select(DB::raw($this->activeIndicator .' as score'), 'date')->where('district_code', $this->active_tum)->whereIn('date', $this->dates)->orderBy('date')->get()->pluck('score', 'date')->toArray();
         }else if($this->type == "mood"){
             $data = BsScorePrediction::where('district_code', $this->active_tum)->whereIn('date', $this->dates)->orderBy('date')->get()->pluck('score', 'date')->toArray();
         }else if($this->type == "protests"){
@@ -404,7 +404,7 @@ class Visualization extends Component
         }else if($this->type == "protests"){
             return array_values(array_merge($dates, Protest::where('district_code', $this->active_tum)->whereIn('date', $this->dates)->orderBy('date', 'ASC')->get()->pluck('count', 'date')->toArray()));
         }else {
-            return []; 
+            return [];
         }
     }
 
@@ -420,7 +420,7 @@ class Visualization extends Component
                         'date' => Carbon::parse($data->date)->subYear(1),
                     ])->first();
                     if(isset($val)){
-                        $data->diff =  $val->cluster_id - $data->cluster_id;    
+                        $data->diff =  $val->cluster_id - $data->cluster_id;
                     }
                 }
             }
@@ -438,7 +438,7 @@ class Visualization extends Component
                         'date' => Carbon::parse($data->date)->subYear(1),
                     ])->first();
                     if(isset($val)){
-                        $data->diff =  $val->cluster_id - $data->cluster_id;    
+                        $data->diff =  $val->cluster_id - $data->cluster_id;
                     }
                 }
             }
