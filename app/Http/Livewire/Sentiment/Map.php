@@ -51,7 +51,6 @@ class Map extends Component
         $this->emit('updateChart', $this->dates, $this->monthlyAvg);
     }
 
-
     public function makeGeoJson(){
         $path = public_path('geojson\regional.json');
         $this->json = json_decode(file_get_contents($path), true);

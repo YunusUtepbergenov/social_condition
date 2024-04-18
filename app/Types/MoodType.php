@@ -43,7 +43,7 @@ class MoodType extends DataType{
         return BsScorePrediction::select('date',  DB::raw('AVG(score) as average'))
                 ->where('district_code', 'LIKE', $region.'%')
                 ->where('date', '<=', $date)
-                ->groupBy('date')->orderBy('average')
+                ->groupBy('date')->orderBy('date')
                 ->get()->pluck('average')
                 ->toArray();
     }

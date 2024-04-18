@@ -32,13 +32,14 @@ class Vizual extends Component
     protected $listeners = ['radioType', 'regionClicked', 'dateChanged', 'indicatorChanged', 'regionChanged'];
 
     public $avg_indicators = [
-                'weather_temperature', 'weather_precipitation', 'weather_pollution',
-                'weather_wind', 'weather_pressure', 'weather_humidity',
-                'electr_population_price', 'electr_pop_nogas_price', 'electr_other_price',
-                'electr_budget_price', 'electr_public_utilities_price', 'electr_industry_price',
-                'electr_сommercial_price', 'electr_agriculture_price', 'electr_transport_construction_price',
-                'sug_population_price', 'sug_mtm_price', 'sug_military_price', 'sug_forest_price', 'ntl_data_ntl_mean'
-    ];
+        "weather_temperature","weather_precipitation","weather_pollution",
+        "weather_wind","weather_pressure","weather_humidity","electr_population_price",
+        "electr_pop_nogas_price","electr_other_price","electr_budget_price","electr_public_utilities_price",
+        "electr_industry_price","electr_сommercial_price","electr_agriculture_price","electr_transport_construction_price",
+        "sug_population_price","sug_mtm_price","sug_military_price","sug_forest_price","ntl_data_ntl_mean",
+        "liquified_gases_avg_price","liquified_gases_overall_price","naturalgas_agtksh_price","naturalgas_budget_price",
+        "naturalgas_heat_price","naturalgas_population_price","naturalgas_sanoat_price","naturalgas_sme_price",
+        "problems_narx_navo_narx_sohasida_davlat_siyosati","product_prices_price",];
 
     public function mount(){
         $this->clusters = Cluster::with('clusters')->orderBy('name', 'ASC')->get();
@@ -47,7 +48,6 @@ class Vizual extends Component
         $this->ranges = Range::where('date', $this->date)->get();
         $this->monthlyAvg = BsScorePrediction::with('district')->select('date', DB::raw('AVG(score) as average'))->groupBy('date')->orderBy('date')->get()->pluck('average')->toArray();
         $this->actualAvg = BsScore::with('district')->select('date', DB::raw('AVG(bs_score_cur) as average'))->whereIn('date', $this->dates)->groupBy('date')->orderBy('date')->get()->pluck('average')->toArray();
-
         $this->columns = Schema::getColumnListing('merged_org');
 
         $this->top_districts = $this->checkClass()->getTopDistricts($this->activeRegion, $this->activeIndicator, $this->date);
@@ -90,7 +90,6 @@ class Vizual extends Component
         if($region == 'republic'){
             $this->dateChanged($this->date);
         }else{
-
             if($this->type == 'mood' || $this->type == 'protests' || $this->type == 'indicator'){
                 $firstParam = $class->getRegionPredicts($region, $this->date);
                 $secondParam = $class->getRegionData($region, $this->date);

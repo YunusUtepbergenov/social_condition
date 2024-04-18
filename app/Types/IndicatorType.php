@@ -61,6 +61,6 @@ class IndicatorType extends DataType {
                         ->where('date', '<=', $date)
                         ->groupBy('date')->orderBy('date')
                         ->get()->pluck('sum')
-                        ->toArray();;
+                        ->toArray();
     }
 }
