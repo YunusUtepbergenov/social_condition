@@ -173,7 +173,7 @@
                                     <th scope="col">Индикатор @if ($type != 'clusters') <br> (ҳар 100 000 аҳолига) @endif </th>
                                     <th scope="col">Республикадаги ўртача қиймат <br></th>
                                     @if ($type == 'clusters')
-                                        <th>Кластердаги ўртача қиймат <br></th>
+                                        <th>Тоифадаги ўртача қиймат <br></th>
                                     @endif
                                     <th scope="col">Тумандаги қиймат <br></th>
                                  </tr>

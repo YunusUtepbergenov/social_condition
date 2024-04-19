@@ -29,7 +29,7 @@ class InfoModal extends Component
         return $date->format('Y-m-d');
     }
 
-    public function showInfoModal($feature, $district, $data, $dataAvg , $date, $dates, $population, $tum_pop){
+    public function showInfoModal($feature, $district, $data, $dataAvg, $date, $dates, $population, $tum_pop){
         $multiplier = 100000;
 
         $this->activeDistrict = $district;
@@ -121,6 +121,7 @@ class InfoModal extends Component
                                     ->where('district_code', 'Like', $regionCode.'%')
                                     ->where('date', $date)
                                     ->first();
+        dd($this->ovrReg);
 
         $this->ovrRep = MergedOrg::select(DB::raw('SUM('. $feature .') as feature'))
                                     ->where('date', $date)
