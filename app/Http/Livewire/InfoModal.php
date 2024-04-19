@@ -121,7 +121,6 @@ class InfoModal extends Component
                                     ->where('district_code', 'Like', $regionCode.'%')
                                     ->where('date', $date)
                                     ->first();
-        dd($this->ovrReg);
 
         $this->ovrRep = MergedOrg::select(DB::raw('SUM('. $feature .') as feature'))
                                     ->where('date', $date)
