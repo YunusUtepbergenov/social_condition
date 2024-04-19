@@ -38,12 +38,7 @@ class IndicatorType extends DataType {
                             ->pluck('sum')
                             ->toArray();
         }else{
-            return MergedOrg::select('date',  DB::raw('SUM('.$this->activeIndicator.') as sum'))
-                            ->groupBy('date')
-                            ->orderBy('date')
-                            ->get()
-                            ->pluck('sum')
-                            ->toArray();
+            return [];
         }
     }
 

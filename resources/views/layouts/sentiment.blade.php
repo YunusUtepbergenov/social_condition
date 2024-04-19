@@ -44,38 +44,7 @@
       <div class="layout-page" style="padding-left: 16.25rem">
         <div class="content-wrapper">
               <div class="flex-grow-1 p-4">
-                <nav class="layout-navbar container-fluid navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme" style="width: 100%;" id="layout-navbar">
-                    <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
-                      <div class="navbar-nav align-items-center">
-                        <div class="nav-item d-flex align-items-center">
-                          <div class="form-row align-items-center my-3 mx-1">
-                            <h5>Аҳоли ўртасида ўтказилган ижтимоий (SMS) сўровнома натижалари</h5>
-                          </div>
-                        </div>
-                      </div>
-                      <!-- /Search -->
-                      <ul class="navbar-nav flex-row align-items-center ms-auto">
-                        <li class="nav-item lh-1 me-3">
-                          <span></span>
-                        </li>
-                        <li class="nav-item dropdown has-arrow main-drop">
-                          <a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">
-                            <span class="user-img"><img src="{{ (Auth::user()->avatar) ? asset('user_image/'.Auth::user()->avatar) : asset('user_image/avatar.jpg') }}" class="user_image" alt="">
-                            <span class="status online"></span></span>
-                            <span>{{ Auth::user()->name }}</span>
-                          </a>
-                          <div class="dropdown-menu">
-                            {{-- <a class="dropdown-item" href="{{route('task.download')}}">Топшириқ</a> --}}
-                            <form action="{{ route('logout') }}" method="POST">
-                              @csrf
-                              <button class="dropdown-item">Чиқиш</button>
-                            </form>
-                          </div>
-                        </li>
-                        <!--/ User -->
-                      </ul>
-                    </div>
-                </nav>
+                  @livewire('sentiment.navbar')
                   @livewire('sentiment.map')
                   @livewire('sentiment.timeline')
               </div>

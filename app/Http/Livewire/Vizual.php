@@ -66,7 +66,7 @@ class Vizual extends Component
             $data = MergedOrg::select(DB::raw($feature .' as score'), 'date')->where('district_code', $this->active_tum)->whereIn('date', $this->dates)->orderBy('date')->get()->pluck('score', 'date')->toArray();
             $dataAvg = MergedOrg::select(DB::raw($feature .' / '. $tum_pop. '*'. 100000 .' as score'), 'date')->where('district_code', $this->active_tum)->whereIn('date', $this->dates)->orderBy('date')->get()->pluck('score')->toArray();
 
-            $this->emit('showInfoModal', $feature, $this->active_tum, $data, $dataAvg , date("Y-m-d", strtotime($this->date . "-1 month")), $this->dates, $population, $tum_pop);
+            $this->emit('showInfoModal', $feature, $this->active_tum, $data, $dataAvg, date("Y-m-d", strtotime($this->date . "-1 month")), $this->dates, $population, $tum_pop);
             $this->regionClicked($this->active_tum);
         }
     }
@@ -151,7 +151,7 @@ class Vizual extends Component
         $this->dateChanged($this->date);
         $this->emit('changeMonths', $this->dates);
         $this->makeGeoJson();
-        $this->emit('regionSelected', $this->activeRegion);
+        // $this->emit('regionSelected', $this->activeRegion);
     }
 
     public function regionClicked($tuman){

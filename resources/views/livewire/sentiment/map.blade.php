@@ -9,23 +9,39 @@
                     <div class="card-body top_districts">
                         @foreach ($top_districts as $key=>$district)
                             <div class="row" style="padding: 2px 5px">
-                                <div class="col-lg-5 user_name">
+                                <div class="col-lg-6 user_name">
                                     <div class="form-check">
                                         <a href="#" id="{{$district->region_code}}" class="form-check-label district_label" style="font-weight:{{($district->region_code == $activeRegion) ? 'bold': ''}};" wire:click="$emit('regionClicked', '{{$district->region_code}}')">
                                             {{ $key + 1 }}. {{ $district->region}}</i>
                                         </a>
                                     </div>
                                 </div>
-                                <div class="col-lg-7 progress_indicator">
+                                <div class="col-lg-6 progress_indicator">
                                     <div class="progress">
-
-                                        <div class="progress-bar"
-                                            role="progressbar"
-                                            style="background-color:{{ $district->color }}; color: #008;width:{{ ($district->value / 10) * 100 }}%"
-                                            aria-valuemin="0"
-                                            aria-valuemax="10">
-                                            {{$district->value}}
-                                        </div>
+                                        @if ($type == 'mood')
+                                            <div class="progress-bar"
+                                                role="progressbar"
+                                                style="background-color:{{ $district->color }}; color: #008;width:{{ ($district->value / 10) * 100 }}%"
+                                                aria-valuemin="0"
+                                                aria-valuemax="10">
+                                                {{$district->value}}
+                                            </div>
+                                        @else
+                                            @php
+                                                if ($max == 10) {
+                                                    $value = $district->value * 10;
+                                                }else{
+                                                    $value = $district->value;
+                                                }
+                                            @endphp
+                                            <div class="progress-bar"
+                                                role="progressbar"
+                                                style="background-color:rgb(68, 119, 170); color: #fff;width:{{ $value }}%"
+                                                aria-valuemin="0"
+                                                aria-valuemax="{{ $max }}">
+                                                {{ number_format(round($district->value, 1 ), 1, ',', ' ') }}
+                                            </div>
+                                        @endif
                                     </div>
                                 </div>
                             </div>
@@ -41,28 +57,20 @@
             <div class="card" style="min-height: 15vh; max-height:28vh">
                 <div class="row">
                     @php
-                        $string = 'Аҳоли кайфияти индекси (';
+                        if ($type == 'mood') {
+                            $string = 'Аҳоли кайфияти индекси (';
+                        }else{
+                            $string = $translates[$activeIndicator].' (';
+                        }
                     @endphp
                     @if ($activeRegion == 'republic')
-                        @if (isset($active_tum))
-                            <div class="col-sm-12">
-                                <h5 class="card-header timeline">{{$string}} {{findDistrict($active_tum)}} )</h5>
-                            </div>
-                        @else
-                            <div class="col-sm-12">
-                                <h5 class="card-header timeline">{{ $string }} Республика бўйича )</h5>
-                            </div>
-                        @endif
+                        <div class="col-sm-12">
+                            <h5 class="card-header timeline">{{ $string }} Республика бўйича )</h5>
+                        </div>
                     @else
-                        @if (isset($active_tum))
-                            <div class="col-sm-12">
-                                <h5 class="card-header timeline">{{$string}} {{findDistrict($active_tum)}} )</h5>
-                            </div>
-                        @else
-                            <div class="col-sm-12">
-                                <h5 class="card-header timeline">{{ $string.' '  }} {{findRegion($activeRegion)}} бўйича )</h5>
-                            </div>
-                        @endif
+                        <div class="col-sm-12">
+                            <h5 class="card-header timeline">{{ $string.' '  }} {{findRegion($activeRegion)}} бўйича )</h5>
+                        </div>
                     @endif
                 </div>
 
@@ -82,21 +90,23 @@
                                 <tr>
                                   <th scope="col">#</th>
                                   <th scope="col">Саволлар</th>
-                                  <th scope="col">Салбий (%)</th>
-                                  <th scope="col">Нейтрал (%)</th>
-                                  <th scope="col">Ижобий (%)</th>
+                                  <th scope="col">Салбий (ўзгариш, %)</th>
+                                  <th scope="col">Нейтрал (ўзгариш, %)</th>
+                                  <th scope="col">Ижобий (ўзгариш, %)</th>
                                  </tr>
                             </thead>
                             <tbody id="indikatorlar">
                                 @isset($indicators)
                                     @foreach ($indicators as $key=>$indicator)
-                                        <tr>
-                                            <td>{{$key + 1 }}</td>
-                                            <td><a href="#">{{ $indicator->question }}</a></td>
-                                            <td>{{ number_format(round($indicator->bad * 100, 1 ), 1, ',', ' ') }}</td>
-                                            <td>{{ number_format(round($indicator->normal * 100, 1), 1, ',', ' ') }}</td>
-                                            <td>{{ number_format(round($indicator->good * 100, 1), 1, ',', ' ') }}</td>
-                                        </tr>
+                                        @isset($prev_indicators[$key])
+                                            <tr>
+                                                <td>{{$key + 1 }}</td>
+                                                <td><a href="#">{{ $indicator->question }}</a></td>
+                                                <td>{{ number_format(round(($indicator->bad - $prev_indicators[$key]['bad']) * 100, 1 ), 1, ',', ' ') }}</td>
+                                                <td>{{ number_format(round(($indicator->normal - $prev_indicators[$key]['normal']) * 100, 1), 1, ',', ' ') }}</td>
+                                                <td>{{ number_format(round(($indicator->good - $prev_indicators[$key]['good']) * 100, 1), 1, ',', ' ') }}</td>
+                                            </tr>
+                                        @endisset
                                     @endforeach
                                 @endisset
                             </tbody>
@@ -220,14 +230,24 @@
             //     }
             // });
 
-            Livewire.on('updateMap', (json, top_districts) => {
+            Livewire.on('updateMap', (type, json, top_districts, max) => {
                 map.remove();
                 map = L.map('map', mapOptions);
-                geojson = L.geoJSON(json, {
-                    style: function (feature) {
-                        return styleSentimentMap(feature);
-                    },
-                }).addTo(map);
+                switch (type) {
+                    case 'mood':
+                        geojson = L.geoJSON(json, {
+                            style: function (feature) {
+                                return styleSentimentMap(feature);
+                            },
+                        }).addTo(map);
+                        break;
+                    case 'indicator':
+                        geojson = L.geoJSON(json, {
+                            style: function (feature) {
+                                return styleSentimentIndicatorMap(feature, max);
+                            },
+                        }).addTo(map);
+                }
 
                 geojson.eachLayer(function (layer) {
                     layer.on('click', function(e) {
@@ -248,10 +268,14 @@
                 });
             });
 
-            Livewire.on('updateChart', (dates, data) => {
+            Livewire.on('updateChart', (type, dates, data, indicator) => {
                 var string = '';
-                string = 'Аҳоли кайфияти ';
-                changeSentimentChart(data, dates);
+                if (type == 'mood') {
+                    string = 'Аҳоли кайфияти ';
+                    changeSentimentChart(data, dates);
+                }else{
+                    changeIndicatorChart(data, dates, indicator);
+                }
             });
         </script>
     @endprepend
