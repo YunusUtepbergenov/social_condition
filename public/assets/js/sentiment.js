@@ -16,14 +16,12 @@ function styleSentimentMap(feature) {
 }
 
 function styleSentimentIndicatorMap(feature, max){
-
     if(feature.factors == undefined ){
         num = -1
         label = null;
     }else{
         score_val = feature.factors.score;
         num = scale(score_val, max, 0, 1, 0.2);
-        console.log(num);
     }
 
     return {
@@ -44,24 +42,13 @@ function getSentimentColor(d) {
     }
 }
 
-function changeSentimentChart(data, dates){
+function changeSentimentChart(data, dates, repAvg){
+    datasets = calcDatasets(data, repAvg);
     chart.data = {
         labels: dates,
-        datasets: [{
-            label: 'Аҳоли кайфияти',
-            data: data,
-            borderWidth: 2,
-            borderColor: 'rgb(68, 119, 170)',
-            backgroundColor: '#bbdefb',
-            yAxisID: 'y',
-        }],
+        datasets: datasets,
     }
     chart.options = {
-        plugins: {
-            legend: {
-                display: false
-            },
-        },
         responsive: true,
         maintainAspectRatio: false,
         aspectRatio: 1,
@@ -76,26 +63,47 @@ function changeSentimentChart(data, dates){
     chart.update('none');
 }
 
-function changeIndicatorChart(data, dates, indicator){
-    console.log(data);
-    console.log(dates);
+function calcDatasets(data, repAvg){
+    if(repAvg == null){
+        return [
+            {
+                label: 'Республик бўйича',
+                data: data,
+                borderWidth: 2,
+                borderColor: 'rgb(68, 119, 170)',
+                backgroundColor: '#bbdefb',
+                yAxisID: 'y',
+            }
+        ]
+    }else{
+        return [
+            {
+                label: 'Вилоят бўйича',
+                data: data,
+                borderWidth: 2,
+                borderColor: 'rgb(68, 119, 170)',
+                backgroundColor: '#bbdefb',
+                yAxisID: 'y',
+            },
+            {
+                label: 'Республика бўйича',
+                data: repAvg,
+                borderWidth: 2,
+                borderColor: 'red',
+                backgroundColor: 'red',
+                yAxisID: 'y',
+            }
+        ]
+    }
+}
+
+function changeIndicatorChart(data, dates, repAvg){
+    datasets = calcDatasets(data, repAvg);
     chart.data = {
         labels: dates,
-        datasets: [{
-            label: "Кўрсаткич қиймати",
-            data: data,
-            borderWidth: 2,
-            borderColor: 'rgb(68, 119, 170)',
-            backgroundColor: '#bbdefb',
-            yAxisID: 'y',
-        }],
+        datasets: datasets,
     }
     chart.options = {
-        plugins: {
-            legend: {
-                display: false
-            },
-        },
         responsive: true,
         maintainAspectRatio: false,
         aspectRatio: 1,

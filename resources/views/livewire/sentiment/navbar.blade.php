@@ -19,7 +19,7 @@
                   <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" wire:model="radio" wire:click="radioChanged('indicator')" id="gridRadios3" value="indicator">
                     <label class="form-check-label filter-texts" for="gridRadios3">
-                    Асосий кўрсаткичлар
+                    Сўровнома натижалари
                     </label>
                   </div>
                   @if ($radio == 'indicator')

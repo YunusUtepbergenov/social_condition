@@ -84,16 +84,17 @@
         <div class="col-sm-4">
             <div class="stats" style="width: 100%; height:28vh;background:white;overflow:auto">
                 <div class="card" style="box-shadow: none">
+                    @if ($type == 'mood')
                     <div>
                         <table class="table" id="district_stat">
                             <thead class="thead-light" id="thead">
                                 <tr>
-                                  <th scope="col">#</th>
-                                  <th scope="col">Саволлар</th>
-                                  <th scope="col">Салбий (ўзгариш, %)</th>
-                                  <th scope="col">Нейтрал (ўзгариш, %)</th>
-                                  <th scope="col">Ижобий (ўзгариш, %)</th>
-                                 </tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Саволлар</th>
+                                <th scope="col">Салбий (ўзгариш, %)</th>
+                                <th scope="col">Нейтрал (ўзгариш, %)</th>
+                                <th scope="col">Ижобий (ўзгариш, %)</th>
+                                </tr>
                             </thead>
                             <tbody id="indikatorlar">
                                 @isset($indicators)
@@ -112,6 +113,14 @@
                             </tbody>
                         </table>
                     </div>
+                    @else
+                        <div class="card-header">
+                            <h5 style="font-weight: bold">{{ $translates[$activeIndicator] }}</h5>
+                        </div>
+                        <div class="card-body">
+                            <p>{!! $indicators !!}</p>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -180,7 +189,7 @@
                 data: {
                     labels: <?php echo json_encode($dates); ?>,
                     datasets: [{
-                        label: 'Аҳоли кайфияти',
+                        label: 'Республика бўйича',
                         data: <?php echo json_encode($monthlyAvg); ?>,
                         borderWidth: 2,
                         borderColor: 'rgb(68, 119, 170)',
@@ -268,13 +277,13 @@
                 });
             });
 
-            Livewire.on('updateChart', (type, dates, data, indicator) => {
+            Livewire.on('updateChart', (type, dates, data, repAvg) => {
                 var string = '';
                 if (type == 'mood') {
                     string = 'Аҳоли кайфияти ';
-                    changeSentimentChart(data, dates);
+                    changeSentimentChart(data, dates, repAvg);
                 }else{
-                    changeIndicatorChart(data, dates, indicator);
+                    changeIndicatorChart(data, dates, repAvg);
                 }
             });
         </script>

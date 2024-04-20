@@ -10,8 +10,8 @@ class Navbar extends Component
     public $radio = 'mood', $indicators, $indicator, $region;
     public $exclude = ['id','region', 'region_code', 'date'];
     public $columns = [
-        'funds' => "Жамғармага эга бўлмаган аҳоли",
-        'source_income' => "Доимий даромад манбаига эга бўлмаган аҳоли",
+        'funds' => "Жамғармага эга бўлмаган аҳоли (%)",
+        'source_income' => "Доимий даромад манбаига эга бўлмаган аҳоли (%)",
         'welfare_current' => "Аҳолининг ҳозирги фаровонлиги кутилмаси индекси",
         'welfare_future' => 'Аҳолининг келгусидаги фаровинлик кутилмаси индекси'
     ];

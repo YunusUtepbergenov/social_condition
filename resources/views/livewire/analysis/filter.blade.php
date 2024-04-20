@@ -29,7 +29,7 @@
           <li class="menu-item {{ Request::path() == 'sentiment' ? 'active' : '' }}">
             <a href="{{ route('sentiment') }}" class="menu-link">
               <i class="menu-icon tf-icons bx bxs-coin-stack"></i>
-              <div data-i18n="Analytics">Аҳоли кайфияти индекси</div>
+              <div data-i18n="Analytics">Вилоят кесимида таҳлиллар</div>
             </a>
           </li>
           {{-- <li class="menu-item">
