@@ -99,6 +99,7 @@ class Map extends Component
     }
 
     public function indicatorChanged($indicator){
+        $this->activeRegion = 'republic';
         $this->activeIndicator = $indicator;
         $this->showIndicatorDescription();
         if(in_array($indicator, ['welfare_current', 'welfare_future'])){
