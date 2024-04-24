@@ -108,9 +108,10 @@ class Map extends Component
         }else{
             $this->max = 100;
         }
-        $this->monthlyAvg = Sentiment_Merged::select('date',  DB::raw('AVG('.$this->activeIndicator.') as average'))->where('date', '<=', $this->date)->groupBy('date')->orderBy('date')->get()->pluck('average')->toArray();
+
+        $this->monthlyAvg = Sentiment_Republic::select('date', DB::raw($this->activeIndicator.' as index'))->whereIn('date', $this->dates)->get()->pluck('index')->toArray();
         $this->top_districts = Sentiment_Merged::select(['region_code', 'region', DB::raw($indicator . ' as value')])->where('date', $this->date)->orderByRaw('value DESC nulls last')->get();
-        $this->repAvg = Sentiment_Republic::select('date', DB::raw($this->activeIndicator.' as index'))->whereIn('date', $this->dates)->get()->pluck('index')->toArray();
+        $this->repAvg = Null;
         $this->makeGeoJson();
 
         $this->emit('updateMap', $this->type, $this->json, $this->top_districts, $this->max);

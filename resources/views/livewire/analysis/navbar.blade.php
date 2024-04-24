@@ -105,7 +105,18 @@
 @endpush
 
 <script>
-  window.addEventListener("DOMContentLoaded", function () {
-      Livewire.emit('child-mounted');
-  });
+    window.addEventListener("DOMContentLoaded", function () {
+        Livewire.emit('child-mounted');
+    });
+
+    window.addEventListener('radioChanged', event => {
+        $('input[type="radio"]').attr('disabled', true);
+        $('select').attr('disabled', true);
+    });
+
+    window.addEventListener('componentLoaded', event => {
+        console.log("heyuuuu");
+        $('input[type="radio"]').attr('disabled', false);
+        $('select').attr('disabled', false);
+    });
 </script>

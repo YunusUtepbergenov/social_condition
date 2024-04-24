@@ -151,7 +151,7 @@ class Vizual extends Component
         $this->dateChanged($this->date);
         $this->emit('changeMonths', $this->dates);
         $this->makeGeoJson();
-        // $this->emit('regionSelected', $this->activeRegion);
+        $this->dispatchBrowserEvent('componentLoaded');
     }
 
     public function regionClicked($tuman){

@@ -33,6 +33,8 @@ class Navbar extends Component
     }
 
     public function radioChanged($type){
+        $this->region = 'republic';
+        $this->dispatchBrowserEvent('radioChanged');
         $this->radio = $type;
         $firstKey = array_key_first($this->indicators);
         $this->emit('radioType', $type, $this->indicators[$firstKey]);
