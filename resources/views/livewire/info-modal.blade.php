@@ -52,7 +52,7 @@
                                         <tr>
                                             <td>Тумандаги қиймат</td>
                                             <td>{{ number_format( $curVal, 1, ',', ' ' ) }}</td>
-                                            <td>{{number_format($curValNor['score'], 1, ',', ' ' )}}</td>
+                                            <td>{{number_format($curValNor, 1, ',', ' ' )}}</td>
                                         </tr>
                                         <tr>
                                             <td>Республика бўйича ўртача</td>
@@ -67,12 +67,12 @@
                                         <tr>
                                             <td>Ўтган ойдаги қиймат</td>
                                             <td>{{number_format($lastMonth, 1, ',', ' ' ) }}</td>
-                                            <td>{{number_format($lastMonthNor['score'], 1, ',', ' ' ) }}</td>
+                                            <td>{{number_format($lastMonthNor, 1, ',', ' ' ) }}</td>
                                         </tr>
                                         <tr>
                                             <td>Бир йил олдинги қиймат</td>
                                             <td>{{number_format($lastYear, 1, ',', ' ' ) }}</td>
-                                            <td>{{number_format($lastYearNor['score'], 1, ',', ' ' ) }}</td>
+                                            <td>{{number_format($lastYearNor, 1, ',', ' ' ) }}</td>
                                         </tr>
 
                                         @if ($lastMonth != 0)

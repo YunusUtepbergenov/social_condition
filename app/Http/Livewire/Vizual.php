@@ -64,9 +64,12 @@ class Vizual extends Component
             $population = intval(Merged::select(DB::raw('SUM(demography_population) as population'))->where('date', $this->date)->groupBy('date')->first()->population);
 
             $data = MergedOrg::select(DB::raw($feature .' as score'), 'date')->where('district_code', $this->active_tum)->whereIn('date', $this->dates)->orderBy('date')->get()->pluck('score', 'date')->toArray();
-            $dataAvg = MergedOrg::select(DB::raw($feature .' / '. $tum_pop. '*'. 100000 .' as score'), 'date')->where('district_code', $this->active_tum)->whereIn('date', $this->dates)->orderBy('date')->get()->pluck('score')->toArray();
+            $dataAvg = MergedOrg::select(DB::raw($feature.' as score'), 'date')->where('district_code', $this->active_tum)->whereIn('date', $this->dates)->orderBy('date')->get()->pluck('score')->toArray();
+            $dataAvg = array_map(function ($element) use ($tum_pop) {
+                return ($element / $tum_pop) * 100000;
+            }, $dataAvg);
 
-            $this->emit('showInfoModal', $feature, $this->active_tum, $data, $dataAvg, date("Y-m-d", strtotime($this->date . "-1 month")), $this->dates, $population, $tum_pop);
+            $this->emit('showInfoModal', $feature, $this->active_tum, $data, $dataAvg, date("Y-m-d", strtotime($this->date . "-1 month")), $this->dates, $population, $tum_pop, $this->avg_indicators);
             $this->regionClicked($this->active_tum);
         }
     }
@@ -132,6 +135,7 @@ class Vizual extends Component
                     }
                     $this->top_districts = MergedOrg::with('district')->select(['district_code', 'district_name', DB::raw($indicator . ' as score')])->where('date', $this->date)->orderByRaw('score DESC nulls last')->get();
                     $this->makeGeoJson();
+                    // dd($this->top_districts);
 
                     $this->emit('updateChart', $this->dates, $indicatorSum, [], [], $this->type);
                     $this->emit('updateMap', $this->type, $this->json, $this->top_districts, $this->ranges);
@@ -353,5 +357,9 @@ class Vizual extends Component
                 }
             }
         }
+    }
+
+    public function calcAvg($n, $tum_pop){
+        return $n * $tum_pop * 100000;
     }
 }

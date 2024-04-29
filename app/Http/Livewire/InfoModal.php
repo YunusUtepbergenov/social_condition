@@ -29,12 +29,11 @@ class InfoModal extends Component
         return $date->format('Y-m-d');
     }
 
-    public function showInfoModal($feature, $district, $data, $dataAvg, $date, $dates, $population, $tum_pop){
+    public function showInfoModal($feature, $district, $data, $dataAvg, $date, $dates, $population, $tum_pop, $avg_indicators){
         $multiplier = 100000;
-
         $this->activeDistrict = $district;
         $regionCode = substr($district, 0, 4);
-
+        $removedElement = array_pop($dates);
         $this->activeIndicator = $feature;
         $this->date = $date;
         $lastMonth = date("Y-m-d", strtotime($date . "-1 month"));
@@ -67,28 +66,32 @@ class InfoModal extends Component
 
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        $this->curValNor = MergedOrg::select( DB::raw($feature .' / '. $tum_pop. '*'. $multiplier .' as score'))
+        $this->curValNor = MergedOrg::select( DB::raw($feature.' as score'))
                                 ->where([
                                     ['date', '=', $date],
                                     ['district_code', '=', $district],
-                                ])->first();
+                                ])->first()->score / $tum_pop * $multiplier;
+        if(in_array($feature, $avg_indicators)){
+            $this->repAvgNor = MergedOrg::select(DB::raw('AVG('. $feature. ') as score'))->whereDate('date', $date)->groupBy('date')->first();
+            $this->vilAvgNor = MergedOrg::select(DB::raw('AVG('. $feature. ') as score'))->whereDate('date', $date)->where('district_code', 'LIKE', substr($district, 0, 4).'%')->first();
+        }else{
+            $this->repAvgNor = MergedOrg::select(DB::raw('SUM('. $feature .')'. ' / '. $population. '*'. $multiplier .' as score'))
+                                            ->where('date', '=', $date)
+                                            ->groupBY('date')
+                                            ->first();
 
-        $this->repAvgNor = MergedOrg::select(DB::raw('SUM('. $feature .')'. ' / '. $population. '*'. $multiplier .' as score'))
-                                ->where('date', '=', $date)
-                                ->groupBY('date')
-                                ->first();
-
-        $this->vilAvgNor = MergedOrg::select(DB::raw('SUM('. $feature .')'. ' / '. $vil_pop. '*'. $multiplier .' as score'))
-                                ->where([
-                                    ['date', '=', $date],
-                                    ['district_code', 'LIKE', substr($district, 0, 4).'%'],
-                                ])->groupBY('date')->first();
+            $this->vilAvgNor = MergedOrg::select(DB::raw('SUM('. $feature .')'. ' / '. $vil_pop. '*'. $multiplier .' as score'))
+                                        ->where([
+                                            ['date', '=', $date],
+                                            ['district_code', 'LIKE', substr($district, 0, 4).'%'],
+                                        ])->groupBY('date')->first();
+        }
 
         $this->lastMonthNor = MergedOrg::select(DB::raw($feature .' / '. $tum_pop. '*'. $multiplier .' as score'))
                                     ->where([
                                         ['date', '=', $lastMonth],
                                         ['district_code', '=', $district],
-                                    ])->first();
+                                    ])->first()->score / $tum_pop * $multiplier;
 
         $this->lastYearNor = MergedOrg::select(DB::raw($feature .' / '. $tum_pop. '*'. $multiplier .' as score'))
                                 ->where([
