@@ -87,17 +87,17 @@ class InfoModal extends Component
                                         ])->groupBY('date')->first();
         }
 
-        $this->lastMonthNor = MergedOrg::select(DB::raw($feature .' / '. $tum_pop. '*'. $multiplier .' as score'))
+        $this->lastMonthNor = MergedOrg::select(DB::raw($feature .' as score'))
                                     ->where([
                                         ['date', '=', $lastMonth],
                                         ['district_code', '=', $district],
                                     ])->first()->score / $tum_pop * $multiplier;
 
-        $this->lastYearNor = MergedOrg::select(DB::raw($feature .' / '. $tum_pop. '*'. $multiplier .' as score'))
+        $this->lastYearNor = MergedOrg::select(DB::raw($feature .' as score'))
                                 ->where([
                                     ['date', '=', $lastYear],
                                     ['district_code', '=', $district],
-                                ])->first();
+                                ])->first()->score / $tum_pop * $multiplier;
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
