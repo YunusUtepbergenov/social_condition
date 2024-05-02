@@ -30,6 +30,7 @@ class InfoModal extends Component
     }
 
     public function showInfoModal($feature, $district, $data, $dataAvg, $date, $dates, $population, $tum_pop, $avg_indicators){
+        $tum_pop_arr = MergedOrg::select('demography_population as population', 'date')->where('district_code', $district)->orderBy('date', 'ASC')->get()->pluck('population', 'date')->toArray();
         $multiplier = 100000;
         $this->activeDistrict = $district;
         $regionCode = substr($district, 0, 4);
@@ -39,7 +40,6 @@ class InfoModal extends Component
         $lastMonth = date("Y-m-d", strtotime($date . "-1 month"));
         $lastYear = date("Y-m-d", strtotime($date . "-12 month"));
         $nextMonth = date("Y-m-d", strtotime($date . "+1 month"));
-
         $this->lastYearDate = $lastYear;
 
         $startYear = $this->getFirstDateOfYearUsingDateTime($date);
@@ -48,7 +48,6 @@ class InfoModal extends Component
         $vil_pop = intval(Merged::select(DB::raw('SUM(demography_population) as population'))->where('date', $nextMonth)->where('district_code', 'LIKE', substr($district, 0, 4).'%')->groupBy('date')->first()->population);
 
         $this->curVal = end($data);
-
 
         $this->repAvg = MergedOrg::select(DB::raw('AVG('. $feature .') as score'))
                                 ->where('date', '=', $date)
@@ -71,6 +70,7 @@ class InfoModal extends Component
                                     ['date', '=', $date],
                                     ['district_code', '=', $district],
                                 ])->first()->score / $tum_pop * $multiplier;
+
         if(in_array($feature, $avg_indicators)){
             $this->repAvgNor = MergedOrg::select(DB::raw('AVG('. $feature. ') as score'))->whereDate('date', $date)->groupBy('date')->first();
             $this->vilAvgNor = MergedOrg::select(DB::raw('AVG('. $feature. ') as score'))->whereDate('date', $date)->where('district_code', 'LIKE', substr($district, 0, 4).'%')->first();
@@ -91,13 +91,13 @@ class InfoModal extends Component
                                     ->where([
                                         ['date', '=', $lastMonth],
                                         ['district_code', '=', $district],
-                                    ])->first()->score / $tum_pop * $multiplier;
+                                    ])->first()->score / $tum_pop_arr[$lastMonth] * $multiplier;
 
         $this->lastYearNor = MergedOrg::select(DB::raw($feature .' as score'))
                                 ->where([
                                     ['date', '=', $lastYear],
                                     ['district_code', '=', $district],
-                                ])->first()->score / $tum_pop * $multiplier;
+                                ])->first()->score / $tum_pop_arr[$lastYear] * $multiplier;
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -130,7 +130,6 @@ class InfoModal extends Component
                                     ->first();
 
         $this->dispatchBrowserEvent('openFormModal');
-        $last_date = array_pop($dates);
         $this->emit('buildCharts', $data, $dataAvg, $dates);
     }
 }

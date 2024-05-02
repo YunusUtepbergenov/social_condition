@@ -18,7 +18,7 @@
                                                 elseif ($district->label == 2)
                                                     $color = 'rgb(115, 115, 115)';
                                                 else
-                                                    $color = '#be4343';
+                                                    $color = 'rgb(68, 119, 170)';
                                             @endphp
                                         @endif
                                         <div class="form-check">
@@ -40,7 +40,7 @@
                                             @if ($type == 'mood')
                                                 <div class="progress-bar" role="progressbar" style="transition-duration: 600ms; background-color:{{$color}}; color: white;width:{{( $district->score / 200 ) * 100 }}%" aria-valuemin="0" aria-valuemax="100">{{number_format( round($district->score, 1), 1, ',', ' ' ) }}</div>
                                             @elseif ($type == 'protests')
-                                                <div class="progress-bar" role="progressbar" style="transition-duration: 600ms; color: white;width:{{($district->score > 9) ? $district->score: '9' }}%" aria-valuemin="0" aria-valuemax="100">{{ number_format( $district->score, 1, ',', ' ' )}}</div>
+                                                <div class="progress-bar" role="progressbar" style="transition-duration: 600ms;background-color:rgb(68, 119, 170); color: white;width:{{($district->score > 9) ? $district->score: '9' }}%" aria-valuemin="0" aria-valuemax="100">{{ number_format( $district->score, 1, ',', ' ' )}}</div>
                                             @elseif($type == 'indicator')
                                                 @if ($top_districts->first()->score)
                                                     <div class="progress-bar" role="progressbar"
@@ -72,13 +72,13 @@
                                         if($district->cluster_id == 1)
                                             $color = 'rgb(115, 182, 107)';
                                         elseif ($district->cluster_id == 2)
-                                            $color = 'rgb(41, 162, 198)';
+                                            $color = 'rgb(201, 99, 207)';
                                         elseif($district->cluster_id == 3)
                                             $color = 'rgb(160, 160, 160)';
                                         elseif ($district->cluster_id == 4)
                                             $color = 'rgb(250, 167, 63)';
                                         elseif ($district->cluster_id == 5)
-                                            $color = 'rgb(220, 85, 100)';
+                                            $color = 'rgb(68, 119, 170)';
 
                                         if($district->diff > 0){
                                             $class = 'bx bxs-up-arrow-alt';
@@ -300,8 +300,8 @@
                         label: 'Аҳоли кайфияти индекси башорати',
                         data: <?php echo json_encode($monthlyAvg); ?>,
                         borderWidth: 3,
-                        borderColor: 'rgb(232, 9, 9)',
-                        backgroundColor: 'rgb(232, 9, 9)',
+                        borderColor: 'rgb(68, 119, 170)',
+                        backgroundColor: '#fff',
                         yAxisID: 'y',
                     },
                     {

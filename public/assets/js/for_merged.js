@@ -59,7 +59,7 @@ function getColor(d, labell) {
         return '#bababa'}
     else{
         if(labell == 1){
-            return 'rgb(255, 0, 0,' + d + ' )'
+            return 'rgb(68, 119, 170,' + d + ' )'
         }
         else if (labell == 2) {
             return 'rgb(115, 115, 115,' + d + ' )'
@@ -101,8 +101,8 @@ function changeTableContentsandChart(data, actual, dates, type, label){
             label: label + 'индекси башорат',
             data: data,
             borderWidth: 3,
-            borderColor: 'rgb(232, 9, 9)',
-            backgroundColor: 'rgb(232, 9, 9)',
+            borderColor: 'rgb(68, 119, 170)',
+            backgroundColor: '#fff',
             yAxisID: 'y',
         },
         {
@@ -287,7 +287,7 @@ function changeClusterChart(dates, percentages, type){
                 borderWidth: 2,
                 fill: 'origin',
                 borderColor: '#fff',
-                backgroundColor: 'rgb(41, 162, 198)',
+                backgroundColor: 'rgb(201, 99, 207)',
                 yAxisID: 'y',
             },
             {
@@ -314,7 +314,7 @@ function changeClusterChart(dates, percentages, type){
                 borderWidth: 2,
                 fill: 'origin',
                 borderColor: '#fff',
-                backgroundColor: 'rgb(220, 85, 100)',
+                backgroundColor: 'rgb(68, 119, 170)',
                 yAxisID: 'y',
             }
         ],
@@ -347,7 +347,7 @@ function styleProtestMap(feature, max) {
     }else{
         score_val = feature.factors.score;
         if(score_val > 75){
-            color = 'rgb(232,9,9)';
+            color = 'rgb(68, 119, 170)';
         }else if(score_val >= 50 && score_val <= 75){
             color = 'rgb(115, 115, 115)';
         }else{
@@ -435,7 +435,7 @@ function getClusterColor(d) {
         return 'rgb(115, 182, 107,' + d + ' )'
     }
     else if (d == 2){
-        return 'rgb(41, 162, 198,' + d + ' )'
+        return 'rgb(201, 99, 207,' + d + ' )'
     }
     else if (d == 3){
         return 'rgb(160, 160, 160,' + d + ' )'
@@ -444,7 +444,7 @@ function getClusterColor(d) {
         return 'rgb(250, 167, 63,' + d + ' )'
     }
     else if (d == 5){
-        return 'rgb(220, 85, 100,' + d + ' )'
+        return 'rgb(68, 119, 170,' + d + ' )'
     }
 }
 

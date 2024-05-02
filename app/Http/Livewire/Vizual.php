@@ -64,9 +64,9 @@ class Vizual extends Component
             $population = intval(Merged::select(DB::raw('SUM(demography_population) as population'))->where('date', $this->date)->groupBy('date')->first()->population);
 
             $data = MergedOrg::select(DB::raw($feature .' as score'), 'date')->where('district_code', $this->active_tum)->whereIn('date', $this->dates)->orderBy('date')->get()->pluck('score', 'date')->toArray();
-            $dataAvg = MergedOrg::select(DB::raw($feature.' as score'), 'date')->where('district_code', $this->active_tum)->whereIn('date', $this->dates)->orderBy('date')->get()->pluck('score')->toArray();
-            $dataAvg = array_map(function ($element) use ($tum_pop) {
-                return ($element / $tum_pop) * 100000;
+            $dataAvg = MergedOrg::select(DB::raw($feature.'/ demography_population as score'), 'date')->where('district_code', $this->active_tum)->whereIn('date', $this->dates)->orderBy('date')->get()->pluck('score')->toArray();
+            $dataAvg = array_map(function ($element) {
+                return $element * 100000;
             }, $dataAvg);
 
             $this->emit('showInfoModal', $feature, $this->active_tum, $data, $dataAvg, date("Y-m-d", strtotime($this->date . "-1 month")), $this->dates, $population, $tum_pop, $this->avg_indicators);
