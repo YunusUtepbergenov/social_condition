@@ -13,25 +13,25 @@
                 <div class="form-check form-check-inline">
                   <input class="form-check-input" type="radio" wire:model="radio" wire:click="radioChanged('mood')" id="gridRadios1" value="mood" selected>
                   <label class="form-check-label filter-texts" for="gridRadios1">
-                  Аҳоли кайфияти
+                        Аҳоли кайфияти
                   </label>
                 </div>
                 <div class="form-check form-check-inline">
                   <input class="form-check-input" type="radio" wire:model="radio" wire:click="radioChanged('protests')" id="gridRadios2" value="protests">
                   <label class="form-check-label filter-texts" for="gridRadios2">
-                  Оммавий норозиликлар
+                        Оммавий норозиликлар
                   </label>
                 </div>
                 <div class="form-check form-check-inline">
                   <input class="form-check-input" type="radio" wire:model="radio" wire:click="radioChanged('indicator')" id="gridRadios3" value="indicator">
                   <label class="form-check-label filter-texts" for="gridRadios3">
-                  Асосий кўрсаткичлар
+                        Асосий кўрсаткичлар
                   </label>
                 </div>
                 <div class="form-check form-check-inline">
                   <input class="form-check-input" type="radio" wire:model="radio" wire:click="radioChanged('clusters')" id="gridRadios4" value="clusters">
                   <label class="form-check-label filter-texts" for="gridRadios4">
-                      Ҳудудлар тоифалари
+                        Ҳудудлар тоифалари
                   </label>
                 </div>
                 <div class="form-check form-check-inline">
@@ -115,7 +115,6 @@
     });
 
     window.addEventListener('componentLoaded', event => {
-        console.log("heyuuuu");
         $('input[type="radio"]').attr('disabled', false);
         $('select').attr('disabled', false);
     });

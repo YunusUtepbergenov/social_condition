@@ -171,11 +171,11 @@
                                 <tr>
                                     <th scope="col">#</th>
                                     <th scope="col">Индикатор @if ($type != 'clusters') <br> (ҳар 100 000 аҳолига) @endif </th>
-                                    <th scope="col">Республикадаги ўртача қиймат <br></th>
+                                    <th scope="col">Республика кўрсаткичи <br></th>
                                     @if ($type == 'clusters')
-                                        <th>Тоифадаги ўртача қиймат <br></th>
+                                        <th>Тоифа кўрсаткичи <br></th>
                                     @endif
-                                    <th scope="col">Тумандаги қиймат <br></th>
+                                    <th scope="col">Туман кўрсаткичи <br></th>
                                  </tr>
                             </thead>
                             <tbody id="indikatorlar">

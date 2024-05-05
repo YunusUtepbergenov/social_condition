@@ -44,33 +44,33 @@
                             @isset($activeIndicator)
                                 <table class="table table-bordered" id="modal_table">
                                     <thead>
+                                        <th>Кўрсаткич номи</th>
                                         <th>Кўрсаткич</th>
-                                        <th>Қиймат</th>
-                                        <th>Қиймат (ҳар 100 000 аҳолига)</th>
+                                        <th>Кўрсаткич (ҳар 100 000 аҳолига)</th>
                                     </thead>
                                     <tbody>
                                         <tr>
-                                            <td>Тумандаги қиймат</td>
+                                            <td>Туман кўрсаткичи</td>
                                             <td>{{ number_format( $curVal, 1, ',', ' ' ) }}</td>
                                             <td>{{number_format($curValNor, 1, ',', ' ' )}}</td>
                                         </tr>
                                         <tr>
-                                            <td>Республика бўйича ўртача</td>
+                                            <td>Республика кўрсаткичи</td>
                                             <td>{{number_format($repAvg['score'], 1, ',', ' ' )}}</td>
                                             <td>{{number_format($repAvgNor['score'], 1, ',', ' ' )}}</td>
                                         </tr>
                                         <tr>
-                                            <td>Вилоят бўйича ўртача</td>
+                                            <td>Вилоят кўрсаткичи</td>
                                             <td>{{number_format($vilAvg['score'], 1, ',', ' ' )}}</td>
                                             <td>{{number_format($vilAvgNor['score'], 1, ',', ' ' )}}</td>
                                         </tr>
                                         <tr>
-                                            <td>Ўтган ойдаги қиймат</td>
+                                            <td>Ўтган ой кўрсаткичи</td>
                                             <td>{{number_format($lastMonth, 1, ',', ' ' ) }}</td>
                                             <td>{{number_format($lastMonthNor, 1, ',', ' ' ) }}</td>
                                         </tr>
                                         <tr>
-                                            <td>Бир йил олдинги қиймат</td>
+                                            <td>Бир йил олдинги кўрсаткич</td>
                                             <td>{{number_format($lastYear, 1, ',', ' ' ) }}</td>
                                             <td>{{number_format($lastYearNor, 1, ',', ' ' ) }}</td>
                                         </tr>
@@ -83,7 +83,7 @@
                                         @endif
                                         @if ($lastYear)
                                             <tr>
-                                                <td>Бир йил олдинги қийматга нисбатан ўсиш</td>
+                                                <td>Бир йил олдинга нисбатан ўсиш</td>
                                                 <td colspan="2">{{number_format(($curVal - $lastYear) * 100 / abs($lastYear), 1, ',', ' ' ) }}%</td>
                                             </tr>
                                         @endif

@@ -33,24 +33,24 @@
                                     </thead>
                                     <tbody>
                                         <tr>
-                                            <td>Тумандаги қиймат</td>
+                                            <td>Туман кўрсаткичи</td>
                                             <td>{{ number_format( $curVal, 1, ',', ' ' ) }}</td>
                                         </tr>
                                         <tr>
-                                            <td>Республика бўйича ўртача</td>
+                                            <td>Республика бўйича ўртача кўрсаткич</td>
                                             <td>{{number_format($repAvg['score'], 1, ',', ' ' )}}</td>
                                         </tr>
                                         <tr>
-                                            <td>Вилоят бўйича ўртача</td>
+                                            <td>Вилоят бўйича ўртача кўрсаткич</td>
                                             <td>{{number_format($vilAvg['score'], 1, ',', ' ' )}}</td>
                                         </tr>
                                         <tr>
-                                            <td>Бир йил олдинги қиймат</td>
+                                            <td>Бир йил олдинги кўрсаткич</td>
                                             <td>{{number_format($lastYear, 1, ',', ' ' ) }}</td>
                                         </tr>
                                         @if ($lastYear)
                                             <tr>
-                                                <td>Бир йил олдинги қийматга нисбатан ўсиш</td>
+                                                <td>Бир йил олдинги кўрсаткичга нисбатан ўсиш</td>
                                                 <td colspan="2">{{number_format(($curVal - $lastYear) * 100 / abs($lastYear), 1, ',', ' ' ) }}%</td>
                                             </tr>
                                         @endif
