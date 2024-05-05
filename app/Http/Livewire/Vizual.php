@@ -189,7 +189,8 @@ class Vizual extends Component
     public function dateChanged($date){
         $this->date = $date;
         $participants = [];
-        $this->ranges = Range::where('date', $this->date)->get();
+        if($this->type != 'clusters')
+            $this->ranges = Range::where('date', $this->date)->get();
         $this->dates = $this->getDates();
 
         $class = $this->checkClass();
