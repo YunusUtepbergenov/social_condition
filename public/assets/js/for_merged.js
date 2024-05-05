@@ -33,6 +33,7 @@ function style1(feature, max, ranges) {
         label = null;
     }else{
         range = ranges[0];
+        console.log(ranges);
         score_val = feature.factors.score;
         label = feature.factors.label;
 
@@ -384,13 +385,13 @@ function filterCluster(data, cluster){
     return result;
 }
 
-function styleIndicator(feature, max){
+function styleIndicator(feature, max, min){
     if(feature.factors == undefined ){
         num = -1
         label = null;
     }else{
         score_val = feature.factors.score;
-        num = scale(score_val, max, 0, 1, 0.2);
+        num = scale(score_val, max, min, 1, 0.2);
     }
 
     return {

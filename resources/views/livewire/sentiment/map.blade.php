@@ -21,7 +21,7 @@
                                         @if ($type == 'mood')
                                             <div class="progress-bar"
                                                 role="progressbar"
-                                                style="background-color:{{ $district->color }}; color: #008;width:{{ ($district->value / 10) * 100 }}%"
+                                                style="background-color:rgb(68, 119, 170); color: #fff;width:{{ ($district->value / 10) * 100 }}%"
                                                 aria-valuemin="0"
                                                 aria-valuemax="10">
                                                 {{$district->value}}
@@ -141,7 +141,7 @@
             if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)){
                 mapOptions.dragging = false;
             }
-
+            var sentiment_ranges = <?php echo json_encode($ranges); ?>;
             var width = document.documentElement.clientWidth;
             if (width > 400 && width < 1500) {
                 mapOptions.minZoom = 5;
@@ -153,7 +153,7 @@
             var map = L.map('map', mapOptions);
             var geojson = L.geoJSON(<?php echo json_encode($json); ?>, {
                 style: function (feature) {
-                    return styleSentimentMap(feature);
+                    return styleSentimentMap(feature, sentiment_ranges);
                 },
             }).addTo(map);
             geojson.eachLayer(function (layer) {
@@ -218,42 +218,21 @@
                 },
             });
 
-            // Livewire.on('changeTable', (tuman, data, actual, participants, dates, date, type) => {
-            //     var string = '';
-            //     switch (type) {
-            //         case 'mood':
-            //             string = 'Аҳоли кайфияти ';
-            //             changeTableContentsandChart(data, actual, dates, type, string);
-            //             break;
-            //         case 'protests':
-            //             string = 'Оммавий норозилик содир бўлиши эҳтимоли ';
-            //             changeProtestChart(data, actual, dates, type, string, participants);
-            //             break;
-            //         case 'indicator':
-            //             string = "<?php echo $activeIndicator ?>";
-            //             changeIndicatorChart(data, dates);
-            //             break;
-            //         case 'clusters':
-            //             changeClusterChart2(data, dates);
-            //             break;
-            //     }
-            // });
-
-            Livewire.on('updateMap', (type, json, top_districts, max) => {
+            Livewire.on('updateMap', (type, json, top_districts, max, ranges) => {
                 map.remove();
                 map = L.map('map', mapOptions);
                 switch (type) {
                     case 'mood':
                         geojson = L.geoJSON(json, {
                             style: function (feature) {
-                                return styleSentimentMap(feature);
+                                return styleSentimentMap(feature, ranges);
                             },
                         }).addTo(map);
                         break;
                     case 'indicator':
                         geojson = L.geoJSON(json, {
                             style: function (feature) {
-                                return styleSentimentIndicatorMap(feature, max);
+                                return styleSentimentIndicatorMap(feature, top_districts[0]['value'], top_districts[top_districts.length - 1]['value']);
                             },
                         }).addTo(map);
                 }

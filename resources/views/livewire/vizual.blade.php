@@ -381,7 +381,7 @@
                 else if(type == 'indicator'){
                     geojson = L.geoJSON(json, {
                         style: function (feature) {
-                            return styleIndicator(feature, top_districts[0]['score']);
+                            return styleIndicator(feature, top_districts[50]['score'], top_districts[top_districts.length - 1]['score']);
                         },
                     }).addTo(map);
                 }

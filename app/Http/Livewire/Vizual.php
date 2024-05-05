@@ -135,7 +135,6 @@ class Vizual extends Component
                     }
                     $this->top_districts = MergedOrg::with('district')->select(['district_code', 'district_name', DB::raw($indicator . ' as score')])->where('date', $this->date)->orderByRaw('score DESC nulls last')->get();
                     $this->makeGeoJson();
-                    // dd($this->top_districts);
 
                     $this->emit('updateChart', $this->dates, $indicatorSum, [], [], $this->type);
                     $this->emit('updateMap', $this->type, $this->json, $this->top_districts, $this->ranges);
@@ -190,6 +189,7 @@ class Vizual extends Component
     public function dateChanged($date){
         $this->date = $date;
         $participants = [];
+        $this->ranges = Range::where('date', $this->date)->get();
         $this->dates = $this->getDates();
 
         $class = $this->checkClass();

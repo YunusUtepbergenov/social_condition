@@ -6,6 +6,7 @@ use Livewire\Component;
 use App\Models\Sentiment;
 use App\Models\Sentiment_Merged;
 use App\Models\Sentiment_Question;
+use App\Models\Sentiment_Range;
 use App\Models\Sentiment_Republic;
 use Illuminate\Support\Facades\DB;
 
@@ -14,7 +15,7 @@ class Map extends Component
     protected $listeners = ['dateChanged', 'regionClicked', 'radioType', 'indicatorChanged'];
 
     public $vil_val, $active_tum, $indicators, $prev_indicators, $activeIndicator, $activeRegion = 'republic';
-    public $data, $json, $type, $repAvg, $max, $translates;
+    public $data, $json, $type, $repAvg, $max, $translates, $ranges;
     public $date;
     public $top_districts, $dates = array(), $monthlyAvg = array(), $actualAvg = array();
 
@@ -34,11 +35,11 @@ class Map extends Component
         $this->type = 'mood';
         $this->max = 100;
         $this->date = $this->getLatesDate();
+        $this->ranges = Sentiment_Range::where('date', $this->date)->get();
         $this->dates = $this->getDates();
         $this->activeIndicator = Null;
         $this->top_districts = Sentiment::where('date', $this->date)->orderBy('value', 'DESC')->get();
-        $this->monthlyAvg = Sentiment_Republic::select('date', DB::raw('sentiment_index as index'))->whereIn('date', $this->dates)->get()->pluck('index')->toArray();
-
+        $this->monthlyAvg = Sentiment_Republic::select('date', DB::raw('sentiment_index as index'))->whereIn('date', $this->dates)->orderBy('date')->get()->pluck('index')->toArray();
         $this->makeGeoJson();
     }
 
@@ -47,6 +48,7 @@ class Map extends Component
         $this->activeRegion = 'republic';
         $this->date = $date;
         $this->dates = $this->getDates();
+        $this->ranges = Sentiment_Range::where('date', $this->date)->get();
 
         if($this->type == 'mood'){
             $this->top_districts = Sentiment::where('date', $this->date)->orderBy('value', 'DESC')->get();
@@ -63,7 +65,7 @@ class Map extends Component
         }
 
         $this->makeGeoJson();
-        $this->emit('updateMap', $this->type, $this->json, $this->top_districts, $this->max);
+        $this->emit('updateMap', $this->type, $this->json, $this->top_districts, $this->max, $this->ranges);
         $this->emit('updateChart', $this->type, $this->dates, $this->monthlyAvg, $this->repAvg);
     }
 
@@ -114,7 +116,7 @@ class Map extends Component
         $this->repAvg = Null;
         $this->makeGeoJson();
 
-        $this->emit('updateMap', $this->type, $this->json, $this->top_districts, $this->max);
+        $this->emit('updateMap', $this->type, $this->json, $this->top_districts, $this->max, $this->ranges);
         $this->emit('updateChart', $this->type, $this->dates, $this->monthlyAvg, $this->repAvg);
     }
 
@@ -130,7 +132,7 @@ class Map extends Component
             foreach($this->json['features'] as $key=>$feature){
                 if($district->region_code == $feature['properties']['region_code']){
                     $this->json['features'][$key]['factors']['score'] = $district->value;
-                    $this->json['features'][$key]['factors']['color'] = $district->color;
+                    $this->json['features'][$key]['factors']['label'] = $district->label;
                     break;
                 }
             }

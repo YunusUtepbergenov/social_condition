@@ -1,12 +1,23 @@
-function styleSentimentMap(feature) {
+function styleSentimentMap(feature, ranges) {
     if(feature.factors == undefined ){
-        color = -1;
+        num = -1
+        label = null;
     }else{
+        console.log(ranges);
+        range = ranges[0];
         score_val = feature.factors.score;
-        color = feature.factors.color;
+        label = feature.factors.label;
+
+        if(label == 1){
+            num = scale(score_val, range['neg_range_from'], range['neg_range_to'], 1, 0.5);
+        }else if (label == 2){
+            num = scale(score_val, range['neu_range_from'], range['neu_range_to'], 0.5, 1);
+        }else if(label == 3){
+            num = scale(score_val, range['pos_range_from'], range['pos_range_to'], 0.7, 1);
+        }
     }
     return {
-        fillColor: color,
+        fillColor: getColor(num, label),
         weight: 1,
         opacity: 1,
         color: 'white',
@@ -15,13 +26,31 @@ function styleSentimentMap(feature) {
     };
 }
 
-function styleSentimentIndicatorMap(feature, max){
+function getColor(d, labell) {
+    if(num == -1){
+        return '#bababa'}
+    else{
+        if(labell == 1){
+            return 'rgb(68, 119, 170,' + d + ' )'
+        }
+        else if (labell == 2) {
+            return 'rgb(115, 115, 115,' + d + ' )'
+        }
+        else if (labell == 3){
+            return 'rgb(4, 117, 53,' + d + ' )'
+        }
+    }
+}
+
+
+
+function styleSentimentIndicatorMap(feature, max, min){
     if(feature.factors == undefined ){
         num = -1
         label = null;
     }else{
         score_val = feature.factors.score;
-        num = scale(score_val, max, 0, 1, 0.2);
+        num = scale(score_val, max, min, 1, 0.2);
     }
 
     return {
