@@ -12,6 +12,15 @@
     padding: 0.5rem;
 }
 
+.highlightRed{
+    color:#cb1b1b;
+    font-weight: 600;
+}
+
+.highlightGreen{
+    color: rgb(4, 117, 53);
+    font-weight: 600;
+}
 
 .loadingg{
     pointer-events: none;
@@ -221,7 +230,7 @@ hr {
 @media (max-width: 600px) {
 
 }
-  
+
   /* Large screens (more than 1200px) */
 @media (min-width: 1400px) {
     .top_districts{
@@ -229,7 +238,7 @@ hr {
     }
 
     .district_label{
-        font-size: 12px !important;
+        font-size: 14px !important;
     }
 
     .progress{
@@ -237,10 +246,10 @@ hr {
     }
 
     .table th{
-        font-size: 10px;
+        font-size: 13px;
     }
     .table td{
-        font-size: 10px;
+        font-size: 14px;
     }
 
     .filter-texts {

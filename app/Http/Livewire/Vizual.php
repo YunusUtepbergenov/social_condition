@@ -23,7 +23,7 @@ use Illuminate\Support\Facades\Schema;
 class Vizual extends Component
 {
     public $vil_val, $active_tum, $indicators, $activeIndicator, $activeRegion = 'republic';
-    public $data, $json, $ranges, $clusters;
+    public $data, $json, $ranges, $clusters, $indicatorClass = 'highlightRed';
     public $date;
     public $top_districts, $dates = array(), $monthlyAvg = array(), $actualAvg = array();
     public $type = 'mood', $sum;
@@ -167,18 +167,28 @@ class Vizual extends Component
         $class = $this->checkClass();
         $this->top_districts = $class->getTopDistricts($this->activeRegion, $this->activeIndicator, $this->date);
         $this->active_tum = $tuman;
-
         $tum_avg = $this->getTumAvg();
         $actual_avg = $this->getTumActualAvg();
 
         if($this->type == 'mood'){
+            $label = BsScorePrediction::where('district_code', $tuman)->where('date', $this->date)->first()->label;
+            if($label == 1)
+                $this->indicatorClass = 'highlightRed';
+            else
+                $this->indicatorClass = 'highlightGreen';
             $this->indicators = $class->getIndicators($tuman, $this->date, $population, $tum_pop, $this->avg_indicators);
         }
         else if($this->type == 'protests'){
+            if(end($tum_avg) >= 10)
+                $this->indicatorClass = 'highlightRed';
+            else
+                $this->indicatorClass = 'highlightGreen';
+
             $participants = Protest::where('district_code', $tuman)->where('date', '<=', $this->date)->orderBy('date', 'ASC')->get()->pluck('participants')->toArray();
             $this->indicators = $class->getIndicators($tuman, $this->date, $population, $tum_pop, $this->avg_indicators);
         }
         else if($this->type == 'clusters'){
+            $this->indicatorClass = '';
             $this->calcClusters();
             $this->indicators = ClusterDistance::where('district_code', $tuman)->where('date', $this->date)->orderBy('distance', 'DESC')->get();
         }
@@ -363,4 +373,5 @@ class Vizual extends Component
     public function calcAvg($n, $tum_pop){
         return $n * $tum_pop * 100000;
     }
+
 }

@@ -1,9 +1,9 @@
 <div>
     <div class="row">
-        <div class="col-sm-8" wire:ignore>
+        <div class="col-sm-7" wire:ignore>
             <div id="map" style="width: 100%; height:51vh;background:white;"></div>
         </div>
-        <div class="col-sm-4">
+        <div class="col-sm-5">
             <div class="stats" style="width: 100%; height:51vh;background:white;overflow:auto">
                 <div class="card" style="box-shadow: none;overflow-x:hidden">
                     <div class="card-body top_districts">
@@ -47,7 +47,7 @@
                                                         style="transition-duration: 600ms;background-color:rgb(68, 119, 170);color: white;width:{{(($district->score / $top_districts->first()->score)*100 > 15) ? ($district->score / $top_districts->first()->score)*100 : '15' }}%"
                                                         aria-valuemin="0"
                                                         aria-valuemax="100">
-                                                        {{ number_format( round($district->score, 1), 1, ',', ' ' )}}
+                                                        {{ numberToWords($district->score)}}
                                                     </div>
                                                 @else
                                                     <div class="progress-bar" role="progressbar"
@@ -62,7 +62,6 @@
                                     </div>
                                 </div>
                             @endforeach
-
                         @else
                             @foreach ($clusters as $cluster)
                                 <p>{{$cluster->name}}</p>
@@ -118,7 +117,7 @@
     </div>
     <hr>
     <div class="row">
-        <div class="col-sm-8">
+        <div class="col-sm-7">
             <div class="card" style="min-height: 15vh; max-height:28vh">
                 <div class="row">
                     @php
@@ -161,7 +160,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-sm-4">
+        <div class="col-sm-5">
             <div class="stats" style="width: 100%; height:28vh;background:white;overflow:auto">
                 <div class="card" style="box-shadow: none">
                     <div>
@@ -182,17 +181,17 @@
                                 @isset($indicators)
                                     @foreach ($indicators as $key=>$indicator)
                                         <tr>
-                                            <td>{{$key + 1 }}</td>
+                                            <td class="{{ ($key < 3) ? $indicatorClass : '' }}">{{$key + 1 }}</td>
                                             @if ($type != 'clusters')
-                                                <td><a href="#" wire:click="openModal('{{$indicator->feature_name}}')" wire:loading.class="loadingg">{{ $translates[$indicator->feature_name] }}</a></td>
+                                                <td><a href="#" wire:click="openModal('{{$indicator->feature_name}}')" class="{{ ($key < 3) ? $indicatorClass : '' }}" wire:loading.class="loadingg">{{ $translates[$indicator->feature_name] }}</a></td>
                                             @else
                                                 <td><a href="#" wire:click="clusterModal('{{$indicator->indicator}}')" wire:loading.class="loadingg">{{ $translates[$indicator->indicator] }}</a></td>
                                             @endif
-                                            <td>{{ number_format(round($indicator->average, 1 ), 1, ',', ' ') }}</td>
+                                            <td class="{{ ($key < 3) ? $indicatorClass : '' }}">{{ numberToWords($indicator->average) }}</td>
                                             @if ($type == 'clusters')
-                                                <td>{{ number_format(round($indicator->clusterAverage, 1), 1, ',', ' ') }}</td>
+                                                <td>{{ numberToWords($indicator->clusterAverage) }}</td>
                                             @endif
-                                            <td>{{ number_format(round($indicator->value, 1), 1, ',', ' ') }}</td>
+                                            <td class="{{ ($key < 3) ? $indicatorClass : '' }}">{{ numberToWords($indicator->value) }}</td>
                                         </tr>
                                     @endforeach
                                 @endisset
@@ -381,7 +380,7 @@
                 else if(type == 'indicator'){
                     geojson = L.geoJSON(json, {
                         style: function (feature) {
-                            return styleIndicator(feature, top_districts[50]['score'], top_districts[top_districts.length - 1]['score']);
+                            return styleIndicator(feature, top_districts[0]['score'], top_districts[top_districts.length - 1]['score']);
                         },
                     }).addTo(map);
                 }
