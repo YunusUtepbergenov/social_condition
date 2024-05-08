@@ -12,19 +12,19 @@
                 <div class="form-row align-items-center my-3 mx-3">
                   <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" wire:model="radio" wire:click="radioChanged('mood')" id="gridRadios1" value="mood" selected>
-                    <label class="form-check-label filter-texts" for="gridRadios1">
+                    <label class="form-check-label sentiment-texts" for="gridRadios1">
                         Аҳоли кайфияти
                     </label>
                   </div>
                   <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" wire:model="radio" wire:click="radioChanged('indicator')" id="gridRadios3" value="indicator">
-                    <label class="form-check-label filter-texts" for="gridRadios3">
+                    <label class="form-check-label sentiment-texts" for="gridRadios3">
                     Сўровнома натижалари
                     </label>
                   </div>
                   @if ($radio == 'indicator')
                     <div class="form-check form-check-inline" wire:ignore>
-                      <select class="form-select multiline-select" id="select-test" wire:model="indicator">
+                      <select class="form-select multiline-select" id="select-test" style="font-size: 14px" wire:model="indicator">
                         @foreach ($indicators as $indicator)
                           <option value="{{$indicator}}" data-value="{{$indicator}}">{{$columns[$indicator]}}</option>
                         @endforeach

@@ -202,6 +202,10 @@ hr {
     font-size: 9px;
 }
 
+.sentiment-texts{
+    font-size: 14px;
+}
+
 .select2-container {
     box-sizing: border-box;
     display: inline-block;

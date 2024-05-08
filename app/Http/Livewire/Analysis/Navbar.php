@@ -15,7 +15,9 @@ class Navbar extends Component
                         'bs_scores_bs_score_fut', 'bs_scores_month', 'score_bs_score_cur_predict', 'district_name',
                         'ntl_data_cluster_ascending', 'ntl_data_cluster_avg', 'ntl_data_cluster_avg', 'ntl_data_cluster_max',
                         'ntl_data_cluster_min', 'ntl_data_cluster_std', 'ntl_data_cluster_std', 'ntl_data_district', 'ntl_data_region',
-                        'ntl_data_region_avg', 'ntl_data_rep_avg',
+                        'ntl_data_region_avg', 'ntl_data_rep_avg',  'stratas_ishsizlar', 'customs_import', 'banks_deposits_balance_for_cur', 'stratas_ayollar_daftar', 'banks_not_paid_on_time_entrepreneurs',
+                        'students_students', 'students_attendance', 'stratas_nogiron_shaxslar', 'students_academic_leave', 'students_dropouts', 'sug_forest_abonents',
+                        'sug_forest_consump', 'sug_forest_paid', 'sug_forest_price',
                       ];
 
     protected $listeners = ['regionSelected'];

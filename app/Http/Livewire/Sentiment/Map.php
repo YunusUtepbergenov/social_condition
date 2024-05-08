@@ -37,7 +37,7 @@ class Map extends Component
 
     public function mount(){
         $this->type = 'mood';
-        $this->max = 100;
+        $this->max = Sentiment_Merged::max('entrepreneurs_income');
         $this->date = $this->getLatesDate();
         $this->ranges = Sentiment_Range::where('date', $this->date)->get();
         $this->dates = $this->getDates();
@@ -113,6 +113,8 @@ class Map extends Component
             $this->max = 10;
         }else if($indicator == 'income_of_population'){
             $this->max = Sentiment_Merged::max('income_of_population');
+        }else if($indicator == 'entrepreneurs_income'){
+            $this->max = Sentiment_Merged::max('entrepreneurs_income');
         }else{
             $this->max = 100;
         }

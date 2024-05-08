@@ -99,18 +99,18 @@
                                                 <td>{{number_format($cumilativeLastYearNor['feature'], 1, ',', ' ' ) }}</td>
                                             </tr>
                                         @endif
-                                        @isset ($ovrReg['feature'])
+                                        @if ($ovrReg['feature'])
                                             <tr>
                                                 <td>Вилоятдаги улуши</td>
                                                 <td colspan="2">{{number_format( ($curVal / $ovrReg['feature']) * 100 , 1, ',', ' ' ) }}%</td>
                                             </tr>
-                                        @endisset
-                                        @isset ($ovrRep['feature'])
+                                        @endif
+                                        @if ($ovrRep['feature'])
                                             <tr>
                                                 <td>Республикадаги улуши</td>
                                                 <td colspan="2">{{number_format( ($curVal / $ovrRep['feature']) * 100 , 1, ',', ' ' ) }}%</td>
                                             </tr>
-                                        @endisset
+                                        @endif
                                     </tbody>
                                 </table>
                             @endisset

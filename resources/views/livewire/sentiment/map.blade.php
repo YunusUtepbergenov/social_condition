@@ -32,6 +32,8 @@
                                                     $value = $district->value * 10;
                                                 }else if($max == 100){
                                                     $value = $district->value;
+                                                }else{
+                                                    $value = $district->value / $max * 100;
                                                 }
                                             @endphp
                                             <div class="progress-bar"
