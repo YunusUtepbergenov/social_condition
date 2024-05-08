@@ -23,7 +23,11 @@ class Map extends Component
         'funds' => "<b>Ўзгариш оралиғи (%):</b> 0 дан 100 гача. <br>0 – респондентлар орасида жамғармага эга бўлмаганлари <b><u>мавжуд эмас</u></b>, яъни респондентларнинг барчаси жамғармага эга;<br>100 – респондентларнинг барчаси жамғармага эга эмас.",
         'source_income' => "<b>Ўзгариш оралиғи (%):</b> 0 дан 100 гача. <br>0 – респондентлар орасида доимий даромад манбаига эга бўлмаганлари <b><u>мавжуд эмас</u></b>, яъни респондентларнинг барчаси доимий даромад манбаига эга;<br>100 – респондентларнинг барчаси доимий даромад манбаига эга эмас.",
         'welfare_current' => "Респондентларнинг <i>ҳозирги фаровонлиги даражаси</i> (0 дан 10 гача бутун сонлар, 0-энг қуйи ва 10-энг юқори) ҳақидаги саволга белгилаган жафоблари ўртачаси олинади.<br><b>Ўзгариш оралиғи (%):</b> 0 дан 10 гача. <br>0 – респондентларнинг барчаси ҳозирги фаровонлиги даражасини 0 деб белгилаган;<br> 10 – респондентларнинг барчаси ҳозирги фаровонлиги даражасини 10 деб белгилаган.",
-        'welfare_future' => 'Респондентларнинг <i>келгусидаги фаровонлиги даражаси</i> (0 дан 10 гача бутун сонлар, 0-энг қуйи ва 10-энг юқори) ҳақидаги саволга белгилаган жафоблари ўртачаси олинади.<br><b>Ўзгариш оралиғи (%):</b> 0 дан 10 гача. <br>0 – респондентларнинг барчаси келгусидаги фаровонлиги даражасини 0 деб белгилаган;<br>10 – респондентларнинг барчаси келгусидаги фаровонлиги даражасини 10 деб белгилаган.'
+        'welfare_future' => 'Респондентларнинг <i>келгусидаги фаровонлиги даражаси</i> (0 дан 10 гача бутун сонлар, 0-энг қуйи ва 10-энг юқори) ҳақидаги саволга белгилаган жафоблари ўртачаси олинади.<br><b>Ўзгариш оралиғи (%):</b> 0 дан 10 гача. <br>0 – респондентларнинг барчаси келгусидаги фаровонлиги даражасини 0 деб белгилаган;<br>10 – респондентларнинг барчаси келгусидаги фаровонлиги даражасини 10 деб белгилаган.',
+        "inflation_current" => "Сўнгги 3 ой нарх ошганлигини билдирганлар (инфляцион сезилмалар)",
+        "inflation_future" => "Келгуси 3 ойда нарх ошишини кутаётганлар (инфляцион кутилмалар)",
+        "income_of_population" => "Аҳолининг ўртача даромадлари (млн. сўм)",
+        "entrepreneurs_income" => "Тадбиркорларнинг ўртача даромадлари (млн. сўм)",
     ];
 
     public function render()
@@ -60,7 +64,7 @@ class Map extends Component
                                     ->where('date', $date)
                                     ->orderByRaw('value DESC nulls last')
                                     ->get();
-            $this->monthlyAvg = Sentiment_Republic::select('date', DB::raw($this->activeIndicator.' as index'))->whereIn('date', $this->dates)->get()->pluck('index')->toArray();
+            $this->monthlyAvg = Sentiment_Republic::select('date', DB::raw($this->activeIndicator.' as index'))->whereIn('date', $this->dates)->orderBy('date', 'ASC')->get()->pluck('index')->toArray();
             $this->repAvg = Null;
         }
 
@@ -92,11 +96,11 @@ class Map extends Component
             $this->monthlyAvg = Sentiment::select('date', DB::raw('AVG(value) as average'))->where('region_code', $region_code)->where('date', '<=', $this->date)->groupBy('date')->orderBy('date')->get()->pluck('average')->toArray();
             $this->indicators = Sentiment_Question::select('question', DB::raw('(very_bad + bad) as bad, normal, (good + very_good) as good'))->where('region_code', $region_code)->where('date', $this->date)->orderBy('question')->get();
             $this->prev_indicators = Sentiment_Question::select('question', DB::raw('(very_bad + bad) as bad, normal, (good + very_good) as good'))->where('region_code', $region_code)->where('date', $prev_month)->orderBy('question')->get();
-            $this->repAvg = Sentiment_Republic::select('date', DB::raw('sentiment_index as index'))->whereIn('date', $this->dates)->get()->pluck('index')->toArray();
+            $this->repAvg = Sentiment_Republic::select('date', DB::raw('sentiment_index as index'))->whereIn('date', $this->dates)->orderBy('date', 'ASC')->get()->pluck('index')->toArray();
         }else{
             $this->top_districts = Sentiment_Merged::select(['region_code', 'region', DB::raw($this->activeIndicator . ' as value')])->where('date', $this->date)->orderByRaw('value DESC nulls last')->get();
             $this->monthlyAvg = Sentiment_Merged::select('date',  DB::raw('AVG('.$this->activeIndicator.') as average'))->where('region_code', $region_code)->where('date', '<=', $this->date)->groupBy('date')->orderBy('date')->get()->pluck('average')->toArray();
-            $this->repAvg = Sentiment_Republic::select('date', DB::raw($this->activeIndicator.' as index'))->whereIn('date', $this->dates)->get()->pluck('index')->toArray();
+            $this->repAvg = Sentiment_Republic::select('date', DB::raw($this->activeIndicator.' as index'))->whereIn('date', $this->dates)->orderBy('date', 'ASC')->get()->pluck('index')->toArray();
         }
         $this->emit('updateChart', $this->type, $this->dates, $this->monthlyAvg, $this->repAvg);
     }
@@ -107,11 +111,13 @@ class Map extends Component
         $this->showIndicatorDescription();
         if(in_array($indicator, ['welfare_current', 'welfare_future'])){
             $this->max = 10;
+        }else if($indicator == 'income_of_population'){
+            $this->max = Sentiment_Merged::max('income_of_population');
         }else{
             $this->max = 100;
         }
 
-        $this->monthlyAvg = Sentiment_Republic::select('date', DB::raw($this->activeIndicator.' as index'))->whereIn('date', $this->dates)->get()->pluck('index')->toArray();
+        $this->monthlyAvg = Sentiment_Republic::select('date', DB::raw($this->activeIndicator.' as index'))->whereIn('date', $this->dates)->orderBy('date', 'ASC')->get()->pluck('index')->toArray();
         $this->top_districts = Sentiment_Merged::select(['region_code', 'region', DB::raw($indicator . ' as value')])->where('date', $this->date)->orderByRaw('value DESC nulls last')->get();
         $this->repAvg = Null;
         $this->makeGeoJson();

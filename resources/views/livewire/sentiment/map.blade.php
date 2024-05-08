@@ -30,7 +30,7 @@
                                             @php
                                                 if ($max == 10) {
                                                     $value = $district->value * 10;
-                                                }else{
+                                                }else if($max == 100){
                                                     $value = $district->value;
                                                 }
                                             @endphp
