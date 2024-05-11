@@ -51,64 +51,64 @@
                                     <tbody>
                                         <tr>
                                             <td>Туман кўрсаткичи</td>
-                                            <td>{{ number_format( $curVal, 1, ',', ' ' ) }}</td>
-                                            <td>{{number_format($curValNor, 1, ',', ' ' )}}</td>
+                                            <td>{{ numberToWords($curVal) }}</td>
+                                            <td>{{numberToWords($curValNor)}}</td>
                                         </tr>
                                         <tr>
                                             <td>Республика кўрсаткичи</td>
-                                            <td>{{number_format($repAvg['score'], 1, ',', ' ' )}}</td>
-                                            <td>{{number_format($repAvgNor['score'], 1, ',', ' ' )}}</td>
+                                            <td>{{numberToWords($repAvg['score'])}}</td>
+                                            <td>{{numberToWords($repAvgNor['score'])}}</td>
                                         </tr>
                                         <tr>
                                             <td>Вилоят кўрсаткичи</td>
-                                            <td>{{number_format($vilAvg['score'], 1, ',', ' ' )}}</td>
-                                            <td>{{number_format($vilAvgNor['score'], 1, ',', ' ' )}}</td>
+                                            <td>{{numberToWords($vilAvg['score'])}}</td>
+                                            <td>{{numberToWords($vilAvgNor['score'])}}</td>
                                         </tr>
                                         <tr>
                                             <td>Ўтган ой кўрсаткичи</td>
-                                            <td>{{number_format($lastMonth, 1, ',', ' ' ) }}</td>
-                                            <td>{{number_format($lastMonthNor, 1, ',', ' ' ) }}</td>
+                                            <td>{{numberToWords($lastMonth) }}</td>
+                                            <td>{{numberToWords($lastMonthNor) }}</td>
                                         </tr>
                                         <tr>
                                             <td>Бир йил олдинги кўрсаткич</td>
-                                            <td>{{number_format($lastYear, 1, ',', ' ' ) }}</td>
-                                            <td>{{number_format($lastYearNor, 1, ',', ' ' ) }}</td>
+                                            <td>{{numberToWords($lastYear) }}</td>
+                                            <td>{{numberToWords($lastYearNor) }}</td>
                                         </tr>
 
                                         @if ($lastMonth != 0)
                                             <tr>
                                                 <td>Ўтган ойга нисбатан ўсиш</td>
-                                                <td colspan="2">{{number_format( ($curVal - $lastMonth) * 100 / abs($lastMonth), 1, ',', ' ' ) }}%</td>
+                                                <td colspan="2">{{numberToWords( ($curVal - $lastMonth) * 100 / abs($lastMonth)) }}%</td>
                                             </tr>
                                         @endif
                                         @if ($lastYear)
                                             <tr>
                                                 <td>Бир йил олдинга нисбатан ўсиш</td>
-                                                <td colspan="2">{{number_format(($curVal - $lastYear) * 100 / abs($lastYear), 1, ',', ' ' ) }}%</td>
+                                                <td colspan="2">{{numberToWords(($curVal - $lastYear) * 100 / abs($lastYear))}}%</td>
                                             </tr>
                                         @endif
                                         @if ( date('F', strtotime($date)) != "January")
                                             <tr>
                                                 <td>{{date('Y', strtotime($date))}} йил январь - {{$months[date('F', strtotime($date))]}} </td>
-                                                <td>{{number_format($cumilativeThisYear['feature'], 1, ',', ' ' ) }}</td>
-                                                <td>{{number_format($cumilativeThisYearNor['feature'], 1, ',', ' ' ) }}</td>
+                                                <td>{{numberToWords($cumilativeThisYear['feature']) }}</td>
+                                                <td>{{numberToWords($cumilativeThisYearNor['feature']) }}</td>
                                             </tr>
                                             <tr>
                                                 <td>{{date('Y', strtotime($lastYearDate))}} йил январь - {{$months[date('F', strtotime($lastYearDate))]}}</td>
-                                                <td>{{number_format($cumilativeLastYear['feature'], 1, ',', ' ' ) }}</td>
-                                                <td>{{number_format($cumilativeLastYearNor['feature'], 1, ',', ' ' ) }}</td>
+                                                <td>{{numberToWords($cumilativeLastYear['feature']) }}</td>
+                                                <td>{{numberToWords($cumilativeLastYearNor['feature']) }}</td>
                                             </tr>
                                         @endif
                                         @if ($ovrReg['feature'])
                                             <tr>
                                                 <td>Вилоятдаги улуши</td>
-                                                <td colspan="2">{{number_format( ($curVal / $ovrReg['feature']) * 100 , 1, ',', ' ' ) }}%</td>
+                                                <td colspan="2">{{numberToWords( ($curVal / $ovrReg['feature']) * 100) }}%</td>
                                             </tr>
                                         @endif
                                         @if ($ovrRep['feature'])
                                             <tr>
                                                 <td>Республикадаги улуши</td>
-                                                <td colspan="2">{{number_format( ($curVal / $ovrRep['feature']) * 100 , 1, ',', ' ' ) }}%</td>
+                                                <td colspan="2">{{numberToWords( ($curVal / $ovrRep['feature']) * 100) }}%</td>
                                             </tr>
                                         @endif
                                     </tbody>
