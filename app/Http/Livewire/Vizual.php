@@ -65,8 +65,12 @@ class Vizual extends Component
 
             $data = MergedOrg::select(DB::raw($feature .' as score'), 'date')->where('district_code', $this->active_tum)->whereIn('date', $this->dates)->orderBy('date')->get()->pluck('score', 'date')->toArray();
             $dataAvg = MergedOrg::select(DB::raw($feature.'* 100000 / demography_population as score'), 'date')->where('district_code', $this->active_tum)->whereIn('date', $this->dates)->orderBy('date')->get()->pluck('score')->toArray();
-
-            $this->emit('showInfoModal', $feature, $this->active_tum, $data, $dataAvg, date("Y-m-d", strtotime($this->date . "-1 month")), $this->dates, $population, $tum_pop, $this->avg_indicators);
+            if($this->type != 'indicator'){
+                $date = date("Y-m-d", strtotime($this->date . "-1 month"));
+            }else{
+                $date = $this->date;
+            }
+            $this->emit('showInfoModal', $feature, $this->active_tum, $data, $dataAvg, $date, $this->dates, $population, $tum_pop, $this->avg_indicators);
             $this->regionClicked($this->active_tum);
         }
     }
@@ -180,8 +184,11 @@ class Vizual extends Component
                 $this->indicatorClass = 'highlightRed';
             else
                 $this->indicatorClass = 'highlightGreen';
-
             $participants = Protest::where('district_code', $tuman)->where('date', '<=', $this->date)->orderBy('date', 'ASC')->get()->pluck('participants')->toArray();
+            $this->indicators = $class->getIndicators($tuman, $this->date, $population, $tum_pop, $this->avg_indicators);
+        }
+        else if($this->type == 'indicator'){
+            $this->indicatorClass = '';
             $this->indicators = $class->getIndicators($tuman, $this->date, $population, $tum_pop, $this->avg_indicators);
         }
         else if($this->type == 'clusters'){

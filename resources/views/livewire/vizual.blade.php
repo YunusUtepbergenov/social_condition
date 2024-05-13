@@ -164,7 +164,7 @@
             <div class="stats" style="width: 100%; height:28vh;background:white;overflow:auto">
                 <div class="card" style="box-shadow: none">
                     <div>
-                        @if($type == 'mood' || $type == 'protests' || $type == 'clusters')
+                        {{-- @if($type == 'mood' || $type == 'protests' || $type == 'clusters') --}}
                         <table class="table" id="district_stat">
                             <thead class="thead-light" id="thead">
                                 <tr>
@@ -197,7 +197,7 @@
                                 @endisset
                             </tbody>
                         </table>
-                        @else
+                        {{-- @else
                         <h5 class="card-header timeline">
                             @if ($activeRegion == 'republic')
                                 {{ "Республика бўйича ".$translates[$activeIndicator] }} ({{$date}} ойи учун)
@@ -224,8 +224,8 @@
                             <div class="col-md-6">
                                 <h4><span style="color: rgb(68, 119, 170);font-size: 122.991%;">{{number_format( $top_districts->avg('score'), 0, ',', ' ' ) }}</span></h4>
                             </div>
-                        </div>
-                        @endif
+                        </div> --}}
+                        {{-- @endif --}}
                     </div>
                 </div>
             </div>

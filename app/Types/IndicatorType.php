@@ -3,6 +3,7 @@
 namespace App\Types;
 
 use App\Abstracts\DataType;
+use App\Models\Indicator_Ranking;
 use App\Models\MergedOrg;
 use Illuminate\Support\Facades\DB;
 
@@ -45,6 +46,21 @@ class IndicatorType extends DataType {
                             ->pluck('sum')
                             ->toArray();
         }
+    }
+
+    public function getIndicators($tuman, $date, $population, $tum_pop, $avg_indicators){
+        $indicators = Indicator_Ranking::where('district_code', $tuman)->whereDate('date', $date)->orderBy('rank', 'DESC')->get();
+
+        return $indicators->map(function($indicator) use ($tuman, $date,$population, $tum_pop, $avg_indicators){
+            if(in_array($indicator->feature_name, $avg_indicators)){
+                $indicator->average = (MergedOrg::select(DB::raw('AVG('. $indicator->feature_name. ') as avg'))->whereDate('date', $date)->groupBy('date')->first()->avg);
+                $indicator->value = MergedOrg::select($indicator->feature_name. ' as indicator')->whereDate('date', $date)->where('district_code', $tuman)->first()->indicator;
+            }else{
+                $indicator->average = (MergedOrg::select(DB::raw('SUM('. $indicator->feature_name. ') as sum'))->where('date', $date)->groupBy('date')->first()->sum / $population) * 100000;
+                $indicator->value = (MergedOrg::select($indicator->feature_name. ' as indicator')->where('date', $date)->where('district_code', $tuman)->first()->indicator / $tum_pop) * 100000;
+            }
+            return $indicator;
+        });
     }
 
     public function getRegionData($region, $date){

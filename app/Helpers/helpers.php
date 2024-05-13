@@ -20,12 +20,26 @@ if (!function_exists('findDistrict')) {
 
 if (!function_exists('numberToWords')) {
     function numberToWords($number) {
-        if ($number >= 1000000000) {
-            return number_format($number / 1000000000, 1) . ' млрд.';
-        } elseif ($number >= 1000000) {
-            return number_format($number / 1000000, 1) . ' млн.';
+        $isNegative = false;
+        if ($number < 0) {
+            $isNegative = true;
+            $number = abs($number);
         }
-        return number_format(round($number, 1 ), 1, ',', ' ');
 
+        if ($number >= 1000000000) {
+            $result = number_format($number / 1000000000, 1) . ' млрд.';
+        } elseif ($number >= 1000000) {
+            $result = number_format($number / 1000000, 1) . ' млн.';
+        } elseif ($number >= 1000) {
+            $result = number_format($number / 1000, 1) . ' минг';
+        } else {
+            $result = number_format(round($number, 1 ), 1, '.', ' ');
+        }
+
+        if ($isNegative) {
+            $result = '-' . $result;
+        }
+
+        return $result;
     }
 }
