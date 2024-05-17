@@ -189,11 +189,11 @@ function changeProtestChart(data, actual, dates, type, label, participants){
         scales: {
             y: {
                 beginAtZero: false,
-                position: 'left',
+                position: 'right',
             },
             y1: {
                 beginAtZero: true,
-                position: 'right',
+                position: 'left',
             },
         },
     }
@@ -247,6 +247,9 @@ function changeClusterChart2(data, dates){
         }],
     }
     chart.options = {
+        responsive: true,
+        maintainAspectRatio: false,
+        aspectRatio: 1,
         plugins: {
             legend: {
                 display: false

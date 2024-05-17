@@ -164,7 +164,6 @@
             <div class="stats" style="width: 100%; height:28vh;background:white;overflow:auto">
                 <div class="card" style="box-shadow: none">
                     <div>
-                        {{-- @if($type == 'mood' || $type == 'protests' || $type == 'clusters') --}}
                         <table class="table" id="district_stat">
                             <thead class="thead-light" id="thead">
                                 <tr>
@@ -197,42 +196,15 @@
                                 @endisset
                             </tbody>
                         </table>
-                        {{-- @else
-                        <h5 class="card-header timeline">
-                            @if ($activeRegion == 'republic')
-                                {{ "Республика бўйича ".$translates[$activeIndicator] }} ({{$date}} ойи учун)
-                            @else
-                                {{ findRegion($activeRegion). " бўйича ".$translates[$activeIndicator] }} ({{$date}} ойи учун:)
-                            @endif
-                        </h5>
-                        <div class="row" style="padding: 10px">
-                            <div class="col-md-6">
-                                <h4 style="text-align: center; font-weight:100;float:right">Максимум қиймат:</h4>
-                            </div>
-                            <div class="col-md-6">
-                                <h4><span style="color: rgb(68, 119, 170);font-size: 122.991%;">{{number_format( $top_districts->first()->score, 0, ',', ' ' )}}</span></h4>
-                            </div>
-                            <div class="col-md-6">
-                                <h4 style="text-align: center; font-weight:100;float:right">Умумий қиймат:</h4>
-                            </div>
-                            <div class="col-md-6">
-                                <h4><span style="color: rgb(68, 119, 170);font-size: 122.991%;">{{number_format( $top_districts->sum('score'), 0, ',', ' ' ) }}</span></h4>
-                            </div>
-                            <div class="col-md-6">
-                                <h4 style="text-align: center; font-weight:100;float:right">Ўртача қиймат:</h4>
-                            </div>
-                            <div class="col-md-6">
-                                <h4><span style="color: rgb(68, 119, 170);font-size: 122.991%;">{{number_format( $top_districts->avg('score'), 0, ',', ' ' ) }}</span></h4>
-                            </div>
-                        </div> --}}
-                        {{-- @endif --}}
                     </div>
                 </div>
             </div>
         </div>
     </div>
     <hr>
-
+    <div wire:loading>
+        <div class="loading">Loading&#8230;</div>
+    </div>
     @prepend('scripts')
         <script>
             var mapOptions = {
@@ -263,6 +235,7 @@
                     return style1(feature, <?php echo json_encode($top_districts[0]['score']); ?>, <?php echo json_encode($ranges); ?>);
                 },
             }).addTo(map);
+
             geojson.eachLayer(function (layer) {
                 layer.on('click', function(e) {
                     var element = document.getElementById(this.feature.properties.district_code);
@@ -291,6 +264,7 @@
             });
 
             const ctx = document.getElementById('myChart1');
+
             var chart = new Chart(ctx, {
                 type: 'line',
                 data: {
