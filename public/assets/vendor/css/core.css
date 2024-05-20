@@ -15254,7 +15254,8 @@ html:not(.layout-menu-fixed) .menu-inner-shadow {
   display: flex;
   flex: 1 1 auto;
   align-items: stretch;
-  padding: 0;
+  /* padding: 0; */
+  padding-left: 16.25rem
 }
 .layout-without-menu .layout-page {
   padding-right: 0 !important;
@@ -16666,11 +16667,11 @@ html:not(.layout-footer-fixed) .content-wrapper {
   border-color: rgba(105, 122, 141, 0.0783835294);
 }
 
-@media only screen   
-and (min-device-width : 768px)   
-and (max-device-width : 1024px)  
-{ 
+@media only screen
+and (min-device-width : 768px)
+and (max-device-width : 1024px)
+{
   .menu-vertical{
     width: 16.25rem;
   }
-}  
+}

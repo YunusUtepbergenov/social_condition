@@ -394,7 +394,7 @@ function styleIndicator(feature, max, min){
         label = null;
     }else{
         score_val = feature.factors.score;
-        num = scale(score_val, max, min, 1, 0.2);
+        num = scale(score_val, max, min-1, 1, 0.2);
     }
 
     return {

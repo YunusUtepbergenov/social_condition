@@ -105,7 +105,7 @@ hr {
 
 .bg-menu-theme .menu-inner > .menu-item.active > .menu-link {
     color: #fff;
-    background-color: rgba(255, 255, 255, 0.2) !important;
+background-color: rgba(255, 255, 255, 0.2) !important;
 }
 
 .bg-menu-theme .menu-inner > .menu-item.active:before {
@@ -303,8 +303,10 @@ hr {
 }
 
 
-@media (max-width: 600px) {
-
+@media (max-width: 1200px) {
+    .layout-page{
+        padding: 0;
+    }
 }
 
   /* Large screens (more than 1200px) */

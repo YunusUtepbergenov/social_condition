@@ -41,7 +41,7 @@
     <div class="layout-wrapper layout-content-navbar">
       <div class="layout-container">
           @livewire('analysis.filter')
-      <div class="layout-page" style="padding-left: 16.25rem">
+      <div class="layout-page">
         @livewire('analysis.navbar')
         <div class="content-wrapper">
               <div class="flex-grow-1 p-4">
