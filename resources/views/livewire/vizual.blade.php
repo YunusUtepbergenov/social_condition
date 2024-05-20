@@ -38,13 +38,13 @@
                                     <div class="col-lg-7 progress_indicator">
                                         <div class="progress">
                                             @if ($type == 'mood')
-                                                <div class="progress-bar" role="progressbar" style="transition-duration: 600ms; background-color:{{$color}}; color: white;width:{{( $district->score / 200 ) * 100 }}%" aria-valuemin="0" aria-valuemax="100">{{number_format( round($district->score, 1), 1, ',', ' ' ) }}</div>
+                                                <div class="progress-bar" role="progressbar" style="transition-duration: 600ms; background-color:{{$color}}; color: white;width:{{( $district->score / 200 ) * 100 }}%" aria-valuemin="0" aria-valuemax="100">{{number_format( round($district->score, 1), 1, '.', ' ' ) }}</div>
                                             @elseif ($type == 'protests')
-                                                <div class="progress-bar" role="progressbar" style="transition-duration: 600ms;background-color:rgb(68, 119, 170); color: white;width:{{($district->score > 9) ? $district->score: '9' }}%" aria-valuemin="0" aria-valuemax="100">{{ number_format( $district->score, 1, ',', ' ' )}}</div>
+                                                <div class="progress-bar" role="progressbar" style="transition-duration: 600ms;background-color:rgb(68, 119, 170); color: white;width:{{($district->score > 9) ? $district->score: '9' }}%" aria-valuemin="0" aria-valuemax="100">{{ number_format( $district->score, 1, '.', ' ' )}}%</div>
                                             @elseif($type == 'indicator')
                                                 @if ($top_districts->first()->score)
                                                     <div class="progress-bar" role="progressbar"
-                                                        style="transition-duration: 600ms;background-color:rgb(68, 119, 170);color: white;width:{{(($district->score / $top_districts->first()->score)*100 > 15) ? ($district->score / $top_districts->first()->score)*100 : '15' }}%"
+                                                        style="transition-duration: 600ms;background-color:rgb(68, 119, 170);color: white;width:{{(($district->score / $top_districts->first()->score) * 100 > 25) ? ($district->score / $top_districts->first()->score) * 100 : '25' }}%"
                                                         aria-valuemin="0"
                                                         aria-valuemax="100">
                                                         {{ numberToWords($district->score)}}
