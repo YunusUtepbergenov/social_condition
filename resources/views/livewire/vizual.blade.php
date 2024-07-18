@@ -4,9 +4,23 @@
             <div id="map" style="width: 100%; height:51vh;background:white;"></div>
         </div>
         <div class="col-sm-5">
-            <div class="stats" style="width: 100%; height:51vh;background:white;overflow:auto">
-                <div class="card" style="box-shadow: none;overflow-x:hidden">
-                    <div class="card-body top_districts">
+            <div class="stats" style="width: 100%;background:white;overflow:auto">
+                <div class="card" style="box-shadow: none;overflow-x:hidden; height:51vh;">
+                    <div class="card-header">
+                        <div style="position: sticky;top: -1px;margin-top: -5px;">
+                            <div style="margin:auto">
+                                @if ($top_districts->first()->getTable() == "bs_scores_prediction")
+                                    <h5 style="text-align: center; padding:5px; margin:0;">Сунъий интеллект башорати</h5>
+                                    <hr>
+                                @elseif($top_districts->first()->getTable() == "bs_scores")
+                                    <h5 style="text-align: center; padding:5px; margin:0;">Сўровнома бўйича индекс қийматлари</h5>
+                                    <hr>
+                                @endif
+                            </div>
+                        </div>
+                        {{-- @dd($top_districts->first()->getTable()) --}}
+                    </div>
+                    <div class="card-body top_districts" style="overflow-y: auto">
                         @if($type != 'clusters')
                             @foreach ($top_districts as $key => $district)
                                 <div class="row" style="padding: 2px 5px">
@@ -23,13 +37,22 @@
                                         @endif
                                         <div class="form-check">
                                             @if ($type == 'indicator')
-                                                <a class="form-check-label district_label" id="{{$district->district_code}}" style="font-weight:{{($district->district_code == $active_tum) ? 'bold': ''}};" wire:click="$emit('regionClicked', '{{$district->district_code}}')">
+                                                <a class="form-check-label district_label" id="{{$district->district_code}}" 
+                                                    style="font-weight:{{($district->district_code == $active_tum) ? 'bold': ''}};" 
+                                                    wire:click="$emit('regionClicked', '{{$district->district_code}}')">
                                                     {{ $key + 1 }}. {{ $district->district_name}}
                                                 </a>
                                             @elseif ($type == 'clusters')
-                                                <a href="#" id="{{$district->district_code}}" class="form-check-label district_label" style="font-weight:{{($district->district_code == $active_tum) ? 'bold': ''}};" wire:click="$emit('regionClicked', '{{$district->district_code}}')"> {{ $key + 1 }}. {{ $district->district->name}}</a>
+                                                <a href="#" id="{{$district->district_code}}" 
+                                                    class="form-check-label district_label" 
+                                                    style="font-weight:{{($district->district_code == $active_tum) ? 'bold': ''}};" 
+                                                    wire:click="$emit('regionClicked', '{{$district->district_code}}')"> {{ $key + 1 }}. {{ $district->district->name}}
+                                                </a>
                                             @else
-                                                <a href="#" class="form-check-label district_label" id="{{$district->district_code}}" style="font-weight:{{($district->district_code == $active_tum) ? 'bold': ''}};" wire:click="$emit('regionClicked', '{{$district->district_code}}')">
+                                                <a href="#" class="form-check-label district_label" 
+                                                    id="{{$district->district_code}}" 
+                                                    style="font-weight:{{($district->district_code == $active_tum) ? 'bold': ''}};" 
+                                                    wire:click="$emit('regionClicked', '{{$district->district_code}}')">
                                                     {{ $key + 1 }}. {{ $district->district->name}}
                                                 </a>
                                             @endif
@@ -44,7 +67,8 @@
                                             @elseif($type == 'indicator')
                                                 @if ($top_districts->first()->score)
                                                     <div class="progress-bar" role="progressbar"
-                                                        style="transition-duration: 600ms;background-color:rgb(68, 119, 170);color: white;width:{{(($district->score / $top_districts->first()->score) * 100 > 25) ? ($district->score / $top_districts->first()->score) * 100 : '25' }}%"
+                                                        style="transition-duration: 600ms;background-color:rgb(68, 119, 170);color: white;
+                                                        width:{{(($district->score / $top_districts->first()->score) * 100 > 25) ? ($district->score / $top_districts->first()->score) * 100 : '25' }}%"
                                                         aria-valuemin="0"
                                                         aria-valuemax="100">
                                                         {{ numberToWords($district->score)}}
@@ -160,6 +184,7 @@
                 </div>
             </div>
         </div>
+        
         <div class="col-sm-5">
             <div class="stats" style="width: 100%; height:28vh;background:white;overflow:auto">
                 <div class="card" style="box-shadow: none">
@@ -215,6 +240,8 @@
                 maxZoom: 10,
                 attributionControl:false
             }
+
+            var activeLayer = null;
 
             if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)){
                 mapOptions.dragging = false;
@@ -310,10 +337,29 @@
             Livewire.on('changeTable', (tuman, data, actual, participants, dates, date, type) => {
                 // var keys = Object.keys(geojson._layers);
                 // var layer_id;
-                // keys.forEach(function(key){
-                //     if(geojson._layers[key].feature.properties.district_code == tuman)
+                // if (activeLayer) {
+                //     resetLayerStyle(activeLayer);
+                // }
+                // // keys.forEach(function(key){
+                // for (var key of keys){
+                //     if(geojson._layers[key].feature.properties.district_code == tuman){
                 //         layer_id = key;
-                // });
+                //         break;
+                //     }
+                // };
+
+                // activeLayer = geojson._layers[layer_id]; 
+                // activeLayer.setStyle({
+                //         weight: 1,
+                //         color: '#000',
+                //         fillOpacity: 1
+                //     });
+                
+                // activeLayer.bringToFront();
+
+                // var originalLatLng = activeLayer.getLatLng();
+                // var newLatLng = L.latLng(originalLatLng[0].lat - 0.01, originalLatLng[0].lng); // Move upward by 0.001 degrees
+                // activeLayer.setLatLng(newLatLng);
 
                 var string = '';
                 switch (type) {
@@ -334,6 +380,19 @@
                         break;
                 }
             });
+
+            function resetLayerStyle(layer) {
+                if (layer instanceof L.Path) {
+                    layer.setStyle({
+                        weight: 1,
+                        color: '#fff',
+                        fillOpacity: 1
+                    });
+                } else if (layer instanceof L.Marker) {
+                    layer.setZIndexOffset(0);
+                }
+                // Add more conditions for other layer types as needed
+            }
 
             Livewire.on('updateMap', (type, json, top_districts, ranges) => {
                 map.remove();

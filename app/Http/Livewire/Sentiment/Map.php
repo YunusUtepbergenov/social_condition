@@ -44,13 +44,23 @@ class Map extends Component
         $this->activeIndicator = Null;
         $this->top_districts = Sentiment::where('date', $this->date)->orderBy('value', 'DESC')->get();
         $this->monthlyAvg = Sentiment_Republic::select('date', DB::raw('sentiment_index as index'))->whereIn('date', $this->dates)->orderBy('date')->get()->pluck('index')->toArray();
+        $prev_month = date("Y-m-d", strtotime($this->date . "-1 month"));
+
+        $this->indicators = Sentiment_Question::select('question', DB::raw('(very_bad + bad) as bad, normal, (good + very_good) as good'))->where('region_code', 1700)->where('date', $this->date)->orderBy('question')->get();
+        $this->prev_indicators = Sentiment_Question::select('question', DB::raw('(very_bad + bad) as bad, normal, (good + very_good) as good'))->where('region_code', 1700)->where('date', $prev_month)->orderBy('question')->get();
+
         $this->makeGeoJson();
     }
 
     public function dateChanged($date){
-        $this->indicators = Null;
-        $this->activeRegion = 'republic';
         $this->date = $date;
+        $prev_month = date("Y-m-d", strtotime($date . "-1 month"));
+
+        $this->indicators = Sentiment_Question::select('question', DB::raw('(very_bad + bad) as bad, normal, (good + very_good) as good'))->where('region_code', 1700)->where('date', $this->date)->orderBy('question')->get();
+        $this->prev_indicators = Sentiment_Question::select('question', DB::raw('(very_bad + bad) as bad, normal, (good + very_good) as good'))->where('region_code', 1700)->where('date', $prev_month)->orderBy('question')->get();
+        
+        $this->activeRegion = 'republic';
+
         $this->dates = $this->getDates();
         $this->ranges = Sentiment_Range::where('date', $this->date)->get();
 

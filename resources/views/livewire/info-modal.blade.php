@@ -55,12 +55,12 @@
                                             <td>{{numberToWords($curValNor)}}</td>
                                         </tr>
                                         <tr>
-                                            <td>Республика кўрсаткичи</td>
+                                            <td>Республикадаги ўртача кўрсаткичи <br> <span style="font-size:9px"><i>(Туманлар бўйича ўртача)</i></span></td>
                                             <td>{{numberToWords($repAvg['score'])}}</td>
                                             <td>{{numberToWords($repAvgNor['score'])}}</td>
                                         </tr>
                                         <tr>
-                                            <td>Вилоят кўрсаткичи</td>
+                                            <td>Вилоят кўрсаткичи <br> <span style="font-size:9px"><i>(Туманлар бўйича ўртача)</i></span></td>
                                             <td>{{numberToWords($vilAvg['score'])}}</td>
                                             <td>{{numberToWords($vilAvgNor['score'])}}</td>
                                         </tr>
@@ -78,13 +78,13 @@
                                         @if ($lastMonth != 0)
                                             <tr>
                                                 <td>Ўтган ойга нисбатан ўсиш</td>
-                                                <td colspan="2">{{numberToWords( ($curVal - $lastMonth) * 100 / abs($lastMonth)) }}%</td>
+                                                <td colspan="2">{{round( ($curVal - $lastMonth) * 100 / abs($lastMonth), 1) }}%</td>
                                             </tr>
                                         @endif
                                         @if ($lastYear)
                                             <tr>
                                                 <td>Бир йил олдинга нисбатан ўсиш</td>
-                                                <td colspan="2">{{numberToWords(($curVal - $lastYear) * 100 / abs($lastYear))}}%</td>
+                                                <td colspan="2">{{round(($curVal - $lastYear) * 100 / abs($lastYear), 1)}}%</td>
                                             </tr>
                                         @endif
                                         @if ( date('F', strtotime($date)) != "January")

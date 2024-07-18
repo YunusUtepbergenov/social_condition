@@ -98,7 +98,7 @@
           });
 
           $(document).on('change', '#select-test', function (e) {
-                @this.set('indicator', $(this).find(':selected').data('value'));
+            @this.set('indicator', $(this).find(':selected').data('value'));
           });
         });
     </script>

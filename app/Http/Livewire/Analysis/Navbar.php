@@ -25,8 +25,7 @@ class Navbar extends Component
     public function mount(){
         $this->indicators = Schema::getColumnListing('merged_org');
         $this->indicators = array_diff($this->indicators, $this->exclude);
-        // asort($this->indicators);
-    $this->indicators = array_values($this->indicators);
+        $this->indicators = array_values($this->indicators);
     }
 
     public function render()

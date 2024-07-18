@@ -30,7 +30,6 @@ class InfoModal extends Component
     }
 
     public function showInfoModal($feature, $district, $data, $dataAvg, $date, $dates, $population, $tum_pop, $avg_indicators){
-
         $tum_pop_arr = MergedOrg::select('demography_population as population', 'date')->where('district_code', $district)->orderBy('date', 'ASC')->get()->pluck('population', 'date')->toArray();
         $multiplier = 100000;
         $this->activeDistrict = $district;

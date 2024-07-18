@@ -24,7 +24,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $records = TableName::all();
+        $records = TableName::select('merged_name', 'column_uz')->get();
         $translates = [];
         foreach($records as $record){
             $translates[$record->merged_name] = $record->column_uz;

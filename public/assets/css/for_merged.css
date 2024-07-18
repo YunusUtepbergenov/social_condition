@@ -12,6 +12,11 @@
     padding: 0.5rem;
 }
 
+.move-up {
+    transform: translateY(-200px);
+    transition: transform 0.3s ease-out;
+  }
+
 .highlightRed{
     color:#cb1b1b;
     font-weight: 600;
@@ -331,7 +336,7 @@ background-color: rgba(255, 255, 255, 0.2) !important;
     }
 
     .filter-texts {
-        font-size: 11px;
+        font-size: 13px;
     }
 
     #slider label {
@@ -343,7 +348,7 @@ background-color: rgba(255, 255, 255, 0.2) !important;
         width: 220px; /* Adjust to your preferred width */
         height: auto; /* Height will adjust based on the size attribute */
         font-family: Arial, sans-serif;
-        font-size: 11px;
+        font-size: 13px;
         z-index: 1100;
     }
 
