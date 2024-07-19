@@ -34,8 +34,9 @@ class InfoModal extends Component
         $multiplier = 100000;
         $this->activeDistrict = $district;
         $regionCode = substr($district, 0, 4);
-        $removedElement = array_pop($dates);
+        // $removedElement = array_pop($dates);
         $this->activeIndicator = $feature;
+
         $this->date = $date;
         $lastMonth = date("Y-m-d", strtotime($date . "-1 month"));
         $lastYear = date("Y-m-d", strtotime($date . "-12 month"));
@@ -130,6 +131,7 @@ class InfoModal extends Component
                                     ->first();
 
         $this->dispatchBrowserEvent('openFormModal');
+        // dd($data);
         $this->emit('buildCharts', $data, $dataAvg, $dates);
     }
 }

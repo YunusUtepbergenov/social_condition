@@ -63,14 +63,16 @@ class Vizual extends Component
             $tum_pop = intval(Merged::select('demography_population as population')->where('date', $this->date)->where('district_code', $this->active_tum)->first()->population);
             $population = intval(Merged::select(DB::raw('SUM(demography_population) as population'))->where('date', $this->date)->groupBy('date')->first()->population);
 
-            $data = MergedOrg::select(DB::raw($feature .' as score'), 'date')->where('district_code', $this->active_tum)->whereIn('date', $this->dates)->orderBy('date')->get()->pluck('score', 'date')->toArray();
-            $dataAvg = MergedOrg::select(DB::raw($feature.'* 100000 / demography_population as score'), 'date')->where('district_code', $this->active_tum)->whereIn('date', $this->dates)->orderBy('date')->get()->pluck('score')->toArray();
             if($this->type != 'indicator'){
                 $date = date("Y-m-d", strtotime($this->date . "-1 month"));
             }else{
                 $date = $this->date;
             }
-            $this->emit('showInfoModal', $feature, $this->active_tum, $data, $dataAvg, $date, $this->dates, $population, $tum_pop, $this->avg_indicators);
+
+            $data = MergedOrg::select(DB::raw($feature .' as score'), 'date')->where('district_code', $this->active_tum)->where('date', '<=', $date)->orderBy('date', 'ASC')->get()->pluck('score', 'date')->toArray();
+            $dataAvg = MergedOrg::select(DB::raw($feature.'* 100000 / demography_population as score'), 'date')->where('district_code', $this->active_tum)->where('date', '<=', $date)->orderBy('date', 'ASC')->get()->pluck('score')->toArray();
+            $dates = MergedOrg::select('date')->distinct()->where('date', '<', $date)->orderBy('date', 'ASC')->pluck('date')->toArray();
+            $this->emit('showInfoModal', $feature, $this->active_tum, $data, $dataAvg, $date, $dates, $population, $tum_pop, $this->avg_indicators);
             $this->regionClicked($this->active_tum);
         }
     }
@@ -228,7 +230,7 @@ class Vizual extends Component
         elseif($this->type == 'clusters'){
             $this->clusters = Cluster::with('clusters')->orderBy('name', 'ASC')->get();
         }
-        // $this->dates = $this->getDates();
+        $this->dates = $this->getDates();
 
         $class = $this->checkClass();
 

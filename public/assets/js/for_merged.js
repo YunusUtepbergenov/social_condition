@@ -33,7 +33,6 @@ function style1(feature, max, ranges) {
         label = null;
     }else{
         range = ranges[0];
-        console.log(feature);
         score_val = feature.factors.score;
         label = feature.factors.label;
 
@@ -407,7 +406,6 @@ function styleIndicator(feature, max, min){
     };
 }
 function styleCluster(feature){
-    // console.log(feature);
     if(feature.factors == undefined){
         label = -1;
     }else{

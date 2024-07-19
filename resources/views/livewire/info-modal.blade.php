@@ -169,6 +169,9 @@
         });
 
         Livewire.on('buildCharts', (dataNominal, dataAvg, dates)=>{
+            console.log(dates);
+            console.log(dataNominal);
+
             chart12.data = {
                 labels: dates,
                 datasets: [{
