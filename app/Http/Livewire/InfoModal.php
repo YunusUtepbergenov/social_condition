@@ -131,7 +131,6 @@ class InfoModal extends Component
                                     ->first();
 
         $this->dispatchBrowserEvent('openFormModal');
-        // dd($data);
         $this->emit('buildCharts', $data, $dataAvg, $dates);
     }
 }

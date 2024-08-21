@@ -216,7 +216,7 @@ class Vizual extends Component
         else if($this->type == 'clusters'){
             $this->indicatorClass = '';
             $this->calcClusters();
-            $this->indicators = ClusterDistance::where('district_code', $tuman)->where('date', $this->date)->orderBy('distance', 'DESC')->get();
+            $this->indicators = ClusterDistance::where('district_code', $tuman)->where('date', $this->date)->orderBy('distance', 'ASC')->get();
         }
 
         $this->emit('changeTable', $tuman, $tum_avg, $actual_avg, $participants, $this->dates, $this->date, $this->type);

@@ -41,7 +41,7 @@ function style1(feature, max, ranges) {
         }else if (label == 2){
             num = scale(score_val, range['neu_range_from'], range['neu_range_to'], 0.5, 1);
         }else if(label == 3){
-            num = scale(score_val, range['pos_range_from'], range['pos_range_to'], 0.7, 1);
+            num = scale(score_val, range['pos_range_from'], range['pos_range_to'], 0.4, 1);
         }
     }
     return {
