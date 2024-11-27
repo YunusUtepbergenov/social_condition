@@ -15,6 +15,7 @@
     />
     <title>Худудлар тахлили</title>
     <meta name="description" content="" />
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
     <link rel="shortcut icon" type="image/x-icon" href="https://cer.uz/themes/cer/icon/favicon.ico">
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
