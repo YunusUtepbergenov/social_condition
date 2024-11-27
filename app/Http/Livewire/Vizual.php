@@ -282,7 +282,7 @@ class Vizual extends Component
     // ------------------------ HELPER FUNCTIONS ------------------------
 
     public function makeGeoJson(){
-        $path = public_path('geojson\clean.json');
+        $path = public_path('geojson/clean.json');
         $this->json = Cache::remember('geojson_districts', 60*60*24, function () use ($path) {
             return json_decode(file_get_contents($path), true);
         });
