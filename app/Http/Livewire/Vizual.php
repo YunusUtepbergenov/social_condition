@@ -179,6 +179,7 @@ class Vizual extends Component
     public function regionClicked($tuman){
         $participants = []; $actual_avg = [];
         if($this->type != 'clusters'){
+            // dd(Merged::select('demography_population as population')->where('date', $this->date)->where('district_code', $tuman)->first());
             if(isset(Merged::select('demography_population as population')->where('date', $this->date)->where('district_code', $tuman)->first()->population)){
                 $population = intval(Merged::select(DB::raw('SUM(demography_population) as population'))->where('date', $this->date)->groupBy('date')->first()->population);
                 $tum_pop = intval(Merged::select('demography_population as population')->where('date', $this->date)->where('district_code', $tuman)->first()->population);
@@ -186,6 +187,7 @@ class Vizual extends Component
                 return;
             }
         }
+        // dd($tuman);
 
         $class = $this->checkClass();
         $this->top_districts = $class->getTopDistricts($this->activeRegion, $this->activeIndicator, $this->date);
