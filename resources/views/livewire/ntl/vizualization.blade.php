@@ -66,7 +66,7 @@
                 <div class="row">
                     @php
                         if($type == 'mood')
-                            $string = 'Аҳоли кайфияти индекси (';
+                            $string = 'Истеъмолчилар кайфияти индекси (';
                         else if ($type == 'protests')
                             $string = "Оммавий норозилик бўлиш эҳтимоли (";
                         else if ($type == 'clusters')

@@ -2,7 +2,7 @@
 
 namespace App\Http\Livewire;
 
-use App\Models\{BsScore, BsScorePrediction, Cluster, ClusterDistance, DistrictCluster, Merged, MergedOrg, MutualInfo, Protest, ProtestPrediction, Range};
+use App\Models\{BsScore, BsScorePrediction, Cluster, ClusterDistance, DistrictCluster, Merged, MergedOrg, Protest, ProtestPrediction, Range};
 use App\Types\{ClusterType, IndicatorType, MoodType, ProtestType};
 use Illuminate\Support\Facades\{Cache, DB, Schema};
 use Livewire\Component;
@@ -14,7 +14,7 @@ class Vizual extends Component
     public $date, $dates = array(), $type = 'mood', $columns;
     public $top_districts,  $monthlyAvg = array(), $actualAvg = array();
 
-    protected $listeners = ['radioType', 'regionClicked', 'dateChanged', 'indicatorChanged', 'regionChanged'];
+    protected $listeners = ['radioType', 'regionClicked', 'dateChanged', 'indicatorChanged', 'regionChanged', 'showChartModal'];
 
     public $avg_indicators = [
             "weather_temperature","weather_precipitation","weather_pollution",
@@ -42,6 +42,16 @@ class Vizual extends Component
         $this->top_districts = $this->checkClass()->getTopDistricts($this->activeRegion, $this->activeIndicator, $this->date);
 
         $this->makeGeoJson();
+    }
+
+    public function showChartModal($data)
+    {
+        $this->emit('showReasonModal', $data['date'], $this->activeRegion, $this->active_tum);
+        if($this->active_tum == Null){
+            $this->regionChanged($this->activeRegion);
+        }else{
+            $this->regionClicked($this->active_tum);
+        }
     }
 
     private function getAverage($model, $column = 'score'){
@@ -179,7 +189,6 @@ class Vizual extends Component
     public function regionClicked($tuman){
         $participants = []; $actual_avg = [];
         if($this->type != 'clusters'){
-            // dd(Merged::select('demography_population as population')->where('date', $this->date)->where('district_code', $tuman)->first());
             if(isset(Merged::select('demography_population as population')->where('date', $this->date)->where('district_code', $tuman)->first()->population)){
                 $population = intval(Merged::select(DB::raw('SUM(demography_population) as population'))->where('date', $this->date)->groupBy('date')->first()->population);
                 $tum_pop = intval(Merged::select('demography_population as population')->where('date', $this->date)->where('district_code', $tuman)->first()->population);
@@ -187,14 +196,13 @@ class Vizual extends Component
                 return;
             }
         }
-        // dd($tuman);
 
         $class = $this->checkClass();
         $this->top_districts = $class->getTopDistricts($this->activeRegion, $this->activeIndicator, $this->date);
         $this->active_tum = $tuman;
         $tum_avg = $this->getTumAvg();
         $actual_avg = $this->getTumActualAvg();
-
+        // dd($this->top_districts);
         if($this->type == 'mood'){
             $label = MoodType::getLabel($this->date, $this->active_tum);
             if($label == 1)

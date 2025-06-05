@@ -130,7 +130,7 @@
                 <div class="row">
                     @php
                         if($type == 'mood')
-                            $string = 'Аҳоли кайфияти индекси (';
+                            $string = 'Истеъмолчилар кайфияти индекси (';
                         else if ($type == 'protests')
                             $string = "Оммавий норозилик бўлиш эҳтимоли (";
                         else if ($type == 'clusters')
@@ -214,7 +214,6 @@
                             @else
                                 {{ findRegion($activeRegion). " бўйича ".$translates[$activeIndicator] }} ({{$date}} ойи учун:)
                             @endif
-                            {{-- {{ ($active_tum) ? $active_tum : "Республика бўйича ".$activeIndicator }} ({{$date}} ойи учун:) --}}
                         </h5>
                         <div class="row" style="padding: 10px">
                             <div class="col-md-6">
@@ -223,12 +222,6 @@
                             <div class="col-md-6">
                                 <h4><span style="color: rgb(68, 119, 170);font-size: 122.991%;">{{number_format( $top_districts->first()->score, 0, ',', ' ' )}}</span></h4>
                             </div>
-                            {{-- <div class="col-md-6">
-                                <h4 style="text-align: center; font-weight:100;float:right">Минимум қиймат:</h4>
-                            </div>
-                            <div class="col-md-6">
-                                <h4><span style="color: rgb(68, 119, 170);font-size: 122.991%;">{{number_format( $top_districts->last()->score, 0, ',', ' ' )}}</span></h4>
-                            </div> --}}
                             <div class="col-md-6">
                                 <h4 style="text-align: center; font-weight:100;float:right">Умумий қиймат:</h4>
                             </div>
@@ -256,7 +249,6 @@
                 center: [41.311, 63.2505],
                 zoom: 6,
                 zoomControl: false,
-                // dragging: false,
                 minZoom: 6,
                 maxZoom: 10,
                 attributionControl:false
@@ -314,7 +306,7 @@
                 data: {
                     labels: <?php echo json_encode($dates); ?>,
                     datasets: [{
-                        label: 'Аҳоли кайфияти индекси башорати',
+                        label: 'Истеъмолчилар кайфияти индекси башорати',
                         data: <?php echo json_encode($monthlyAvg); ?>,
                         borderWidth: 3,
                         borderColor: 'rgb(232, 9, 9)',
@@ -322,7 +314,7 @@
                         yAxisID: 'y',
                     },
                     {
-                        label: 'Аҳоли кайфияти индекси',
+                        label: 'Истеъмолчилар кайфияти индекси',
                         data: <?php echo json_encode($actualAvg); ?>,
                         borderWidth: 3,
                         borderColor: '#53a074',
@@ -352,17 +344,10 @@
             });
 
             Livewire.on('changeTable', (tuman, data, actual, participants, dates, date, type) => {
-                // var keys = Object.keys(geojson._layers);
-                // var layer_id;
-                // keys.forEach(function(key){
-                //     if(geojson._layers[key].feature.properties.district_code == tuman)
-                //         layer_id = key;
-                // });
-
                 var string = '';
                 switch (type) {
                     case 'mood':
-                        string = 'Аҳоли кайфияти ';
+                        string = 'Истеъмолчилар кайфияти ';
                         changeTableContentsandChart(data, actual, dates, type, string);
                         break;
                     case 'protests':
@@ -433,7 +418,7 @@
                 var string = '';
                 switch (type) {
                     case 'mood':
-                        string = 'Аҳоли кайфияти ';
+                        string = 'Истеъмолчилар кайфияти ';
                         changeTableContentsandChart(data, actual, dates, type, string);
                         break;
                     case 'protests':

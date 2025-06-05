@@ -41,21 +41,8 @@ let menu, animate;
         timeout = setTimeout(callback, 0);
       }
     };
-
-    // elem.onmouseleave = function () {
-    //   // Clear any timers set to timeout
-    //   document.querySelector('.layout-menu-toggle').classList.remove('d-block');
-    //   clearTimeout(timeout);
-    // };
   };
-  // if (document.getElementById('layout-menu')) {
-  //   delay(document.getElementById('layout-menu'), function () {
-  //     // not for small screen
-  //     if (!Helpers.isSmallScreen()) {
-  //       document.querySelector('.layout-menu-toggle').classList.add('d-block');
-  //     }
-  //   });
-  // }
+
 
   // Display in main menu when menu scrolls
   let menuInnerContainer = document.getElementsByClassName('menu-inner'),
@@ -111,8 +98,6 @@ let menu, animate;
     return;
   }
 
-  // If current layout is vertical and current window screen is > small
 
-  // Auto update menu collapsed/expanded based on the themeConfig
   window.Helpers.setCollapsed(true, false);
 })();

@@ -143,7 +143,7 @@ class Map extends Component
     }
 
     public function makeGeoJson(){
-        $path = public_path('geojson\regional.json');
+        $path = public_path('geojson/regional.json');
         $this->json = json_decode(file_get_contents($path), true);
 
         foreach($this->top_districts as $district){

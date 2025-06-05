@@ -135,8 +135,8 @@ function changeTableContentsandChart(data, actual, dates, type, label){
 }
 
 function changeProtestChart(data, actual, dates, type, label, participants){
-    console.log(actual);
-    console.log(participants);
+    console.log('here we gogg');
+    
     max_participants = Math.max(...actual);
     colors = actual.map(value => {
         opacity = scale(value, max_participants, 0, 1, 0.1);
@@ -166,6 +166,16 @@ function changeProtestChart(data, actual, dates, type, label, participants){
     ],
     }
     chart.options = {
+        onClick: (e, elements) => {
+            if (elements.length > 0) {
+                const chartElement = elements[0];
+                const index = chartElement.index;
+
+                const date = chart.data.labels[index];
+
+                Livewire.emit('showChartModal', { date });
+            }
+        },
         plugins: {
             legend: {
                 display: false

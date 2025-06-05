@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html
-  lang="en"
+  {{-- lang="en"
   class="light-style layout-menu-fixed"
   dir="ltr"
   data-theme="theme-default"
   data-assets-path="../assets/"
-  data-template="vertical-menu-template-free"
+  data-template="vertical-menu-template-free" --}}
 >
   <head>
     <meta charset="utf-8" />
@@ -16,6 +16,9 @@
     <title>Аҳоли ўртасида ўтказилган ижтимоий (SMS) сўровнома натижалари</title>
     <meta name="description" content="" />
     <link rel="shortcut icon" type="image/x-icon" href="https://cer.uz/themes/cer/icon/favicon.ico">
+    {{-- <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests"> --}}
+
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
@@ -41,7 +44,7 @@
     <div class="layout-wrapper layout-content-navbar">
       <div class="layout-container">
         @livewire('analysis.filter')
-      <div class="layout-page" style="padding-left: 16.25rem">
+      <div class="layout-page">
         <div class="content-wrapper">
               <div class="flex-grow-1 p-4">
                   @livewire('sentiment.navbar')

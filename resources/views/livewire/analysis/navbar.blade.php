@@ -13,7 +13,7 @@
                 <div class="form-check form-check-inline">
                   <input class="form-check-input" type="radio" wire:model="radio" wire:click="radioChanged('mood')" id="gridRadios1" value="mood" selected>
                   <label class="form-check-label filter-texts" for="gridRadios1">
-                        Аҳоли кайфияти
+                        Истеъмолчилар кайфияти
                   </label>
                 </div>
                 <div class="form-check form-check-inline">

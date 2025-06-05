@@ -87,7 +87,7 @@
                                                 <td colspan="2">{{round(($curVal - $lastYear) * 100 / abs($lastYear), 1)}}%</td>
                                             </tr>
                                         @endif
-                                        @if ( date('F', strtotime($date)) != "January")
+                                        @if ( date('F', strtotime($date)) != "January" )
                                             <tr>
                                                 <td>{{date('Y', strtotime($date))}} йил январь - {{$months[date('F', strtotime($date))]}} </td>
                                                 <td>{{numberToWords($cumilativeThisYear['feature']) }}</td>
@@ -161,7 +161,6 @@
 
         window.addEventListener('openFormModal', event => {
             $("#infomodal").modal('show');
-
         });
 
         Livewire.on('closeFormModal', () => {
