@@ -114,13 +114,14 @@ Livewire.on('changeTable', (tuman, data, actual, participants, dates, date, type
         }
     };
 
-    activeLayer = geojson._layers[layer_id]; 
-    activeLayer.setStyle({
+    activeLayer = geojson._layers[layer_id];
+    if (activeLayer) {
+         activeLayer.setStyle({
             weight: 1,
             color: '#000',
             fillOpacity: 1
-        });
-    
+        });   
+    }    
 
     var string = '';
     switch (type) {

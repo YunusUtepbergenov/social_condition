@@ -15,7 +15,6 @@ function style(feature, max) {
         }else if(label == 3){
             num = scale(score_val, date_data['pos_range'][0], date_data['pos_range'][1], 0.7, 1);
         }
-        // num = scale(label, feature.label_neg_min, feature.label_neg_max, 0.1, 1);
     }
     return {
         fillColor: getColor(num, label),
@@ -135,7 +134,6 @@ function changeTableContentsandChart(data, actual, dates, type, label){
 }
 
 function changeProtestChart(data, actual, dates, type, label, participants){
-    console.log('here we gogg');
     
     max_participants = Math.max(...actual);
     colors = actual.map(value => {
@@ -273,7 +271,7 @@ function changeClusterChart2(data, dates){
                 max: 6,
                 reverse:true,
                 ticks: {
-                    stepSize: 1, // Show ticks for every 1 unit
+                    stepSize: 1,
                 }
             },
         },
@@ -384,7 +382,6 @@ function getProtestColor(d) {
         return '#bababa';
     else
         return d;
-    //   return 'rgb(232, 9, 9,' + d + ' )'
 }
 
 function filterCluster(data, cluster){

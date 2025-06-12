@@ -17,7 +17,7 @@
         @endphp
     @elseif($type === 'indicator')
         @php
-            $maxScore = $top_districts->first()->score ?? 1;
+            $maxScore = ($top_districts->first()->score ?? 0) ?: 1;
             $width = max(($district->score / $maxScore) * 100, 25);
             $label = numberToWords($district->score);
         @endphp
