@@ -32,8 +32,9 @@ function style1(feature, max, ranges) {
         label = null;
     }else{
         range = ranges[0];
+            
         score_val = feature.factors.score;
-        label = feature.factors.label;
+        label = feature.factors.label;                
 
         if(label == 1){
             num = scale(score_val, range['neg_range_from'], range['neg_range_to'], 1, 0.5);
@@ -43,6 +44,7 @@ function style1(feature, max, ranges) {
             num = scale(score_val, range['pos_range_from'], range['pos_range_to'], 0.4, 1);
         }
     }
+    
     return {
         fillColor: getColor(num, label),
         weight: 1,
@@ -54,9 +56,11 @@ function style1(feature, max, ranges) {
 }
 
 function getColor(d, labell) {
+    console.log(labell, d);
+    
     if(num == -1){
         return '#bababa'}
-    else{
+    else{        
         if(labell == 1){
             return 'rgb(68, 119, 170,' + d + ' )'
         }

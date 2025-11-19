@@ -384,3 +384,24 @@ background-color: rgba(255, 255, 255, 0.2) !important;
     text-align: justify;
     font-family: Arial, Helvetica, sans-serif;
 }
+
+
+.progress-bar.cluster-5 { background-color: #e74c3c; }
+.progress-bar.cluster-4 { background-color: #f39c12; }  
+.progress-bar.cluster-3 { background-color: #2C3E50; }  
+.progress-bar.cluster-2 { background-color: #3498db; }  
+.progress-bar.cluster-1 { background-color: #2ecc71; }  
+
+.indicators-table {
+    max-height: 100%;
+}
+
+.regions-list::-webkit-scrollbar,
+.indicators-table::-webkit-scrollbar {
+    width: 6px;
+}
+.regions-list::-webkit-scrollbar-thumb,
+.indicators-table::-webkit-scrollbar-thumb {
+    background: #bbb;
+    border-radius: 4px;
+}

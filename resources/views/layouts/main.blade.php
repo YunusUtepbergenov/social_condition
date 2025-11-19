@@ -37,15 +37,15 @@
     <div class="layout-wrapper layout-content-navbar">
       <div class="layout-container">
           @livewire('analysis.filter')
-      <div class="layout-page">
-        @livewire('analysis.navbar')
-        <div class="content-wrapper">
-              <div class="flex-grow-1 p-4">
-                  @livewire('vizual')
-                  @livewire('analysis.timeline')
-              </div>
-        </div>
-      </div>
+          <div class="layout-page">
+            @livewire('analysis.navbar')
+            <div class="content-wrapper">
+                <div class="flex-grow-1 p-4">
+                    @livewire('vizual')
+                    @livewire('analysis.timeline')
+                </div>
+            </div>
+          </div>
       </div>
       @livewire('info-modal')
       @livewire('cluster-modal')

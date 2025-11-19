@@ -30,9 +30,9 @@ class Vizual extends Component
     public function mount(){
         $this->date = $this->getLatesDate();
         $this->dates = $this->getDates();
-        $this->ranges = Cache::remember("ranges_{$this->date}", 600*600, function () {
-            return Range::where('date', $this->date)->get();
-        });
+
+        $this->ranges = MoodType::getRanges($this->date);
+
         $this->monthlyAvg = $this->getAverage(BsScorePrediction::class);
         $this->actualAvg = $this->getAverage(BsScore::class, 'bs_score_cur');
         $this->columns = Cache::remember("columns", 600*600, function () {
@@ -44,8 +44,7 @@ class Vizual extends Component
         $this->makeGeoJson();
     }
 
-    public function showChartModal($data)
-    {
+    public function showChartModal($data){
         $this->emit('showReasonModal', $data['date'], $this->activeRegion, $this->active_tum);
         if($this->active_tum == Null){
             $this->regionChanged($this->activeRegion);
@@ -74,7 +73,7 @@ class Vizual extends Component
             $population = intval(Merged::select(DB::raw('SUM(demography_population) as population'))->where('date', $this->date)->groupBy('date')->first()->population);
 
             if($this->type != 'indicator'){
-                $date = date("Y-m-d", strtotime($this->date . "-1 month"));
+                $date = date("Y-m-d", strtotime($this->date . "-2 month"));
             }else{
                 $date = $this->date;
             }
@@ -236,7 +235,7 @@ class Vizual extends Component
         $this->date = $date;
         $participants = [];
         if($this->type == 'mood')
-            $this->ranges = Range::where('date', $this->date)->get();
+            $this->ranges = MoodType::getRanges($this->date);
         elseif($this->type == 'clusters'){
             $this->clusters = Cluster::with('clusters')->orderBy('name', 'ASC')->get();
         }
@@ -286,8 +285,6 @@ class Vizual extends Component
             }
         }
     }
-
-    // ------------------------ HELPER FUNCTIONS ------------------------
 
     public function makeGeoJson(){
         $path = public_path('geojson/clean.json');

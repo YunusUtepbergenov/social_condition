@@ -18,13 +18,15 @@ Route::get('/', function () {
     return view('layouts.main');
 })->middleware('auth');
 
-Route::get('/ntl', function () {
-    return view('layouts.ntl');
-})->middleware('auth');
-
 Route::get('/sentiment', function () {
     return view('layouts.sentiment');
 })->name('sentiment')->middleware('auth');
+
+Route::get('/mahallas', function () {
+    return view('layouts.mahallas');
+})->middleware('auth');
+
+Route::get('/districts/{district}', [PageController::class, 'districts'])->name('districts')->middleware('auth');
 
 Route::get('/dashboard', function () {
     return view('layouts.main');

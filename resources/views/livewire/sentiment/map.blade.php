@@ -158,6 +158,7 @@
                     return styleSentimentMap(feature, sentiment_ranges);
                 },
             }).addTo(map);
+            
             geojson.eachLayer(function (layer) {
                 layer.on('click', function(e) {
                     var element = document.getElementById(this.feature.properties.region_code);

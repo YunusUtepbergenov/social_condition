@@ -9,16 +9,16 @@ function styleSentimentMap(feature, ranges) {
         label = feature.factors.label;
 
         if(label == 1){
-            num = scale(score_val, range['neg_range_from'], range['neg_range_to'], 1, 0.5);
+            num = scale(score_val, range['neg_range_from'], range['neg_range_to'], 0.8, 0.3);
         }else if (label == 2){
-            num = scale(score_val, range['neu_range_from'], range['neu_range_to'], 0.5, 1);
+            num = scale(score_val, range['neu_range_from'], range['neu_range_to'], 0.2, 1);
         }else if(label == 3){
-            num = scale(score_val, range['pos_range_from'], range['pos_range_to'], 0.7, 1);
+            num = scale(score_val, range['pos_range_from'], range['pos_range_to'], 0.5, 0.9);
         }
     }
     return {
         fillColor: getColor(num, label),
-        weight: 1,
+        weight: 0.8,
         opacity: 1,
         color: 'white',
         dashArray: '0',
@@ -37,7 +37,7 @@ function getColor(d, labell) {
             return 'rgb(115, 115, 115,' + d + ' )'
         }
         else if (labell == 3){
-            return 'rgb(4, 117, 53,' + d + ' )'
+            return 'rgb(43,90,29,' + d + ' )'
         }
     }
 }

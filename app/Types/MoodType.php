@@ -3,9 +3,21 @@
 namespace App\Types;
 
 use App\Abstracts\DataType;
-use App\Models\{ BsScore, BsScorePrediction, Merged, Mood_Ranking, MutualInfo };
+use App\Models\{ BsScore, BsScorePrediction, Merged, Mood_Ranking, MutualInfo, Range, SurveyRange};
 
 class MoodType extends DataType{
+    public static function getRanges($date){
+        $actualDates = BsScore::select('date')->distinct('date')->get()->pluck('date')->toArray();
+        $predictionDates = BsScorePrediction::select('date')->distinct('date')->get()->pluck('date')->toArray();
+
+        $predictionDates = array_diff($predictionDates, $actualDates);
+
+        if(in_array($date, $predictionDates)){
+            return Range::where('date', $date)->get();
+        }else{
+            return SurveyRange::where('date', $date)->get();
+        }
+    }
 
     public function getTopDistricts($activeRegion, $activeIndicator, $date){
         $actualDates = BsScore::select('date')->distinct('date')->get()->pluck('date')->toArray();

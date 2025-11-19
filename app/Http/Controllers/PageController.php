@@ -33,4 +33,10 @@ class PageController extends Controller
             'data' => $data
         ]);
     }
+
+    public function districts($code){
+        return view('layouts.mahallas.district', [
+            'district_code' => $code
+        ]);
+    }
 }
