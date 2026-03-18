@@ -4,7 +4,7 @@
             <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="chartModalLabel">Оммавий норозиликлар бўйича маълумот</h5>
-                <button type="button" class="btn-close" wire:click="$emit('closeReasonModal')" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close" wire:click="$dispatch('closeReasonModal')" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 @forelse ($reasons as $key => $reason)
@@ -22,11 +22,9 @@
             </div>
         </div>
     </div>
-</div>
-
-@prepend('scripts')
+    @script
     <script>
-        window.addEventListener('openReasonModal', event => {
+        Livewire.on('openReasonModal', () => {
             $("#reasonModal").modal('show');
         });
 
@@ -34,4 +32,5 @@
             $("#reasonModal").modal('hide');
         });
     </script>
-@endprepend
+    @endscript
+</div>

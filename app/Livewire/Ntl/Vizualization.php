@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Livewire\Ntl;
+namespace App\Livewire\Ntl;
 
 use App\Models\Cluster;
 use App\Models\NtlData;

@@ -175,7 +175,7 @@ function changeProtestChart(data, actual, dates, type, label, participants){
 
                 const date = chart.data.labels[index];
 
-                Livewire.emit('showChartModal', { date });
+                Livewire.dispatch('showChartModal', { date: date });
             }
         },
         plugins: {

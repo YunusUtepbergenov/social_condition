@@ -11,7 +11,7 @@
                             <div class="row" style="padding: 2px 5px">
                                 <div class="col-lg-6 user_name">
                                     <div class="form-check">
-                                        <a href="#" id="{{$district->region_code}}" class="form-check-label district_label" style="font-weight:{{($district->region_code == $activeRegion) ? 'bold': ''}};" wire:click="$emit('regionClicked', '{{$district->region_code}}')">
+                                        <a href="#" id="{{$district->region_code}}" class="form-check-label district_label" style="font-weight:{{($district->region_code == $activeRegion) ? 'bold': ''}};" wire:click="$dispatch('regionClicked', { region_code: '{{$district->region_code}}' })">
                                             {{ $key + 1 }}. {{ $district->region}}</i>
                                         </a>
                                     </div>
@@ -129,8 +129,9 @@
     </div>
     <hr>
 
-    @prepend('scripts')
-        <script>
+    @script
+    <script>
+        (function() {
             var mapOptions = {
                 center: [41.311, 63.2505],
                 zoom: 6,
@@ -143,7 +144,7 @@
             if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)){
                 mapOptions.dragging = false;
             }
-            var sentiment_ranges = <?php echo json_encode($ranges); ?>;
+            var sentiment_ranges = @json($ranges);
             var width = document.documentElement.clientWidth;
             if (width > 400 && width < 1500) {
                 mapOptions.minZoom = 5;
@@ -153,7 +154,7 @@
                 mapOptions.zoom = 4;
             }
             var map = L.map('map', mapOptions);
-            var geojson = L.geoJSON(<?php echo json_encode($json); ?>, {
+            var geojson = L.geoJSON(@json($json), {
                 style: function (feature) {
                     return styleSentimentMap(feature, sentiment_ranges);
                 },
@@ -172,7 +173,7 @@
                     geojson.resetStyle();
                     $layer.bringToFront();
                     $layer.setStyle(highlightStyle);
-                    Livewire.emit('regionClicked', layer['feature']['properties']['region_code']);
+                    Livewire.dispatch('regionClicked', { region_code: layer['feature']['properties']['region_code'] });
                 });
             });
 
@@ -190,10 +191,10 @@
             var chart = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: <?php echo json_encode($dates); ?>,
+                    labels: @json($dates),
                     datasets: [{
                         label: 'Республика бўйича',
-                        data: <?php echo json_encode($monthlyAvg); ?>,
+                        data: @json($monthlyAvg),
                         borderWidth: 2,
                         borderColor: 'rgb(68, 119, 170)',
                         backgroundColor: '#bbdefb',
@@ -221,7 +222,7 @@
                 },
             });
 
-            Livewire.on('updateMap', (type, json, top_districts, max, ranges) => {
+            Livewire.on('updateMap', ({ type, json, top_districts, max, ranges }) => {
                 map.remove();
                 map = L.map('map', mapOptions);
                 switch (type) {
@@ -254,12 +255,12 @@
                         geojson.resetStyle();
                         $layer.bringToFront();
                         $layer.setStyle(highlightStyle);
-                        Livewire.emit('regionClicked', layer['feature']['properties']['region_code']);
+                        Livewire.dispatch('regionClicked', { region_code: layer['feature']['properties']['region_code'] });
                     });
                 });
             });
 
-            Livewire.on('updateChart', (type, dates, data, repAvg) => {
+            Livewire.on('updateChart', ({ type, dates, data, repAvg }) => {
                 var string = '';
                 if (type == 'mood') {
                     string = 'Аҳоли кайфияти ';
@@ -268,6 +269,7 @@
                     changeIndicatorChart(data, dates, repAvg);
                 }
             });
-        </script>
-    @endprepend
+        })();
+    </script>
+    @endscript
 </div>

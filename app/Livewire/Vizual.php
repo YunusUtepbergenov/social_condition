@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Livewire;
+namespace App\Livewire;
 
 use App\Models\{BsScore, BsScorePrediction, Cluster, ClusterDistance, DistrictCluster, Merged, MergedOrg, Protest, ProtestPrediction, Range};
 use App\Types\{ClusterType, IndicatorType, MoodType, ProtestType};
@@ -44,8 +44,8 @@ class Vizual extends Component
         $this->makeGeoJson();
     }
 
-    public function showChartModal($data){
-        $this->emit('showReasonModal', $data['date'], $this->activeRegion, $this->active_tum);
+    public function showChartModal($date){
+        $this->dispatch('showReasonModal', date: $date, activeReg: $this->activeRegion, activeTum: $this->active_tum);
         if($this->active_tum == Null){
             $this->regionChanged($this->activeRegion);
         }else{
@@ -81,7 +81,7 @@ class Vizual extends Component
             $data = MergedOrg::select(DB::raw($feature .' as score'), 'date')->where('district_code', $this->active_tum)->where('date', '<=', $date)->orderBy('date', 'ASC')->get()->pluck('score', 'date')->toArray();
             $dataAvg = MergedOrg::select(DB::raw($feature.'* 100000 / demography_population as score'), 'date')->where('district_code', $this->active_tum)->where('date', '<=', $date)->orderBy('date', 'ASC')->get()->pluck('score')->toArray();
             $dates = MergedOrg::select('date')->distinct()->where('date', '<', $date)->orderBy('date', 'ASC')->pluck('date')->toArray();
-            $this->emit('showInfoModal', $feature, $this->active_tum, $data, $dataAvg, $date, $dates, $population, $tum_pop, $this->avg_indicators);
+            $this->dispatch('showInfoModal', feature: $feature, district: $this->active_tum, data: $data, dataAvg: $dataAvg, date: $date, dates: $dates, population: $population, tum_pop: $tum_pop, avg_indicators: $this->avg_indicators);
             $this->regionClicked($this->active_tum);
         }
     }
@@ -89,12 +89,12 @@ class Vizual extends Component
     public function clusterModal($feature){
         $data = ClusterDistance::select(DB::raw('value as score'), 'date')->where('indicator', $feature)->where('district_code', $this->active_tum)->whereIn('date', $this->dates)->orderBy('date')->get()->pluck('score', 'date')->toArray();
 
-        $this->emit('showClusterModal', $feature, $this->active_tum, $data, $this->date, $this->dates);
+        $this->dispatch('showClusterModal', feature: $feature, district: $this->active_tum, data: $data, date: $this->date, dates: $this->dates);
         $this->regionClicked($this->active_tum);
     }
 
     public function regionChanged($region){
-        $this->emit('regionSelected', $region);
+        $this->dispatch('regionSelected', region: $region);
         $this->activeRegion = $region;
         $this->active_tum = null;
         $this->indicators = null;
@@ -109,7 +109,7 @@ class Vizual extends Component
         }
 
         $this->makeGeoJson();
-        $this->emit('updateMap', $this->type, $this->json, $this->top_districts, $this->ranges);
+        $this->dispatch('updateMap', type: $this->type, json: $this->json, top_districts: $this->top_districts, ranges: $this->ranges);
     }
 
     private function updateRegionData($class, $region)
@@ -118,7 +118,7 @@ class Vizual extends Component
             $firstParam = $class->getRegionPredicts($region, $this->date);
             $secondParam = $class->getRegionData($region, $this->date);
             $participants = $class->getRegionParticipants($region, $this->date);
-            $this->emit('updateChart', $this->dates, $firstParam, $secondParam, $participants, $this->type);
+            $this->dispatch('updateChart', dates: $this->dates, data: $firstParam, actual: $secondParam, participants: $participants, type: $this->type);
         } elseif ($this->type === 'clusters') {
             $this->updateClusterData($region);
         }
@@ -143,7 +143,7 @@ class Vizual extends Component
             return $item;
         });
 
-        $this->emit('updateClusterChart', $this->dates, $percentages, $this->type);
+        $this->dispatch('updateClusterChart', dates: $this->dates, percentages: $percentages, type: $this->type);
     }
 
     public function indicatorChanged($indicator){
@@ -155,7 +155,7 @@ class Vizual extends Component
                 $this->dates = $this->getDates();
                 if($this->activeRegion != 'republic'){
                     $this->regionChanged($this->activeRegion);
-                }else{  
+                }else{
                     if(in_array($indicator, $this->avg_indicators)){
                         $indicatorSum = MergedOrg::select('date',  DB::raw('AVG('.$this->activeIndicator.') as sum'))->where('date', '<=', $this->date)->groupBy('date')->orderBy('date')->get()->pluck('sum')->toArray();
                     }else{
@@ -164,8 +164,8 @@ class Vizual extends Component
                     $this->top_districts = MergedOrg::with('district')->select(['district_code', 'district_name', DB::raw($indicator . ' as score')])->where('date', $this->date)->orderByRaw('score DESC nulls last')->get();
                     $this->makeGeoJson();
 
-                    $this->emit('updateChart', $this->dates, $indicatorSum, [], [], $this->type);
-                    $this->emit('updateMap', $this->type, $this->json, $this->top_districts, $this->ranges);
+                    $this->dispatch('updateChart', dates: $this->dates, data: $indicatorSum, actual: [], participants: [], type: $this->type);
+                    $this->dispatch('updateMap', type: $this->type, json: $this->json, top_districts: $this->top_districts, ranges: $this->ranges);
                 }
             }
         }
@@ -180,9 +180,9 @@ class Vizual extends Component
         $this->date = $this->getLatesDate();
         $this->dates = $this->getDates();
         $this->dateChanged($this->date);
-        $this->emit('changeMonths', $this->dates);
+        $this->dispatch('changeMonths', dates: $this->dates);
         $this->makeGeoJson();
-        $this->dispatchBrowserEvent('componentLoaded');
+        $this->dispatch('componentLoaded');
     }
 
     public function regionClicked($tuman){
@@ -201,9 +201,8 @@ class Vizual extends Component
         $this->active_tum = $tuman;
         $tum_avg = $this->getTumAvg();
         $actual_avg = $this->getTumActualAvg();
-        // dd($this->top_districts);
         if($this->type == 'mood'){
-            $label = MoodType::getLabel($this->date, $this->active_tum);
+            $label = $class->getLabel($this->date, $this->active_tum);
             if($label == 1)
                 $this->indicatorClass = 'highlightRed';
             else
@@ -228,7 +227,7 @@ class Vizual extends Component
             $this->indicators = ClusterDistance::where('district_code', $tuman)->where('date', $this->date)->orderBy('distance', 'ASC')->get();
         }
 
-        $this->emit('changeTable', $tuman, $tum_avg, $actual_avg, $participants, $this->dates, $this->date, $this->type);
+        $this->dispatch('changeTable', tuman: $tuman, data: $tum_avg, actual: $actual_avg, participants: $participants, dates: $this->dates, date: $this->date, type: $this->type);
     }
 
     public function dateChanged($date){
@@ -246,7 +245,7 @@ class Vizual extends Component
         if($this->active_tum){
             $this->regionClicked($this->active_tum);
             $this->makeGeoJson();
-            $this->emit('updateMap', $this->type, $this->json, $this->top_districts, $this->ranges);
+            $this->dispatch('updateMap', type: $this->type, json: $this->json, top_districts: $this->top_districts, ranges: $this->ranges);
         }else{
             if($this->activeRegion != 'republic'){
                 $this->regionChanged($this->activeRegion);
@@ -254,19 +253,19 @@ class Vizual extends Component
                 $this->top_districts = $class->getTopDistricts($this->activeRegion, $this->activeIndicator, $this->date);
                 if($this->type == "indicator"){
                     $indicatorSum = $class->getRepublicData(in_array($this->activeIndicator, $this->avg_indicators));
-                    $this->emit('updateChart', $this->dates, $indicatorSum, [], [], $this->type);
+                    $this->dispatch('updateChart', dates: $this->dates, data: $indicatorSum, actual: [], participants: [], type: $this->type);
                 }
                 else if($this->type == "mood"){
                     $monthlyAvg1 = BsScorePrediction::select('date', DB::raw('AVG(score) as average'))->where('date', '<=', $this->date)->groupBy('date')->orderBy('date')->get()->pluck('average')->toArray();
                     $this->actualAvg = BsScore::select('date', DB::raw('AVG(bs_score_cur) as average'))->whereIn('date', $this->dates)->groupBy('date')->orderBy('date')->get()->pluck('average')->toArray();
-                    $this->emit('updateChart', $this->dates, $monthlyAvg1, $this->actualAvg, $participants, $this->type);
+                    $this->dispatch('updateChart', dates: $this->dates, data: $monthlyAvg1, actual: $this->actualAvg, participants: $participants, type: $this->type);
                 }
                 else if($this->type == 'protests'){
                     $monthlyAvg1 = ProtestPrediction::select('date', DB::raw('AVG(prediction) as average'))->where('date', '<=', $this->date)->groupBy('date')->orderBy('date')->get()->pluck('average')->toArray();
                     $this->actualAvg = Protest::select('date', DB::raw('SUM(count) as average'))->whereIn('date', $this->dates)->groupBy('date')->orderBy('date')->get()->pluck('average')->toArray();
                     $participants = Protest::select('date', DB::raw('SUM(participants) as score'))->whereIn('date', $this->dates)->groupBy('date')->orderBy('date')->get()->pluck('score')->toArray();
 
-                    $this->emit('updateChart', $this->dates, $monthlyAvg1, $this->actualAvg, $participants, $this->type);
+                    $this->dispatch('updateChart', dates: $this->dates, data: $monthlyAvg1, actual: $this->actualAvg, participants: $participants, type: $this->type);
                 }
                 else if($this->type == "clusters"){
                     $this->calcClusters();
@@ -278,10 +277,10 @@ class Vizual extends Component
                         $item->percentage = ($item->total / $totalForMonth) * 100;
                         return $item;
                     });
-                    $this->emit('updateClusterChart', $this->dates, $percentages, $this->type);
+                    $this->dispatch('updateClusterChart', dates: $this->dates, percentages: $percentages, type: $this->type);
                 }
                 $this->makeGeoJson();
-                $this->emit('updateMap', $this->type, $this->json, $this->top_districts, $this->ranges);
+                $this->dispatch('updateMap', type: $this->type, json: $this->json, top_districts: $this->top_districts, ranges: $this->ranges);
             }
         }
     }
@@ -294,7 +293,7 @@ class Vizual extends Component
 
         $districtScores = $this->top_districts->pluck('score', 'district_code')->toArray();
         $districtLabels = $this->top_districts->pluck('label', 'district_code')->toArray();
-    
+
         foreach($this->json['features'] as &$feature){
             $districtCode = $feature['properties']['district_code'];
             if(isset($districtScores[$districtCode])){
@@ -320,8 +319,6 @@ class Vizual extends Component
             return MergedOrg::select('date')->distinct('date')->where('date', '<=', $this->date)->orderBy('date', 'ASC')->pluck('date')->toArray();
         }else if($this->type == "mood"){
             return BsScorePrediction::select('date')->distinct('date')->where('date', '<=', $this->date)->orderBy('date', 'ASC')->pluck('date')->toArray();
-            // return BsScore::select('date')->distinct('date')->where('date', '<=', $this->date)->orderBy('date', 'ASC')->get()->pluck('date')->toArray();
-
         }else if($this->type == "protests"){
             return ProtestPrediction::select('date')->distinct('date')->where('date', '<=', $this->date)->orderBy('date', 'ASC')->pluck('date')->toArray();
         }else if($this->type == "clusters"){
@@ -374,9 +371,9 @@ class Vizual extends Component
                   })
                   ->orderByDesc('order');
         }])->orderBy('name', 'ASC')->get();
-    
+
         $previousClusters = DistrictCluster::where('date', $this->date - 1)->pluck('cluster_id', 'district_code');
-    
+
         foreach($this->clusters as $cluster){
             foreach($cluster->clusters as $data){
                 if(isset($previousClusters[$data->district_code])){

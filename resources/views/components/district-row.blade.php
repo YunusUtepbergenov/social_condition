@@ -5,7 +5,7 @@
                id="{{ $district->district_code }}"
                class="form-check-label district_label"
                style="font-weight:{{ $district->district_code == $active_tum ? 'bold' : '' }}"
-               wire:click="$emit('regionClicked', '{{ $district->district_code }}')">
+               wire:click="$dispatch('regionClicked', { tuman: '{{ $district->district_code }}' })">
                 {{ $index + 1 }}. {{ $district->district->name ?? $district->district_name }}
             </a>
         </div>

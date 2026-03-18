@@ -4,38 +4,37 @@
             <div id="slider"></div>
         </div>
     </div>
-    @prepend('scripts')
-        <script>
-            $(function() {
-                var dates = <?php echo json_encode($months) ?>;
-                $("#slider").slider({
-                    max: dates.length - 1,
-                    value: 100,
-                    slide: function(event, ui){
-                    },
-                    stop: function(event, ui){
-                        window.livewire.emit('dateChanged', dates[ui.value]);
-                    }
-                })
-                .each(function() {
-                    var opt = $(this).data().uiSlider.options;
-                    var vals = opt.max - opt.min;
-                    var arrayLength = dates.length;
+    @script
+    <script>
+        (function() {
+            var dates = @json($months);
+            $("#slider").slider({
+                max: dates.length - 1,
+                value: 100,
+                slide: function(event, ui){
+                },
+                stop: function(event, ui){
+                    Livewire.dispatch('dateChanged', { date: dates[ui.value] });
+                }
+            })
+            .each(function() {
+                var opt = $(this).data().uiSlider.options;
+                var vals = opt.max - opt.min;
+                var arrayLength = dates.length;
 
-                    for (var i = 0; i < arrayLength; i++) {
-                        var el = $('<label>' + (dates[i].substring(2, 7)) + '</label>').css('left', (i / vals * 100) + '%');
-                        $("#slider").append(el);
-                    }
-                });
+                for (var i = 0; i < arrayLength; i++) {
+                    var el = $('<label>' + (dates[i].substring(2, 7)) + '</label>').css('left', (i / vals * 100) + '%');
+                    $("#slider").append(el);
+                }
             });
 
-            Livewire.on('changeNtlTimeline', (dates) => {
+            Livewire.on('changeNtlTimeline', ({ dates }) => {
                 $("#slider").slider("destroy");
                 $("#slider").slider({
                     max: dates.length - 1,
                     value: 100,
                     stop: function(event, ui){
-                        window.livewire.emit('dateChanged', dates[ui.value]);
+                        Livewire.dispatch('dateChanged', { date: dates[ui.value] });
                     }
                 })
                 .each(function() {
@@ -53,6 +52,7 @@
                     }
                 });
             });
-        </script>
-    @endprepend
+        })();
+    </script>
+    @endscript
 </div>

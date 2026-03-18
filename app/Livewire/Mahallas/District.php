@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Livewire\Mahallas;
+namespace App\Livewire\Mahallas;
 
 use Livewire\Component;
 

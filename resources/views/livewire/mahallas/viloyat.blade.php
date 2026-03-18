@@ -138,11 +138,11 @@
                 layer.on('click', function(e) {
                     var element = document.getElementById(this.feature.properties.region_code);
 
-                    Livewire.emit('regionClicked', layer['feature']['properties']['region_code']);
+                    Livewire.dispatch('regionClicked', { region_code: layer['feature']['properties']['region_code'] });
                 });
             });
 
-            Livewire.on('updateMap', (json) => {
+            Livewire.on('updateMap', ({ json }) => {
                 map.remove();
                 
                 map = L.map('uzbekistan-map', mapOptions);
@@ -154,7 +154,7 @@
 
                 geojson.eachLayer(function (layer) {
                     layer.on('click', function(e) {
-                        Livewire.emit('regionClicked', layer['feature']['properties']['code']);
+                        Livewire.dispatch('regionClicked', { region_code: layer['feature']['properties']['code'] });
                     });
                 });
             });

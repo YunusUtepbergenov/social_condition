@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Livewire\Sentiment;
+namespace App\Livewire\Sentiment;
 
 use App\Models\Sentiment;
 use Livewire\Component;
@@ -26,6 +26,6 @@ class Timeline extends Component
 
     public function changeMonths($dates){
         $this->months = array_slice($dates, -24);
-        $this->emit('changeSentimentTimeline', $this->months);
+        $this->dispatch('changeSentimentTimeline', dates: $this->months);
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Livewire\Analysis;
+namespace App\Livewire\Analysis;
 
 use App\Models\BsScore;
 use App\Models\BsScorePrediction;
@@ -61,16 +61,16 @@ class Visualization extends Component
         $data = Merged::select(DB::raw($feature .' as score'), 'date')->where('district_code', $this->active_tum)->whereIn('date', $this->dates)->orderBy('date')->get()->pluck('score', 'date')->toArray();
         $dataAvg = Merged::select(DB::raw($feature .' / '. $tum_pop. '*'. 100000 .' as score'), 'date')->where('district_code', $this->active_tum)->whereIn('date', $this->dates)->orderBy('date')->get()->pluck('score')->toArray();
 
-        $this->emit('showInfoModal', $feature, $this->active_tum, $data, $dataAvg ,$this->date, $this->dates, $population, $tum_pop);
+        $this->dispatch('showInfoModal', feature: $feature, district: $this->active_tum, data: $data, dataAvg: $dataAvg, date: $this->date, dates: $this->dates, population: $population, tum_pop: $tum_pop);
         $this->regionClicked($this->active_tum);
     }
 
     public function regionChanged($region){
-        $this->emit('regionSelected', $region);
+        $this->dispatch('regionSelected', region: $region);
         $this->activeRegion = $region;
         $this->active_tum = null;
         $this->indicators = null;
-        $this->top_districts = $this->getTopDistricts();    
+        $this->top_districts = $this->getTopDistricts();
 
         if($this->type == 'mood'){
             if($region == 'republic'){
@@ -92,8 +92,8 @@ class Visualization extends Component
                                             ->pluck('average')
                                             ->toArray();
                 $this->makeGeoJson();
-                $this->emit('updateChart', $this->dates, $predictionAvg, $actualAvg, [], $this->type);
-                $this->emit('updateMap', $this->type, $this->json, $this->top_districts, $this->ranges);
+                $this->dispatch('updateChart', dates: $this->dates, data: $predictionAvg, actual: $actualAvg, participants: [], type: $this->type);
+                $this->dispatch('updateMap', type: $this->type, json: $this->json, top_districts: $this->top_districts, ranges: $this->ranges);
             }
         }else if($this->type == 'indicator'){
             if($region == 'republic'){
@@ -107,8 +107,8 @@ class Visualization extends Component
                                         ->toArray();
 
                 $this->makeGeoJson();
-                $this->emit('updateChart', $this->dates, $indicatorSum, [], [], $this->type);
-                $this->emit('updateMap', $this->type, $this->json, $this->top_districts, $this->ranges);
+                $this->dispatch('updateChart', dates: $this->dates, data: $indicatorSum, actual: [], participants: [], type: $this->type);
+                $this->dispatch('updateMap', type: $this->type, json: $this->json, top_districts: $this->top_districts, ranges: $this->ranges);
             }
         }else if ($this->type == 'protests'){
             if($region == 'republic'){
@@ -140,8 +140,8 @@ class Visualization extends Component
                                                 ->pluck('score')
                                                 ->toArray();
                 $this->makeGeoJson();
-                $this->emit('updateChart', $this->dates, $monthlyAvg1, $this->actualAvg, $participants, $this->type);
-                $this->emit('updateMap', $this->type, $this->json, $this->top_districts, $this->ranges);
+                $this->dispatch('updateChart', dates: $this->dates, data: $monthlyAvg1, actual: $this->actualAvg, participants: $participants, type: $this->type);
+                $this->dispatch('updateMap', type: $this->type, json: $this->json, top_districts: $this->top_districts, ranges: $this->ranges);
             }
         }else if ($this->type == 'clusters'){
             if($region == 'republic'){
@@ -157,8 +157,8 @@ class Visualization extends Component
                     return $item;
                 });
                 $this->makeGeoJson();
-                $this->emit('updateClusterChart', $this->dates, $percentages, $this->type);
-                $this->emit('updateMap', $this->type, $this->json, $this->top_districts, $this->ranges);
+                $this->dispatch('updateClusterChart', dates: $this->dates, percentages: $percentages, type: $this->type);
+                $this->dispatch('updateMap', type: $this->type, json: $this->json, top_districts: $this->top_districts, ranges: $this->ranges);
             }
         }
     }
@@ -175,8 +175,8 @@ class Visualization extends Component
                 $indicatorSum = MergedOrg::select('date',  DB::raw('SUM('.$this->activeIndicator.') as sum'))->where('date', '<=', $this->date)->groupBy('date')->orderBy('date')->get()->pluck('sum')->toArray();
                 $this->top_districts = MergedOrg::with('district')->select(['district_code', 'district_name', DB::raw($indicator . ' as score')])->where('date', $this->date)->orderByRaw('score DESC nulls last')->get();
                 $this->makeGeoJson();
-                $this->emit('updateChart', $this->dates, $indicatorSum, [], [], $this->type);
-                $this->emit('updateMap', $this->type, $this->json, $this->top_districts, $this->ranges);
+                $this->dispatch('updateChart', dates: $this->dates, data: $indicatorSum, actual: [], participants: [], type: $this->type);
+                $this->dispatch('updateMap', type: $this->type, json: $this->json, top_districts: $this->top_districts, ranges: $this->ranges);
             }
         }
     }
@@ -190,9 +190,9 @@ class Visualization extends Component
         $this->date = $this->getLatesDate();
         $this->dates = $this->getDates();
         $this->dateChanged($this->date);
-        $this->emit('changeMonths', $this->dates);
+        $this->dispatch('changeMonths', dates: $this->dates);
         $this->makeGeoJson();
-        $this->emit('regionSelected', $this->activeRegion);
+        $this->dispatch('regionSelected', region: $this->activeRegion);
     }
 
     public function regionClicked($tuman){
@@ -239,7 +239,7 @@ class Visualization extends Component
 
             $this->indicators = ClusterDistance::where('district_code', $tuman)->where('date', $this->date)->orderBy('distance', 'ASC')->get();
         }
-        $this->emit('changeTable', $tuman, $tum_avg, $actual_avg, $participants, $this->dates, $this->date, $this->type);
+        $this->dispatch('changeTable', tuman: $tuman, data: $tum_avg, actual: $actual_avg, participants: $participants, dates: $this->dates, date: $this->date, type: $this->type);
     }
 
     public function dateChanged($date){
@@ -250,7 +250,7 @@ class Visualization extends Component
         if($this->active_tum){
             $this->regionClicked($this->active_tum);
             $this->makeGeoJson();
-            $this->emit('updateMap', $this->type, $this->json, $this->top_districts, $this->ranges);
+            $this->dispatch('updateMap', type: $this->type, json: $this->json, top_districts: $this->top_districts, ranges: $this->ranges);
         }else{
             if($this->activeRegion != 'republic'){
                 $this->regionChanged($this->activeRegion);
@@ -264,19 +264,19 @@ class Visualization extends Component
                                             ->pluck('sum')
                                             ->toArray();
 
-                    $this->emit('updateChart', $this->dates, $indicatorSum, [], [], $this->type);
+                    $this->dispatch('updateChart', dates: $this->dates, data: $indicatorSum, actual: [], participants: [], type: $this->type);
                 }
                 else if($this->type == "mood"){
                     $monthlyAvg1 = BsScorePrediction::select('date', DB::raw('AVG(score) as average'))->where('date', '<=', $this->date)->groupBy('date')->orderBy('date')->get()->pluck('average')->toArray();
                     $this->actualAvg = BsScore::select('date', DB::raw('AVG(bs_score_cur) as average'))->whereIn('date', $this->dates)->groupBy('date')->orderBy('date')->get()->pluck('average')->toArray();
-                    $this->emit('updateChart', $this->dates, $monthlyAvg1, $this->actualAvg, $participants, $this->type);
+                    $this->dispatch('updateChart', dates: $this->dates, data: $monthlyAvg1, actual: $this->actualAvg, participants: $participants, type: $this->type);
                 }
                 else if($this->type == 'protests'){
                     $monthlyAvg1 = ProtestPrediction::select('date', DB::raw('AVG(prediction) as average'))->where('date', '<=', $this->date)->groupBy('date')->orderBy('date')->get()->pluck('average')->toArray();
                     $this->actualAvg = Protest::select('date', DB::raw('SUM(count) as average'))->whereIn('date', $this->dates)->groupBy('date')->orderBy('date')->get()->pluck('average')->toArray();
                     $participants = Protest::select('date', DB::raw('SUM(participants) as score'))->whereIn('date', $this->dates)->groupBy('date')->orderBy('date')->get()->pluck('score')->toArray();
 
-                    $this->emit('updateChart', $this->dates, $monthlyAvg1, $this->actualAvg, $participants, $this->type);
+                    $this->dispatch('updateChart', dates: $this->dates, data: $monthlyAvg1, actual: $this->actualAvg, participants: $participants, type: $this->type);
                 }
                 else if($this->type == "clusters"){
                     $this->calcClusters();
@@ -288,10 +288,10 @@ class Visualization extends Component
                         $item->percentage = ($item->total / $totalForMonth) * 100;
                         return $item;
                     });
-                    $this->emit('updateClusterChart', $this->dates, $percentages, $this->type);
+                    $this->dispatch('updateClusterChart', dates: $this->dates, percentages: $percentages, type: $this->type);
                 }
                 $this->makeGeoJson();
-                $this->emit('updateMap', $this->type, $this->json, $this->top_districts, $this->ranges);
+                $this->dispatch('updateMap', type: $this->type, json: $this->json, top_districts: $this->top_districts, ranges: $this->ranges);
             }
         }
     }

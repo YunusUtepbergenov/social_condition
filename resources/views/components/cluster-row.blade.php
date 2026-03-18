@@ -24,7 +24,7 @@
             <a href="#" id="{{ $district->district_code }}"
                class="form-check-label district_label"
                style="font-weight: {{ $district->district_code == $active_tum ? 'bold' : 'normal' }}"
-               wire:click="$emit('regionClicked', '{{ $district->district_code }}')">
+               wire:click="$dispatch('regionClicked', { tuman: '{{ $district->district_code }}' })">
                 {{ $district->district->name }}
                 <i class="{{ $iconClass }}">{{ $diffValue }}</i>
             </a>

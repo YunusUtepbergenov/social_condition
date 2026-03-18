@@ -35,7 +35,7 @@
                                 <div class="row" style="padding: 2px 5px">
                                     <div class="col-lg-5 user_name">
                                         <div class="form-check">
-                                            <a href="#" id="{{$district->district_code}}" class="form-check-label district_label" style="font-weight:{{($district->district_code == $active_tum) ? 'bold': ''}};" wire:click="$emit('regionClicked', '{{$district->district_code}}')">
+                                            <a href="#" id="{{$district->district_code}}" class="form-check-label district_label" style="font-weight:{{($district->district_code == $active_tum) ? 'bold': ''}};" wire:click="$dispatch('regionClicked', { tuman: '{{$district->district_code}}' })">
                                                 {{ $key + 1 }}. {{ $district->district}} <i class='{{$class}}'>{{abs($district->diff)}}</i>
                                             </a>
                                         </div>
@@ -107,8 +107,9 @@
     </div>
     <hr>
 
-    @prepend('scripts')
-        <script>
+    @script
+    <script>
+        (function() {
             var mapOptions = {
                 center: [41.311, 63.2505],
                 zoom: 6,
@@ -132,9 +133,9 @@
             }
             var map = L.map('map', mapOptions);
 
-            var geojson = L.geoJSON(<?php echo json_encode($json); ?>, {
+            var geojson = L.geoJSON(@json($json), {
                 style: function (feature) {
-                    return styleCluster(feature, <?php echo json_encode($top_districts[0]['score']); ?>, <?php echo json_encode($ranges); ?>);
+                    return styleCluster(feature, @json($top_districts[0]['score']), @json($ranges));
                 },
             }).addTo(map);
             geojson.eachLayer(function (layer) {
@@ -150,7 +151,7 @@
                     geojson.resetStyle();
                     $layer.bringToFront();
                     $layer.setStyle(highlightStyle);
-                    Livewire.emit('regionClicked', layer['feature']['properties']['district_code']);
+                    Livewire.dispatch('regionClicked', { tuman: layer['feature']['properties']['district_code'] });
                 });
             });
 
@@ -168,10 +169,10 @@
             var chart = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: <?php echo json_encode($dates); ?>,
+                    labels: @json($dates),
                     datasets: [{
                         label: 'Ёруғлик даражаси',
-                        data: <?php echo json_encode($monthlyAvg); ?>,
+                        data: @json($monthlyAvg),
                         borderWidth: 3,
                         borderColor: 'rgb(232, 9, 9)',
                         backgroundColor: 'rgb(232, 9, 9)',
@@ -199,7 +200,7 @@
                 },
             });
 
-            Livewire.on('changeTable', (tuman, data, actual, participants, dates, date, type) => {
+            Livewire.on('changeTable', ({ tuman, data, actual, participants, dates, date, type }) => {
                 var string = '';
                 switch (type) {
                     case 'mood':
@@ -211,7 +212,7 @@
                         changeProtestChart(data, actual, dates, type, string, participants);
                         break;
                     case 'indicator':
-                        string = "<?php echo $activeIndicator ?>";
+                        string = @json($activeIndicator);
                         changeIndicatorChart(data, dates);
                         break;
                     case 'clusters':
@@ -220,7 +221,7 @@
                 }
             });
 
-            Livewire.on('updateMap', (type, json, top_districts, ranges) => {
+            Livewire.on('updateMap', ({ type, json, top_districts, ranges }) => {
                 map.remove();
                 map = L.map('map', mapOptions);
                 if(type == 'mood'){
@@ -265,12 +266,12 @@
                         geojson.resetStyle();
                         $layer.bringToFront();
                         $layer.setStyle(highlightStyle);
-                        Livewire.emit('regionClicked', layer['feature']['properties']['district_code']);
+                        Livewire.dispatch('regionClicked', { tuman: layer['feature']['properties']['district_code'] });
                     });
                 });
             });
 
-            Livewire.on('updateChart', (dates, data, actual, participants, type) => {
+            Livewire.on('updateChart', ({ dates, data, actual, participants, type }) => {
                 var string = '';
                 switch (type) {
                     case 'mood':
@@ -288,9 +289,10 @@
                 }
             });
 
-            Livewire.on('updateClusterChart', (dates, percentages, type) => {
+            Livewire.on('updateClusterChart', ({ dates, percentages, type }) => {
                 changeClusterChart(dates, percentages, type);
             });
-        </script>
-    @endprepend
+        })();
+    </script>
+    @endscript
 </div>

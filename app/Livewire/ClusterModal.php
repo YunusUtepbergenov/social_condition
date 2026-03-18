@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Livewire;
+namespace App\Livewire;
 
 use App\Models\ClusterDistance;
 use App\Models\Merged;
@@ -55,7 +55,7 @@ class ClusterModal extends Component
                                 ->where('date', $date)
                                 ->first();
 
-        $this->dispatchBrowserEvent('openClusterModal');
-        $this->emit('buildClusterChart', $data, $dates);
+        $this->dispatch('openClusterModal');
+        $this->dispatch('buildClusterChart', data: $data, dates: $dates);
     }
 }

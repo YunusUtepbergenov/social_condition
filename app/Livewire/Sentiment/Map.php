@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Livewire\Sentiment;
+namespace App\Livewire\Sentiment;
 
 use Livewire\Component;
 use App\Models\Sentiment;
@@ -58,7 +58,7 @@ class Map extends Component
 
         $this->indicators = Sentiment_Question::select('question', DB::raw('(very_bad + bad) as bad, normal, (good + very_good) as good'))->where('region_code', 1700)->where('date', $this->date)->orderBy('question')->get();
         $this->prev_indicators = Sentiment_Question::select('question', DB::raw('(very_bad + bad) as bad, normal, (good + very_good) as good'))->where('region_code', 1700)->where('date', $prev_month)->orderBy('question')->get();
-        
+
         $this->activeRegion = 'republic';
 
         $this->dates = $this->getDates();
@@ -79,8 +79,8 @@ class Map extends Component
         }
 
         $this->makeGeoJson();
-        $this->emit('updateMap', $this->type, $this->json, $this->top_districts, $this->max, $this->ranges);
-        $this->emit('updateChart', $this->type, $this->dates, $this->monthlyAvg, $this->repAvg);
+        $this->dispatch('updateMap', type: $this->type, json: $this->json, top_districts: $this->top_districts, max: $this->max, ranges: $this->ranges);
+        $this->dispatch('updateChart', type: $this->type, dates: $this->dates, data: $this->monthlyAvg, repAvg: $this->repAvg);
     }
 
     public function radioType($value, $indicator, $translates){
@@ -93,9 +93,8 @@ class Map extends Component
         $this->dates = $this->getDates();
 
         $this->dateChanged($this->date);
-        $this->emit('changeMonths', $this->dates);
+        $this->dispatch('changeMonths', dates: $this->dates);
         $this->makeGeoJson();
-        // $this->emit('regionSelected', $this->activeRegion);
     }
 
     public function regionClicked($region_code){
@@ -112,7 +111,7 @@ class Map extends Component
             $this->monthlyAvg = Sentiment_Merged::select('date',  DB::raw('AVG('.$this->activeIndicator.') as average'))->where('region_code', $region_code)->where('date', '<=', $this->date)->groupBy('date')->orderBy('date')->get()->pluck('average')->toArray();
             $this->repAvg = Sentiment_Republic::select('date', DB::raw($this->activeIndicator.' as index'))->whereIn('date', $this->dates)->orderBy('date', 'ASC')->get()->pluck('index')->toArray();
         }
-        $this->emit('updateChart', $this->type, $this->dates, $this->monthlyAvg, $this->repAvg);
+        $this->dispatch('updateChart', type: $this->type, dates: $this->dates, data: $this->monthlyAvg, repAvg: $this->repAvg);
     }
 
     public function indicatorChanged($indicator){
@@ -134,8 +133,8 @@ class Map extends Component
         $this->repAvg = Null;
         $this->makeGeoJson();
 
-        $this->emit('updateMap', $this->type, $this->json, $this->top_districts, $this->max, $this->ranges);
-        $this->emit('updateChart', $this->type, $this->dates, $this->monthlyAvg, $this->repAvg);
+        $this->dispatch('updateMap', type: $this->type, json: $this->json, top_districts: $this->top_districts, max: $this->max, ranges: $this->ranges);
+        $this->dispatch('updateChart', type: $this->type, dates: $this->dates, data: $this->monthlyAvg, repAvg: $this->repAvg);
     }
 
     public function showIndicatorDescription(){

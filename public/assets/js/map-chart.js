@@ -43,7 +43,7 @@ geojson.eachLayer(function (layer) {
         geojson.resetStyle();
         $layer.bringToFront();
         $layer.setStyle(highlightStyle);
-        Livewire.emit('regionClicked', layer['feature']['properties']['district_code']);
+        Livewire.dispatch('regionClicked', { tuman: layer['feature']['properties']['district_code'] });
     });
 });
 
@@ -101,7 +101,7 @@ var chart = new Chart(ctx, {
     },
 });
 
-Livewire.on('changeTable', (tuman, data, actual, participants, dates, date, type) => {
+Livewire.on('changeTable', ({ tuman, data, actual, participants, dates, date, type }) => {
     var keys = Object.keys(geojson._layers);
     var layer_id;
     if (activeLayer) {
@@ -155,7 +155,7 @@ function resetLayerStyle(layer) {
     }
 }
 
-Livewire.on('updateMap', (type, json, top_districts, ranges) => {
+Livewire.on('updateMap', ({ type, json, top_districts, ranges }) => {
     map.remove();
     map = L.map('map', mapOptions);
     if(type == 'mood'){
@@ -199,12 +199,12 @@ Livewire.on('updateMap', (type, json, top_districts, ranges) => {
             geojson.resetStyle();
             $layer.bringToFront();
             $layer.setStyle(highlightStyle);
-            Livewire.emit('regionClicked', layer['feature']['properties']['district_code']);
+            Livewire.dispatch('regionClicked', { tuman: layer['feature']['properties']['district_code'] });
         });
     });
 });
 
-Livewire.on('updateChart', (dates, data, actual, participants, type) => {
+Livewire.on('updateChart', ({ dates, data, actual, participants, type }) => {
     var string = '';
     switch (type) {
         case 'mood':
@@ -222,6 +222,6 @@ Livewire.on('updateChart', (dates, data, actual, participants, type) => {
     }
 });
 
-Livewire.on('updateClusterChart', (dates, percentages, type) => {
+Livewire.on('updateClusterChart', ({ dates, percentages, type }) => {
     changeClusterChart(dates, percentages, type);
 });

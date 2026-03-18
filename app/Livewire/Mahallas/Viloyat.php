@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Livewire\Mahallas;
+namespace App\Livewire\Mahallas;
 
 use App\Models\MahallasCode;
 use Illuminate\Support\Facades\DB;
@@ -83,7 +83,7 @@ class Viloyat extends Component
                 ->groupBy('mahallas_codes.district_code')
                 ->orderBy('mahallas_codes.district_code')
                 ->get();
-        
+
 
         foreach($this->result as $district){
             $clusters = [
@@ -102,7 +102,7 @@ class Viloyat extends Component
                 }
             }
         }
-        
-        $this->emit('updateMap', $this->json);
+
+        $this->dispatch('updateMap', json: $this->json);
     }
 }

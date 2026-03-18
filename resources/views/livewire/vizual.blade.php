@@ -83,7 +83,13 @@
         const activeIndicator = @json($activeIndicator);
     </script>
 
-    @prepend('scripts')
-        <script src="{{asset('assets/js/map-chart.js')}}"></script>
-    @endprepend
+    @script
+    <script>
+        (function() {
+            var s = document.createElement('script');
+            s.src = "{{ asset('assets/js/map-chart.js') }}";
+            document.body.appendChild(s);
+        })();
+    </script>
+    @endscript
 </div>

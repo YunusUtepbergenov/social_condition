@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Livewire;
+namespace App\Livewire;
 
 use App\Models\Merged;
 use App\Models\MergedOrg;
@@ -29,12 +29,11 @@ class InfoModal extends Component
         return $date->format('Y-m-d');
     }
 
-    public function showInfoModal($feature, $district, $data, $dataAvg, $date, $dates, $population, $tum_pop, $avg_indicators){
+    public function showInfoModal($feature, $district, $data, $dataAvg, $date, $dates, $population, $tum_pop, $avg_indicators = []){
         $tum_pop_arr = MergedOrg::select('demography_population as population', 'date')->where('district_code', $district)->orderBy('date', 'ASC')->get()->pluck('population', 'date')->toArray();
         $multiplier = 100000;
         $this->activeDistrict = $district;
         $regionCode = substr($district, 0, 4);
-        // $removedElement = array_pop($dates);
         $this->activeIndicator = $feature;
 
         $this->date = $date;
@@ -130,7 +129,7 @@ class InfoModal extends Component
                                     ->where('date', $date)
                                     ->first();
 
-        $this->dispatchBrowserEvent('openFormModal');
-        $this->emit('buildCharts', $data, $dataAvg, $dates);
+        $this->dispatch('openFormModal');
+        $this->dispatch('buildCharts', data: $data, dataAvg: $dataAvg, dates: $dates);
     }
 }

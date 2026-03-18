@@ -20,7 +20,7 @@
            <div class="modal-content">
                 <div class="modal-header box-shadow-1">
                     <h5 class="card-header">@isset($activeIndicator) {{$translates[$activeIndicator]}} ({{findDistrict($activeDistrict)}}) @endisset</h5>
-                    <button type="button" class="close" wire:click="$emit('closeFormModal')" style="background-color: #c9c9c9" aria-label="{{ __('Close') }}">
+                    <button type="button" class="close" wire:click="$dispatch('closeFormModal')" style="background-color: #c9c9c9" aria-label="{{ __('Close') }}">
                         <span aria-hidden="true"><strong>&times;</strong></span>
                     </button>
                 </div>
@@ -120,20 +120,19 @@
             </div>
       </div>
     </div>
-</div>
+    <style>
+        #modal_table th {
+            font-size: 14px;
+        }
 
-<style>
-    #modal_table th {
-        font-size: 14px;
-    }
+        #modal_table td {
+            font-size: 14px;
+        }
+    </style>
 
-    #modal_table td {
-        font-size: 14px;
-    }
-</style>
-
-@prepend('scripts')
+    @script
     <script>
+        (function() {
         var ctx3 = document.getElementById('linechart');
         var chart12 = new Chart(ctx3, {
             type: 'line',
@@ -159,7 +158,7 @@
             },
         });
 
-        window.addEventListener('openFormModal', event => {
+        Livewire.on('openFormModal', () => {
             $("#infomodal").modal('show');
         });
 
@@ -167,7 +166,7 @@
             $("#infomodal").modal('hide');
         });
 
-        Livewire.on('buildCharts', (dataNominal, dataAvg, dates)=>{
+        Livewire.on('buildCharts', ({ data: dataNominal, dataAvg, dates })=>{
             console.log(dates);
             console.log(dataNominal);
 
@@ -214,5 +213,7 @@
 
             chart12.update('none');
         });
+        })();
     </script>
-@endprepend
+    @endscript
+</div>

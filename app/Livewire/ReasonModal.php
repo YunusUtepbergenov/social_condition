@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Livewire;
+namespace App\Livewire;
 
 use App\Models\ProtestReason;
 use Carbon\Carbon;
@@ -24,7 +24,7 @@ class ReasonModal extends Component
         }else{
             $this->reasons = ProtestReason::where('district_code', $activeTum)->whereBetween('date', [$startOfMonth, $endOfMonth])->orderBy('date')->get();
         }
-        $this->dispatchBrowserEvent('openReasonModal');
+        $this->dispatch('openReasonModal');
     }
 
     public function render()

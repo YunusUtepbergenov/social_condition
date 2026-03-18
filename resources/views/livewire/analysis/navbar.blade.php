@@ -11,31 +11,31 @@
             <div class="nav-item d-flex align-items-center">
               <div class="form-row align-items-center my-3 mx-3">
                 <div class="form-check form-check-inline">
-                  <input class="form-check-input" type="radio" wire:model="radio" wire:click="radioChanged('mood')" id="gridRadios1" value="mood" selected>
+                  <input class="form-check-input" type="radio" wire:model.live="radio" wire:click="radioChanged('mood')" id="gridRadios1" value="mood" selected>
                   <label class="form-check-label filter-texts" for="gridRadios1">
                         Истеъмолчилар кайфияти
                   </label>
                 </div>
                 <div class="form-check form-check-inline">
-                  <input class="form-check-input" type="radio" wire:model="radio" wire:click="radioChanged('protests')" id="gridRadios2" value="protests">
+                  <input class="form-check-input" type="radio" wire:model.live="radio" wire:click="radioChanged('protests')" id="gridRadios2" value="protests">
                   <label class="form-check-label filter-texts" for="gridRadios2">
                         Оммавий норозиликлар
                   </label>
                 </div>
                 <div class="form-check form-check-inline">
-                  <input class="form-check-input" type="radio" wire:model="radio" wire:click="radioChanged('indicator')" id="gridRadios3" value="indicator">
+                  <input class="form-check-input" type="radio" wire:model.live="radio" wire:click="radioChanged('indicator')" id="gridRadios3" value="indicator">
                   <label class="form-check-label filter-texts" for="gridRadios3">
                         Асосий кўрсаткичлар
                   </label>
                 </div>
                 <div class="form-check form-check-inline">
-                  <input class="form-check-input" type="radio" wire:model="radio" wire:click="radioChanged('clusters')" id="gridRadios4" value="clusters">
+                  <input class="form-check-input" type="radio" wire:model.live="radio" wire:click="radioChanged('clusters')" id="gridRadios4" value="clusters">
                   <label class="form-check-label filter-texts" for="gridRadios4">
                         Ҳудудлар тоифалари
                   </label>
                 </div>
                 <div class="form-check form-check-inline">
-                  <select class="form-select multiline-select" wire:model="region">
+                  <select class="form-select multiline-select" wire:model.live="region">
                     <option value="republic">Республика бўйича</option>
                     <option value="1703">Андижон вилояти</option>
                     <option value="1706">Бухоро вилояти</option>
@@ -55,7 +55,7 @@
                 </div>
                 @if ($radio == 'indicator')
                   <div class="form-check form-check-inline" wire:ignore>
-                    <select class="form-select multiline-select" id="select-test" wire:model="indicator">
+                    <select class="form-select multiline-select" id="select-test" wire:model.live="indicator">
                       @foreach ($indicators as $indicator)
                         <option value="{{$indicator}}" data-value="{{$indicator}}">{{$translates[$indicator]}}</option>
                       @endforeach
@@ -88,34 +88,30 @@
           </ul>
         </div>
     </nav>
-</div>
 
-@push('scripts')
+    @script
     <script>
-        document.addEventListener('livewire:load', function (event) {
-          Livewire.on('updateSelecttwo', () => {
-            $("#select-test").select2();
-          });
+        (function() {
+            Livewire.on('updateSelecttwo', () => {
+                $("#select-test").select2();
+            });
 
-          $(document).on('change', '#select-test', function (e) {
-            @this.set('indicator', $(this).find(':selected').data('value'));
-          });
-        });
+            $(document).on('change', '#select-test', function (e) {
+                $wire.set('indicator', $(this).find(':selected').data('value'));
+            });
+
+            Livewire.dispatch('child-mounted');
+
+            Livewire.on('radioChanged', () => {
+                $('input[type="radio"]').attr('disabled', true);
+                $('select').attr('disabled', true);
+            });
+
+            Livewire.on('componentLoaded', () => {
+                $('input[type="radio"]').attr('disabled', false);
+                $('select').attr('disabled', false);
+            });
+        })();
     </script>
-@endpush
-
-<script>
-    window.addEventListener("DOMContentLoaded", function () {
-        Livewire.emit('child-mounted');
-    });
-
-    window.addEventListener('radioChanged', event => {
-        $('input[type="radio"]').attr('disabled', true);
-        $('select').attr('disabled', true);
-    });
-
-    window.addEventListener('componentLoaded', event => {
-        $('input[type="radio"]').attr('disabled', false);
-        $('select').attr('disabled', false);
-    });
-</script>
+    @endscript
+</div>
