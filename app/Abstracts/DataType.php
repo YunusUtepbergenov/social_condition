@@ -2,9 +2,12 @@
 
 namespace App\Abstracts;
 
-abstract class DataType{
-    public $type;
-    public $date;
-    // public abstract function calculateAverage();
-    public abstract function getTopDistricts($activeRegion, $activeIndicator, $date);
+use Illuminate\Support\Collection;
+
+abstract class DataType
+{
+    public ?string $type = null;
+    public ?string $date = null;
+
+    abstract public function getTopDistricts(string $activeRegion, ?string $activeIndicator, string $date): Collection;
 }

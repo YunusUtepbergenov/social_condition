@@ -3,7 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\ClusterDistance;
-use App\Models\Merged;
+use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 
@@ -11,17 +11,26 @@ class ClusterModal extends Component
 {
     protected $listeners = ['showClusterModal'];
 
-    public $activeIndicator, $activeDistrict, $date;
-    public $repAvg, $vilAvg, $curVal;
-    public $ovrReg, $ovrRep;
-    public $repAvgNor, $vilAvgNor, $curValNor, $lastYear;
+    public ?string $activeIndicator = null;
+    public ?string $activeDistrict = null;
+    public ?string $date = null;
+    public mixed $repAvg = null;
+    public mixed $vilAvg = null;
+    public mixed $curVal = null;
+    public mixed $ovrReg = null;
+    public mixed $ovrRep = null;
+    public mixed $repAvgNor = null;
+    public mixed $vilAvgNor = null;
+    public mixed $curValNor = null;
+    public mixed $lastYear = null;
 
-    public function render()
+    public function render(): View
     {
         return view('livewire.cluster-modal');
     }
 
-    public function showClusterModal($feature, $district, $data,$date, $dates){
+    public function showClusterModal(string $feature, string $district, array $data, string $date, array $dates): void
+    {
         $this->activeDistrict = $district;
         $regionCode = substr($district, 0, 4);
         $this->activeIndicator = $feature;
@@ -30,30 +39,30 @@ class ClusterModal extends Component
         $this->curVal = end($data);
 
         $this->repAvg = ClusterDistance::select(DB::raw('AVG(value) as score'))
-                                ->where('indicator', $feature)
-                                ->where('date', '=', $date)
-                                ->groupBY('date')
-                                ->first();
+            ->where('indicator', $feature)
+            ->where('date', '=', $date)
+            ->groupBY('date')
+            ->first();
 
         $this->vilAvg = ClusterDistance::select(DB::raw('AVG(value) as score'))
-                                ->where([
-                                    ['indicator', $feature],
-                                    ['date', '=', $date],
-                                    ['district_code', 'LIKE', substr($district, 0, 4).'%'],
-                                ])->groupBY('date')->first();
+            ->where([
+                ['indicator', $feature],
+                ['date', '=', $date],
+                ['district_code', 'LIKE', substr($district, 0, 4) . '%'],
+            ])->groupBY('date')->first();
 
         $this->lastYear = $data[intval($date) - 1];
 
         $this->ovrReg = ClusterDistance::select(DB::raw('SUM(value) as feature'))
-                                ->where('indicator', $feature)
-                                ->where('district_code', 'Like', $regionCode.'%')
-                                ->where('date', $date)
-                                ->first();
+            ->where('indicator', $feature)
+            ->where('district_code', 'Like', $regionCode . '%')
+            ->where('date', $date)
+            ->first();
 
         $this->ovrRep = ClusterDistance::select(DB::raw('SUM(value) as feature'))
-                                ->where('indicator', $feature)
-                                ->where('date', $date)
-                                ->first();
+            ->where('indicator', $feature)
+            ->where('date', $date)
+            ->first();
 
         $this->dispatch('openClusterModal');
         $this->dispatch('buildClusterChart', data: $data, dates: $dates);

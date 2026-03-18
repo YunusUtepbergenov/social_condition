@@ -13,3 +13,12 @@ npm-debug.log
 yarn-error.log
 /.idea
 /.vscode
+/.agents
+/.claude
+/.codex
+/.gemini
+.mcp.json
+.AGENTS.md
+GEMINI.md
+CLAUDE.md
+AGENTS.md

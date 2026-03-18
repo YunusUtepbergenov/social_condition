@@ -3,13 +3,15 @@
 namespace App\Livewire\Analysis;
 
 use App\Models\Region;
+use Illuminate\Contracts\View\View;
 use Livewire\Component;
 
 class Filter extends Component
 {
-    public $radio = 'mood', $regions;
+    public string $radio = 'mood';
+    public mixed $regions = null;
 
-    public function render()
+    public function render(): View
     {
         $this->regions = Region::all();
 
