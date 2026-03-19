@@ -1,15 +1,12 @@
 <!DOCTYPE html>
-<html
-  lang="en"
->
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
     />
-    <title>Худудлар тахлили</title>
-    {{-- <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests"> --}}
+    <title>@yield('title', 'Худудлар тахлили')</title>
     <meta name="description" content="" />
     <link rel="shortcut icon" type="image/x-icon" href="https://cer.uz/themes/cer/icon/favicon.ico">
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -35,20 +32,16 @@
   <body>
     <div class="layout-wrapper layout-content-navbar">
       <div class="layout-container">
-          @livewire('analysis.filter')
+          @include('partials.sidebar')
           <div class="layout-page">
-            @livewire('analysis.navbar')
             <div class="content-wrapper">
                 <div class="flex-grow-1 p-4">
-                    @livewire('vizual')
-                    @livewire('analysis.timeline')
+                    @yield('content')
                 </div>
             </div>
           </div>
       </div>
-      @livewire('info-modal')
-      @livewire('cluster-modal')
-      @livewire('reason-modal')
+      @yield('modals')
     </div>
     <script src="{{asset('assets/vendor/libs/jquery/jquery.js')}}"></script>
     <script src="{{asset('assets/vendor/libs/popper/popper.js')}}"></script>
@@ -66,6 +59,7 @@
     crossorigin=""></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="{{asset('assets/js/for_merged.js')}}"></script>
+    @stack('page-scripts')
     @stack('scripts')
   </body>
 </html>

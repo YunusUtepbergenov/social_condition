@@ -35,9 +35,8 @@
   <body>
     <div class="layout-wrapper layout-content-navbar">
       <div class="layout-container">
-        @livewire('analysis.filter')
+        @include('partials.sidebar')
         <div class="layout-page">
-          @livewire('analysis.navbar')
           <div class="content-wrapper">
               <div class="flex-grow-1 p-4">
                   @livewire('mahallas.viloyat')

@@ -358,6 +358,147 @@ background-color: rgba(255, 255, 255, 0.2) !important;
 }
 
 
+/* Sidebar layout */
+.sidebar-content {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.sidebar-submenu {
+    padding: 10px 15px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+.sidebar-submenu-title {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.5);
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+    padding: 0 5px;
+}
+
+.sidebar-radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.sidebar-radio-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    color: rgba(255,255,255,0.8);
+    font-size: 12px;
+    margin: 0;
+    transition: background-color 0.15s;
+}
+
+.sidebar-radio-label:hover {
+    background-color: rgba(255,255,255,0.1);
+}
+
+.sidebar-radio-label .form-check-input {
+    margin: 0;
+    flex-shrink: 0;
+}
+
+.sidebar-radio-label .form-check-input:checked {
+    background-color: #696cff;
+    border-color: #696cff;
+}
+
+.sidebar-select-group {
+    padding: 0 5px;
+}
+
+.sidebar-select {
+    width: 100%;
+    font-size: 11px;
+    padding: 5px 8px;
+    border: 1px solid rgba(255,255,255,0.2);
+    background-color: rgba(255,255,255,0.1);
+    color: #fff;
+    border-radius: 4px;
+}
+
+.sidebar-select option {
+    background-color: #34444c;
+    color: #fff;
+}
+
+.sidebar-user {
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding: 12px 15px;
+    flex-shrink: 0;
+}
+
+.sidebar-user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.sidebar-user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.sidebar-user-name {
+    color: rgba(255,255,255,0.9);
+    font-size: 13px;
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.sidebar-logout-btn {
+    width: 100%;
+    background: rgba(255,255,255,0.1);
+    border: none;
+    color: rgba(255,255,255,0.7);
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: background-color 0.15s;
+}
+
+.sidebar-logout-btn:hover {
+    background: rgba(255,255,255,0.2);
+    color: #fff;
+}
+
+.sidebar-logout-btn i {
+    font-size: 16px;
+}
+
+#layout-menu {
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-select-group .select2-container {
+    width: 100% !important;
+    font-size: 11px;
+    border-color: rgba(255,255,255,0.2);
+    background-color: rgba(255,255,255,0.1);
+    color: #fff;
+}
+
 .map-container {
     width: 100%;
     height: 51vh;
@@ -404,4 +545,34 @@ background-color: rgba(255, 255, 255, 0.2) !important;
 .indicators-table::-webkit-scrollbar-thumb {
     background: #bbb;
     border-radius: 4px;
+}
+
+/* Sidebar submenu styles for dark theme */
+.bg-menu-theme .menu-sub {
+    background-color: rgba(0,0,0,0.15) !important;
+    padding: 4px 0;
+}
+
+.bg-menu-theme .menu-sub .menu-link {
+    color: rgba(255,255,255,0.7) !important;
+    font-size: 12px;
+    padding: 6px 15px 6px 45px;
+}
+
+.bg-menu-theme .menu-sub .menu-item.active > .menu-link {
+    color: #fff !important;
+    font-weight: 600;
+}
+
+.bg-menu-theme .menu-sub .menu-link:hover {
+    color: #fff !important;
+    background-color: rgba(255,255,255,0.08);
+}
+
+.bg-menu-theme .menu-toggle::after {
+    border-color: rgba(255,255,255,0.5);
+}
+
+.bg-menu-theme .menu-item.open > .menu-toggle::after {
+    border-color: rgba(255,255,255,0.8);
 }

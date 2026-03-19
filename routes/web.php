@@ -15,12 +15,36 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('layouts.main');
+    return redirect('/mood');
 })->middleware('auth');
 
+Route::get('/mood', function () {
+    return view('pages.mood');
+})->middleware('auth')->name('mood');
+
+Route::get('/protests', function () {
+    return view('pages.protests');
+})->middleware('auth')->name('protests');
+
+Route::get('/indicators', function () {
+    return view('pages.indicators');
+})->middleware('auth')->name('indicators');
+
+Route::get('/clusters', function () {
+    return view('pages.clusters');
+})->middleware('auth')->name('clusters');
+
 Route::get('/sentiment', function () {
-    return view('layouts.sentiment');
-})->name('sentiment')->middleware('auth');
+    return redirect('/sentiment/mood');
+})->middleware('auth');
+
+Route::get('/sentiment/mood', function () {
+    return view('pages.sentiment-mood');
+})->middleware('auth')->name('sentiment.mood');
+
+Route::get('/sentiment/survey', function () {
+    return view('pages.sentiment-survey');
+})->middleware('auth')->name('sentiment.survey');
 
 Route::get('/mahallas', function () {
     return view('layouts.mahallas');
@@ -29,7 +53,7 @@ Route::get('/mahallas', function () {
 Route::get('/districts/{district}', [PageController::class, 'districts'])->name('districts')->middleware('auth');
 
 Route::get('/dashboard', function () {
-    return view('layouts.main');
+    return redirect('/mood');
 })->middleware(['auth'])->name('dashboard');
 
 Route::get('/task/download', function () {

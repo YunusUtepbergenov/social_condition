@@ -24,10 +24,21 @@ if (width > 400 && width < 1500) {
 }
 var map = L.map('map', mapOptions);
 
+function getInitialStyle(feature) {
+    switch (pageType) {
+        case 'protests':
+            return styleProtestMap(feature, topDistrictScore);
+        case 'indicator':
+            return styleIndicator(feature, topDistrictScore, topDistrictScoreMin);
+        case 'clusters':
+            return styleCluster(feature);
+        default:
+            return style1(feature, topDistrictScore, scoreRanges);
+    }
+}
+
 var geojson = L.geoJSON(geoJsonData, {
-    style: function (feature) {
-        return style1(feature, topDistrictScore, scoreRanges);
-    },
+    style: getInitialStyle,
 }).addTo(map);
 
 geojson.eachLayer(function (layer) {
@@ -59,47 +70,44 @@ window.addEventListener('resize', function() {
 
 const ctx = document.getElementById('myChart1');
 
-var chart = new Chart(ctx, {
-    type: 'line',
-    data: {
-        labels: dates,
-        datasets: [{
-            label: 'Истеъмолчилар кайфияти индекси башорати',
-            data: monthlyAvg,
-            borderWidth: 3,
-            borderColor: 'rgb(68, 119, 170)',
-            backgroundColor: '#fff',
-            yAxisID: 'y',
-        },
-        {
-            label: 'Истеъмолчилар кайфияти индекси',
-            data: actualAvg,
-            borderWidth: 3,
-            borderColor: '#53a074',
-            backgroundColor: '#bbdefb',
-            yAxisID: 'y',
-        }],
-    },
-    options: {
-        plugins: {
-            legend: {
-                display: true
-            },
-        },
-        responsive: true,
-        maintainAspectRatio: false,
-        aspectRatio: 1,
-        scales: {
-            y: {
-                beginAtZero: false,
-                position: 'left',
-                ticks: {
-                    stepSize: 0.25
-                },
-            },
-        }
-    },
-});
+function getInitialChartConfig() {
+    switch (pageType) {
+        case 'protests':
+            return {
+                type: 'line',
+                data: { labels: dates, datasets: [{ label: 'Оммавий норозилик содир бўлиши эҳтимоли', data: monthlyAvg, borderWidth: 3, borderColor: 'rgb(232, 9, 9)', backgroundColor: '#fff', yAxisID: 'y' }, { type: 'bar', label: 'Оммавий норозиликлар сони', data: actualAvg, borderWidth: 2, borderColor: 'black', backgroundColor: 'rgb(68, 119, 170, 0.5)', yAxisID: 'y1' }] },
+                options: { plugins: { legend: { display: false } }, responsive: true, maintainAspectRatio: false, aspectRatio: 1, scales: { y: { beginAtZero: false, position: 'right' }, y1: { beginAtZero: true, position: 'left' } } }
+            };
+        case 'indicator':
+            return {
+                type: 'line',
+                data: { labels: dates, datasets: [{ label: 'Кўрсаткич қиймати', data: monthlyAvg, borderWidth: 2, borderColor: 'rgb(68, 119, 170)', backgroundColor: '#bbdefb', yAxisID: 'y' }] },
+                options: { plugins: { legend: { display: false } }, responsive: true, maintainAspectRatio: false, aspectRatio: 1, scales: { y: { beginAtZero: false, position: 'left' } } }
+            };
+        case 'clusters':
+            var clusterData = (typeof clusterPercentages !== 'undefined') ? clusterPercentages : [];
+            var clusterYears = dates.map(function(d) { return new Date(d).getFullYear(); });
+            return {
+                type: 'line',
+                data: { labels: clusterYears, datasets: [
+                    { label: '1-тоифадаги туманлар', data: filterCluster(clusterData, 1), borderWidth: 2, fill: 'origin', borderColor: '#fff', backgroundColor: 'rgb(115, 182, 107)', yAxisID: 'y' },
+                    { label: '2-тоифадаги туманлар', data: filterCluster(clusterData, 2), borderWidth: 2, fill: 'origin', borderColor: '#fff', backgroundColor: 'rgb(201, 99, 207)', yAxisID: 'y' },
+                    { label: '3-тоифадаги туманлар', data: filterCluster(clusterData, 3), borderWidth: 2, fill: 'origin', borderColor: '#fff', backgroundColor: 'rgb(160, 160, 160)', yAxisID: 'y' },
+                    { label: '4-тоифадаги туманлар', data: filterCluster(clusterData, 4), borderWidth: 2, fill: 'origin', borderColor: '#fff', backgroundColor: 'rgb(250, 167, 63)', yAxisID: 'y' },
+                    { label: '5-тоифадаги туманлар', data: filterCluster(clusterData, 5), borderWidth: 2, fill: 'origin', borderColor: '#fff', backgroundColor: 'rgb(68, 119, 170)', yAxisID: 'y' }
+                ] },
+                options: { responsive: true, maintainAspectRatio: false, aspectRatio: 1, interaction: { intersect: false }, scales: { y: { stacked: true, position: 'left', max: 100 }, x: { stacked: true } }, plugins: { legend: { display: true }, filler: { propagate: false } } }
+            };
+        default:
+            return {
+                type: 'line',
+                data: { labels: dates, datasets: [{ label: 'Истеъмолчилар кайфияти индекси башорати', data: monthlyAvg, borderWidth: 3, borderColor: 'rgb(68, 119, 170)', backgroundColor: '#fff', yAxisID: 'y' }, { label: 'Истеъмолчилар кайфияти индекси', data: actualAvg, borderWidth: 3, borderColor: '#53a074', backgroundColor: '#bbdefb', yAxisID: 'y' }] },
+                options: { plugins: { legend: { display: true } }, responsive: true, maintainAspectRatio: false, aspectRatio: 1, scales: { y: { beginAtZero: false, position: 'left', ticks: { stepSize: 0.25 } } } }
+            };
+    }
+}
+
+var chart = new Chart(ctx, getInitialChartConfig());
 
 Livewire.on('changeTable', ({ tuman, data, actual, participants, dates, date, type }) => {
     var keys = Object.keys(geojson._layers);
