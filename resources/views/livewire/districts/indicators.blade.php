@@ -1,27 +1,30 @@
 <div>
-    <div class="row mb-2">
-        <div class="col-sm-12 d-flex align-items-center" style="gap:10px">
-            <div style="min-width:200px">
-                <select class="form-select form-select-sm" wire:model.live="activeRegion" wire:change="regionChanged($event.target.value)" style="font-size:12px">
-                    <option value="republic">Республика бўйича</option>
-                    <option value="1703">Андижон вилояти</option>
-                    <option value="1706">Бухоро вилояти</option>
-                    <option value="1708">Жиззах вилояти</option>
-                    <option value="1735">Қорақалроғистон Республикаси</option>
-                    <option value="1710">Қашқадарё вилояти</option>
-                    <option value="1712">Навоий вилояти</option>
-                    <option value="1714">Наманган вилояти</option>
-                    <option value="1718">Самарқанд вилояти</option>
-                    <option value="1722">Сурхандарё вилояти</option>
-                    <option value="1724">Сирдарё вилояти</option>
-                    <option value="1726">Тошкент шахри</option>
-                    <option value="1727">Тошкент вилояти</option>
-                    <option value="1730">Фарғона вилояти</option>
-                    <option value="1733">Хоразм вилояти</option>
-                </select>
-            </div>
-            <div style="min-width:250px" wire:ignore>
-                <select class="form-select form-select-sm" id="indicator-select" style="font-size:12px">
+    {{-- Page Header --}}
+    <div class="page-header">
+        <div class="page-title">
+            <span class="page-icon indicators"><i class="bx bx-bar-chart-alt-2"></i></span>
+            <h5>Асосий кўрсаткичлар</h5>
+        </div>
+        <div class="page-header-controls">
+            <select class="region-select" wire:model.live="activeRegion" wire:change="regionChanged($event.target.value)">
+                <option value="republic">Республика бўйича</option>
+                <option value="1703">Андижон вилояти</option>
+                <option value="1706">Бухоро вилояти</option>
+                <option value="1708">Жиззах вилояти</option>
+                <option value="1735">Қорақалроғистон Республикаси</option>
+                <option value="1710">Қашқадарё вилояти</option>
+                <option value="1712">Навоий вилояти</option>
+                <option value="1714">Наманган вилояти</option>
+                <option value="1718">Самарқанд вилояти</option>
+                <option value="1722">Сурхандарё вилояти</option>
+                <option value="1724">Сирдарё вилояти</option>
+                <option value="1726">Тошкент шахри</option>
+                <option value="1727">Тошкент вилояти</option>
+                <option value="1730">Фарғона вилояти</option>
+                <option value="1733">Хоразм вилояти</option>
+            </select>
+            <div wire:ignore>
+                <select class="region-select" id="indicator-select" style="min-width:250px">
                     @foreach ($columns as $col)
                         <option value="{{ $col }}" data-value="{{ $col }}">{{ $translates[$col] ?? $col }}</option>
                     @endforeach
@@ -30,13 +33,17 @@
         </div>
     </div>
 
-    <div class="row">
+    {{-- Map + Rankings --}}
+    <div class="row g-2 mb-2">
         <div class="col-sm-7" wire:ignore>
-            <div id="map" class="map-container"></div>
+            <div class="map-panel-card">
+                <div id="map" class="map-container"></div>
+            </div>
         </div>
-        <div class="col-sm-5 stats-container">
-            <div class="card card-fixed">
-                <div class="card-body top_districts">
+        <div class="col-sm-5">
+            <div class="rankings-panel-card">
+                <div class="rankings-panel-header">Туманлар рейтинги</div>
+                <div class="rankings-list top_districts">
                     @foreach($top_districts as $index => $district)
                         @component('components.district-row', [
                             'district' => $district,
@@ -52,12 +59,11 @@
         </div>
     </div>
 
-    <hr>
-
-    <div class="row">
+    {{-- Chart + Stats --}}
+    <div class="row g-2 section-gap">
         <div class="col-sm-7">
-            <div class="card" style="min-height: 15vh; max-height:28vh">
-                <div class="row">
+            <div class="chart-panel-card">
+                <div class="chart-panel-header">
                     @include('partials.chart-header', [
                         'type' => 'indicator',
                         'activeIndicator' => $activeIndicator,
@@ -66,7 +72,7 @@
                         'translates' => $translates
                     ])
                 </div>
-                <div class="card-body p-0 px-3" style="height: 25vh;" wire:ignore>
+                <div class="chart-panel-body" wire:ignore>
                     <canvas id="myChart1"></canvas>
                 </div>
             </div>
@@ -74,7 +80,7 @@
 
         @include('partials.stats-table', ['indicators' => $indicators, 'type' => 'indicator', 'indicatorClass' => $indicatorClass])
     </div>
-    <hr>
+
     <div wire:loading>
         <div class="loading">Loading&#8230;</div>
     </div>

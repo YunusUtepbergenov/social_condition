@@ -1,76 +1,78 @@
 <div>
-    <div class="row mb-2" style="margin-top: 10px;">
-        <div class="col-sm-12 d-flex align-items-center">
-            <div style="min-width:280px">
-                <select class="form-select form-select-sm" wire:model.live="activeIndicator" wire:change="indicatorChanged($event.target.value)" style="font-size:12px">
-                    @foreach ($columns as $key => $label)
-                        <option value="{{ $key }}">{{ $label }}</option>
-                    @endforeach
-                </select>
-            </div>
+    {{-- Page Header --}}
+    <div class="page-header">
+        <div class="page-title">
+            <span class="page-icon sentiment-survey"><i class="bx bx-poll"></i></span>
+            <h5>Сўровнома натижалари</h5>
+        </div>
+        <div>
+            <select class="region-select" wire:model.live="activeIndicator" wire:change="indicatorChanged($event.target.value)" style="min-width:280px">
+                @foreach ($columns as $key => $label)
+                    <option value="{{ $key }}">{{ $label }}</option>
+                @endforeach
+            </select>
         </div>
     </div>
-    <div class="row">
+
+    {{-- Map + Rankings --}}
+    <div class="row g-2 mb-2">
         <div class="col-sm-8" wire:ignore>
-            <div id="map" style="width: 100%; height:51vh;background:white;"></div>
+            <div class="map-panel-card">
+                <div id="map" class="map-container"></div>
+            </div>
         </div>
         <div class="col-sm-4">
-            <div class="stats" style="width: 100%; height:51vh;background:white;overflow:auto">
-                <div class="card" style="box-shadow: none;overflow-x:hidden">
-                    <div class="card-body top_districts">
-                        @foreach ($top_districts as $key=>$district)
-                            <div class="row" style="padding: 2px 5px">
-                                <div class="col-lg-6 user_name">
-                                    <div class="form-check">
-                                        <a href="#" id="{{$district['region_code']}}" class="form-check-label district_label" style="font-weight:{{($district['region_code'] == $activeRegion) ? 'bold': ''}};" wire:click="$dispatch('regionClicked', { region_code: '{{$district['region_code']}}' })">
-                                            {{ $key + 1 }}. {{ $district['region']}}</i>
-                                        </a>
-                                    </div>
-                                </div>
-                                <div class="col-lg-6 progress_indicator">
-                                    <div class="progress">
-                                        @php
-                                            if ($max == 10) {
-                                                $value = $district['value'] * 10;
-                                            }else if($max == 100){
-                                                $value = $district['value'];
-                                            }else{
-                                                $value = $district['value'] / $max * 100;
-                                            }
-                                        @endphp
-                                        <div class="progress-bar"
-                                            role="progressbar"
-                                            style="background-color:rgb(68, 119, 170); color: #fff;width:{{ $value }}%"
-                                            aria-valuemin="0"
-                                            aria-valuemax="{{ $max }}">
-                                            {{ number_format(round($district['value'], 1 ), 1, ',', ' ') }}
-                                        </div>
+            <div class="rankings-panel-card">
+                <div class="rankings-panel-header">Вилоятлар рейтинги</div>
+                <div class="rankings-list top_districts">
+                    @foreach ($top_districts as $key => $district)
+                        <div class="district-row">
+                            <span class="rank-num">{{ $key + 1 }}</span>
+                            <a href="#" id="{{ $district['region_code'] }}"
+                               class="district_label"
+                               style="font-weight:{{ ($district['region_code'] == $activeRegion) ? '700' : '500' }};"
+                               wire:click="$dispatch('regionClicked', { region_code: '{{ $district['region_code'] }}' })">
+                                {{ $district['region'] }}
+                            </a>
+                            <div style="width:90px;flex-shrink:0;">
+                                <div class="progress">
+                                    @php
+                                        if ($max == 10) {
+                                            $value = $district['value'] * 10;
+                                        }else if($max == 100){
+                                            $value = $district['value'];
+                                        }else{
+                                            $value = $district['value'] / $max * 100;
+                                        }
+                                    @endphp
+                                    <div class="progress-bar"
+                                        role="progressbar"
+                                        style="background-color:rgb(68, 119, 170); color: #fff; width:{{ $value }}%"
+                                        aria-valuemin="0"
+                                        aria-valuemax="{{ $max }}">
+                                        {{ number_format(round($district['value'], 1), 1, ',', ' ') }}
                                     </div>
                                 </div>
                             </div>
-                        @endforeach
-                    </div>
+                        </div>
+                    @endforeach
                 </div>
             </div>
         </div>
     </div>
-    <hr>
-    <div class="row">
+
+    {{-- Chart + Indicator Description --}}
+    <div class="row g-2 section-gap">
         <div class="col-sm-8">
-            <div class="card" style="min-height: 15vh; max-height:28vh">
-                <div class="row">
+            <div class="chart-panel-card">
+                <div class="chart-panel-header">
                     @if ($activeRegion == 'republic')
-                        <div class="col-sm-12">
-                            <h5 class="card-header timeline">{{ $columns[$activeIndicator] }} ( Республика бўйича )</h5>
-                        </div>
+                        <h6>{{ $columns[$activeIndicator] }} ( Республика бўйича )</h6>
                     @else
-                        <div class="col-sm-12">
-                            <h5 class="card-header timeline">{{ $columns[$activeIndicator] }} ( {{findRegion($activeRegion)}} бўйича )</h5>
-                        </div>
+                        <h6>{{ $columns[$activeIndicator] }} ( {{ findRegion($activeRegion) }} бўйича )</h6>
                     @endif
                 </div>
-
-                <div class="card-body" style="position: relative;padding: 0 1.5rem; height: 25vh;width:100%;" wire:ignore>
+                <div class="chart-panel-body" wire:ignore>
                     <div class="wrapper2">
                         <canvas id="myChart1"></canvas>
                     </div>
@@ -78,19 +80,16 @@
             </div>
         </div>
         <div class="col-sm-4">
-            <div class="stats" style="width: 100%; height:28vh;background:white;overflow:auto">
-                <div class="card" style="box-shadow: none">
-                    <div class="card-header">
-                        <h5 style="font-weight: bold">{{ $columns[$activeIndicator] }}</h5>
-                    </div>
-                    <div class="card-body">
-                        <p>{!! $indicators !!}</p>
-                    </div>
+            <div class="sentiment-indicator-card">
+                <div class="card-header">
+                    <h5>{{ $columns[$activeIndicator] }}</h5>
+                </div>
+                <div class="card-body">
+                    <p>{!! $indicators !!}</p>
                 </div>
             </div>
         </div>
     </div>
-    <hr>
 
     @script
     <script>

@@ -1,56 +1,62 @@
 <div>
-    <div class="row" style="margin-top: 10px;">
+    {{-- Page Header --}}
+    <div class="page-header">
+        <div class="page-title">
+            <span class="page-icon sentiment-mood"><i class="bx bx-user-voice"></i></span>
+            <h5>Аҳоли кайфияти индекси</h5>
+        </div>
+    </div>
+
+    {{-- Map + Rankings --}}
+    <div class="row g-2 mb-2">
         <div class="col-sm-8" wire:ignore>
-            <div id="map" style="width: 100%; height:51vh;background:white;"></div>
+            <div class="map-panel-card">
+                <div id="map" class="map-container"></div>
+            </div>
         </div>
         <div class="col-sm-4">
-            <div class="stats" style="width: 100%; height:51vh;background:white;overflow:auto">
-                <div class="card" style="box-shadow: none;overflow-x:hidden">
-                    <div class="card-body top_districts">
-                        @foreach ($top_districts as $key=>$district)
-                            <div class="row" style="padding: 2px 5px">
-                                <div class="col-lg-6 user_name">
-                                    <div class="form-check">
-                                        <a href="#" id="{{$district['region_code']}}" class="form-check-label district_label" style="font-weight:{{($district['region_code'] == $activeRegion) ? 'bold': ''}};" wire:click="$dispatch('regionClicked', { region_code: '{{$district['region_code']}}' })">
-                                            {{ $key + 1 }}. {{ $district['region']}}</i>
-                                        </a>
-                                    </div>
-                                </div>
-                                <div class="col-lg-6 progress_indicator">
-                                    <div class="progress">
-                                        <div class="progress-bar"
-                                            role="progressbar"
-                                            style="background-color:rgb(68, 119, 170); color: #fff;width:{{ ($district['value'] / 10) * 100 }}%"
-                                            aria-valuemin="0"
-                                            aria-valuemax="10">
-                                            {{$district['value']}}
-                                        </div>
+            <div class="rankings-panel-card">
+                <div class="rankings-panel-header">Вилоятлар рейтинги</div>
+                <div class="rankings-list top_districts">
+                    @foreach ($top_districts as $key => $district)
+                        <div class="district-row">
+                            <span class="rank-num">{{ $key + 1 }}</span>
+                            <a href="#" id="{{ $district['region_code'] }}"
+                               class="district_label"
+                               style="font-weight:{{ ($district['region_code'] == $activeRegion) ? '700' : '500' }};"
+                               wire:click="$dispatch('regionClicked', { region_code: '{{ $district['region_code'] }}' })">
+                                {{ $district['region'] }}
+                            </a>
+                            <div style="width:90px;flex-shrink:0;">
+                                <div class="progress">
+                                    <div class="progress-bar"
+                                        role="progressbar"
+                                        style="background-color:rgb(68, 119, 170); color: #fff; width:{{ ($district['value'] / 10) * 100 }}%"
+                                        aria-valuemin="0"
+                                        aria-valuemax="10">
+                                        {{ $district['value'] }}
                                     </div>
                                 </div>
                             </div>
-                        @endforeach
-                    </div>
+                        </div>
+                    @endforeach
                 </div>
             </div>
         </div>
     </div>
-    <hr>
-    <div class="row">
+
+    {{-- Chart + Stats --}}
+    <div class="row g-2 section-gap">
         <div class="col-sm-8">
-            <div class="card" style="min-height: 15vh; max-height:28vh">
-                <div class="row">
+            <div class="chart-panel-card">
+                <div class="chart-panel-header">
                     @if ($activeRegion == 'republic')
-                        <div class="col-sm-12">
-                            <h5 class="card-header timeline">Аҳоли кайфияти индекси ( Республика бўйича )</h5>
-                        </div>
+                        <h6>Аҳоли кайфияти индекси ( Республика бўйича )</h6>
                     @else
-                        <div class="col-sm-12">
-                            <h5 class="card-header timeline">Аҳоли кайфияти индекси ( {{findRegion($activeRegion)}} бўйича )</h5>
-                        </div>
+                        <h6>Аҳоли кайфияти индекси ( {{ findRegion($activeRegion) }} бўйича )</h6>
                     @endif
                 </div>
-
-                <div class="card-body" style="position: relative;padding: 0 1.5rem; height: 25vh;width:100%;" wire:ignore>
+                <div class="chart-panel-body" wire:ignore>
                     <div class="wrapper2">
                         <canvas id="myChart1"></canvas>
                     </div>
@@ -58,41 +64,36 @@
             </div>
         </div>
         <div class="col-sm-4">
-            <div class="stats" style="width: 100%; height:28vh;background:white;overflow:auto">
-                <div class="card" style="box-shadow: none">
-                    <div>
-                        <table class="table" id="district_stat">
-                            <thead class="thead-light" id="thead">
-                                <tr>
-                                <th scope="col">#</th>
-                                <th scope="col">Саволлар</th>
-                                <th scope="col">Салбий (ўзгариш, %)</th>
-                                <th scope="col">Нейтрал (ўзгариш, %)</th>
-                                <th scope="col">Ижобий (ўзгариш, %)</th>
-                                </tr>
-                            </thead>
-                            <tbody id="indikatorlar">
-                                @isset($indicators)
-                                    @foreach ($indicators as $key=>$indicator)
-                                        @isset($prev_indicators[$key])
-                                            <tr>
-                                                <td>{{$key + 1 }}</td>
-                                                <td><a href="#">{{ $indicator['question'] }}</a></td>
-                                                <td>{{ number_format(round(($indicator['bad'] - $prev_indicators[$key]['bad']) * 100, 1 ), 1, ',', ' ') }}</td>
-                                                <td>{{ number_format(round(($indicator['normal'] - $prev_indicators[$key]['normal']) * 100, 1), 1, ',', ' ') }}</td>
-                                                <td>{{ number_format(round(($indicator['good'] - $prev_indicators[$key]['good']) * 100, 1), 1, ',', ' ') }}</td>
-                                            </tr>
-                                        @endisset
-                                    @endforeach
+            <div class="stats-panel-card">
+                <table class="table" id="district_stat">
+                    <thead class="thead-light" id="thead">
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Саволлар</th>
+                            <th scope="col">Салбий (ўзгариш, %)</th>
+                            <th scope="col">Нейтрал (ўзгариш, %)</th>
+                            <th scope="col">Ижобий (ўзгариш, %)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="indikatorlar">
+                        @isset($indicators)
+                            @foreach ($indicators as $key => $indicator)
+                                @isset($prev_indicators[$key])
+                                    <tr>
+                                        <td>{{ $key + 1 }}</td>
+                                        <td><a href="#">{{ $indicator['question'] }}</a></td>
+                                        <td>{{ number_format(round(($indicator['bad'] - $prev_indicators[$key]['bad']) * 100, 1), 1, ',', ' ') }}</td>
+                                        <td>{{ number_format(round(($indicator['normal'] - $prev_indicators[$key]['normal']) * 100, 1), 1, ',', ' ') }}</td>
+                                        <td>{{ number_format(round(($indicator['good'] - $prev_indicators[$key]['good']) * 100, 1), 1, ',', ' ') }}</td>
+                                    </tr>
                                 @endisset
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                            @endforeach
+                        @endisset
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
-    <hr>
 
     @script
     <script>
