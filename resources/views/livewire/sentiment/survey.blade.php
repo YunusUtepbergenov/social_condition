@@ -96,10 +96,12 @@
         (function() {
             var mapOptions = {
                 center: [41.311, 63.2505],
-                zoom: 6,
+                zoom: 5,
                 zoomControl: false,
-                minZoom: 6,
+                minZoom: 5,
                 maxZoom: 10,
+                zoomSnap: 0.25,
+                zoomDelta: 0.25,
                 attributionControl:false
             }
 
@@ -107,14 +109,6 @@
                 mapOptions.dragging = false;
             }
             var sentiment_ranges = @json($ranges);
-            var width = document.documentElement.clientWidth;
-            if (width > 400 && width < 1500) {
-                mapOptions.minZoom = 5;
-                mapOptions.zoom = 5;
-            }else if(width < 400){
-                mapOptions.minZoom = 4;
-                mapOptions.zoom = 4;
-            }
             var map = L.map('map', mapOptions);
             var top_districts = @json($top_districts);
             var geojson = L.geoJSON(@json($json), {
@@ -122,6 +116,11 @@
                     return styleSentimentIndicatorMap(feature, top_districts[0]['value'], top_districts[top_districts.length - 1]['value']);
                 },
             }).addTo(map);
+
+            requestAnimationFrame(function() {
+                map.invalidateSize();
+                map.fitBounds(geojson.getBounds(), { animate: false, padding: [10, 10] });
+            });
 
             geojson.eachLayer(function (layer) {
                 layer.on('click', function(e) {
@@ -141,13 +140,8 @@
             });
 
             window.addEventListener('resize', function() {
-                var width = document.documentElement.clientWidth;
-                if (width > 400 && width < 1500) {
-                    map.setZoom(5);
-                }else {
-                    map.setZoom(6);
-                }
                 map.invalidateSize();
+                map.fitBounds(geojson.getBounds(), { animate: false, padding: [10, 10] });
             });
 
             const ctx = document.getElementById('myChart1');
@@ -210,6 +204,11 @@
                         $layer.setStyle(highlightStyle);
                         Livewire.dispatch('regionClicked', { region_code: layer['feature']['properties']['region_code'] });
                     });
+                });
+
+                requestAnimationFrame(function() {
+                    map.invalidateSize();
+                    map.fitBounds(geojson.getBounds(), { animate: false, padding: [10, 10] });
                 });
             });
 
