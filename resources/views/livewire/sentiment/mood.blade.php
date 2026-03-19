@@ -157,7 +157,7 @@
                         data: @json($monthlyAvg),
                         borderWidth: 2,
                         borderColor: 'rgb(68, 119, 170)',
-                        backgroundColor: '#bbdefb',
+                        fill: true,
                         yAxisID: 'y',
                     }],
                 },
@@ -166,6 +166,17 @@
                         legend: {
                             display: true
                         },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + formatChartNumber(context.parsed.y);
+                                }
+                            }
+                        }
+                    },
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
                     },
                     responsive: true,
                     maintainAspectRatio: false,

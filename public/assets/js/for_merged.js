@@ -103,17 +103,19 @@ function changeTableContentsandChart(data, actual, dates, type, label){
         datasets: [{
             label: label + 'индекси башорат',
             data: data,
-            borderWidth: 3,
+            borderWidth: 2,
             borderColor: 'rgb(68, 119, 170)',
-            backgroundColor: '#fff',
+            backgroundColor: createGradient(chart.ctx, 'rgb(68, 119, 170)', chart.height),
+            fill: true,
             yAxisID: 'y',
         },
         {
             label: label + 'индекси',
             data: actual,
-            borderWidth: 3,
-            borderColor: '#53a074',
-            backgroundColor: '#bbdefb',
+            borderWidth: 2,
+            borderColor: 'rgb(83, 160, 116)',
+            backgroundColor: createGradient(chart.ctx, 'rgb(4, 157, 60)', chart.height),
+            fill: true,
             yAxisID: 'y',
         }],
     }
@@ -122,6 +124,17 @@ function changeTableContentsandChart(data, actual, dates, type, label){
             legend: {
                 display: true
             },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        return context.dataset.label + ': ' + formatChartNumber(context.parsed.y);
+                    }
+                }
+            }
+        },
+        interaction: {
+            mode: 'index',
+            intersect: false,
         },
         responsive: true,
         maintainAspectRatio: false,
@@ -134,15 +147,15 @@ function changeTableContentsandChart(data, actual, dates, type, label){
         },
     }
 
-    chart.update('none');
+    chart.update();
 }
 
 function changeProtestChart(data, actual, dates, type, label, participants){
-    
+
     max_participants = Math.max(...actual);
     colors = actual.map(value => {
         opacity = scale(value, max_participants, 0, 1, 0.1);
-        return 'rgb(68, 119, 170,' + opacity + ' )';
+        return 'rgba(68, 119, 170, ' + opacity + ')';
     });
 
     chart.data = {
@@ -152,16 +165,17 @@ function changeProtestChart(data, actual, dates, type, label, participants){
             label: label,
             data: data,
             borderWidth: 2,
-            borderColor: 'rgb(232, 9, 9)',
-            backgroundColor: '#fff',
+            borderColor: 'rgb(220, 53, 69)',
+            backgroundColor: createGradient(chart.ctx, 'rgb(220, 53, 69)', chart.height),
+            fill: true,
             yAxisID: 'y',
         },
         {
             type: 'bar',
             label: 'Оммавий норозиликлар сони',
             data: actual,
-            borderWidth: 2,
-            borderColor: 'black',
+            borderWidth: 0,
+            borderRadius: 4,
             backgroundColor: colors,
             yAxisID: 'y1',
         },
@@ -195,6 +209,7 @@ function changeProtestChart(data, actual, dates, type, label, participants){
         },
         interaction : {
             mode: 'index',
+            intersect: false,
         },
         responsive: true,
         maintainAspectRatio: false,
@@ -211,7 +226,7 @@ function changeProtestChart(data, actual, dates, type, label, participants){
         },
     }
 
-    chart.update('none');
+    chart.update();
 }
 
 function changeIndicatorChart(data, dates){
@@ -222,7 +237,8 @@ function changeIndicatorChart(data, dates){
             data: data,
             borderWidth: 2,
             borderColor: 'rgb(68, 119, 170)',
-            backgroundColor: '#bbdefb',
+            backgroundColor: createGradient(chart.ctx, 'rgb(68, 119, 170)', chart.height),
+            fill: true,
             yAxisID: 'y',
         }],
     }
@@ -231,6 +247,17 @@ function changeIndicatorChart(data, dates){
             legend: {
                 display: false
             },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        return context.dataset.label + ': ' + formatChartNumber(context.parsed.y);
+                    }
+                }
+            }
+        },
+        interaction: {
+            mode: 'index',
+            intersect: false,
         },
         responsive: true,
         maintainAspectRatio: false,
@@ -243,7 +270,7 @@ function changeIndicatorChart(data, dates){
         },
     }
 
-    chart.update('none');
+    chart.update();
 }
 
 function changeClusterChart2(data, dates){
@@ -252,10 +279,10 @@ function changeClusterChart2(data, dates){
         datasets: [{
             label: 'Кўрсаткич қиймати',
             data: data,
-            borderWidth: 3,
-            lineTension: 0.1,
+            borderWidth: 2,
             borderColor: 'rgb(68, 119, 170)',
-            backgroundColor: '#fff',
+            backgroundColor: createGradient(chart.ctx, 'rgb(68, 119, 170)', chart.height),
+            fill: true,
             yAxisID: 'y',
         }],
     }
@@ -281,7 +308,7 @@ function changeClusterChart2(data, dates){
         },
     }
 
-    chart.update('none');
+    chart.update();
 }
 
 function changeClusterChart(dates, percentages, type){
@@ -292,46 +319,46 @@ function changeClusterChart(dates, percentages, type){
             {
                 label: '1-тоифадаги туманлар',
                 data: filterCluster(percentages, 1),
-                borderWidth: 2,
+                borderWidth: 1,
                 fill: 'origin',
-                borderColor: '#fff',
-                backgroundColor: 'rgb(115, 182, 107)',
+                borderColor: 'rgb(115, 182, 107)',
+                backgroundColor: 'rgba(115, 182, 107, 0.85)',
                 yAxisID: 'y',
             },
             {
                 label: '2-тоифадаги туманлар',
                 data: filterCluster(percentages, 2),
-                borderWidth: 2,
+                borderWidth: 1,
                 fill: 'origin',
-                borderColor: '#fff',
-                backgroundColor: 'rgb(201, 99, 207)',
+                borderColor: 'rgb(201, 99, 207)',
+                backgroundColor: 'rgba(201, 99, 207, 0.85)',
                 yAxisID: 'y',
             },
             {
                 label: '3-тоифадаги туманлар',
                 data: filterCluster(percentages, 3),
-                borderWidth: 2,
+                borderWidth: 1,
                 fill: 'origin',
-                borderColor: '#fff',
-                backgroundColor: 'rgb(160, 160, 160)',
+                borderColor: 'rgb(160, 160, 160)',
+                backgroundColor: 'rgba(160, 160, 160, 0.85)',
                 yAxisID: 'y',
             },
             {
                 label: '4-тоифадаги туманлар',
                 data: filterCluster(percentages, 4),
-                borderWidth: 2,
+                borderWidth: 1,
                 fill: 'origin',
-                borderColor: '#fff',
-                backgroundColor: 'rgb(250, 167, 63)',
+                borderColor: 'rgb(250, 167, 63)',
+                backgroundColor: 'rgba(250, 167, 63, 0.85)',
                 yAxisID: 'y',
             },
             {
                 label: '5-тоифадаги туманлар',
                 data: filterCluster(percentages, 5),
-                borderWidth: 2,
+                borderWidth: 1,
                 fill: 'origin',
-                borderColor: '#fff',
-                backgroundColor: 'rgb(68, 119, 170)',
+                borderColor: 'rgb(68, 119, 170)',
+                backgroundColor: 'rgba(68, 119, 170, 0.85)',
                 yAxisID: 'y',
             }
         ],
@@ -355,7 +382,7 @@ function changeClusterChart(dates, percentages, type){
         },
     }
 
-    chart.update('none');
+    chart.update();
 }
 
 function styleProtestMap(feature, max) {

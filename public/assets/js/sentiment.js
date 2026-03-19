@@ -81,6 +81,19 @@ function changeSentimentChart(data, dates, repAvg){
         responsive: true,
         maintainAspectRatio: false,
         aspectRatio: 1,
+        interaction: {
+            mode: 'index',
+            intersect: false,
+        },
+        plugins: {
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        return context.dataset.label + ': ' + formatChartNumber(context.parsed.y);
+                    }
+                }
+            }
+        },
         scales: {
             y: {
                 beginAtZero: false,
@@ -89,7 +102,7 @@ function changeSentimentChart(data, dates, repAvg){
         },
     }
 
-    chart.update('none');
+    chart.update();
 }
 
 function calcDatasets(data, repAvg){
@@ -100,7 +113,8 @@ function calcDatasets(data, repAvg){
                 data: data,
                 borderWidth: 2,
                 borderColor: 'rgb(68, 119, 170)',
-                backgroundColor: '#bbdefb',
+                backgroundColor: (typeof chart !== 'undefined' && chart.ctx) ? createGradient(chart.ctx, 'rgb(68, 119, 170)', chart.height) : 'rgba(68, 119, 170, 0.15)',
+                fill: true,
                 yAxisID: 'y',
             }
         ]
@@ -111,15 +125,17 @@ function calcDatasets(data, repAvg){
                 data: data,
                 borderWidth: 2,
                 borderColor: 'rgb(68, 119, 170)',
-                backgroundColor: '#bbdefb',
+                backgroundColor: (typeof chart !== 'undefined' && chart.ctx) ? createGradient(chart.ctx, 'rgb(68, 119, 170)', chart.height) : 'rgba(68, 119, 170, 0.15)',
+                fill: true,
                 yAxisID: 'y',
             },
             {
                 label: 'Республика бўйича',
                 data: repAvg,
                 borderWidth: 2,
-                borderColor: 'red',
-                backgroundColor: 'red',
+                borderColor: 'rgb(220, 53, 69)',
+                backgroundColor: (typeof chart !== 'undefined' && chart.ctx) ? createGradient(chart.ctx, 'rgb(220, 53, 69)', chart.height) : 'rgba(220, 53, 69, 0.1)',
+                fill: true,
                 yAxisID: 'y',
             }
         ]
@@ -136,6 +152,19 @@ function changeIndicatorChart(data, dates, repAvg){
         responsive: true,
         maintainAspectRatio: false,
         aspectRatio: 1,
+        interaction: {
+            mode: 'index',
+            intersect: false,
+        },
+        plugins: {
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        return context.dataset.label + ': ' + formatChartNumber(context.parsed.y);
+                    }
+                }
+            }
+        },
         scales: {
             y: {
                 beginAtZero: false,
@@ -144,5 +173,5 @@ function changeIndicatorChart(data, dates, repAvg){
         },
     }
 
-    chart.update('none');
+    chart.update();
 }

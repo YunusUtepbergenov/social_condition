@@ -68,6 +68,7 @@
     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
     crossorigin=""></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{{asset('assets/js/chart-theme.js')}}"></script>
     <script src="{{asset('assets/js/for_merged.js')}}"></script>
     @stack('scripts')
   </body>

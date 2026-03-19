@@ -309,17 +309,17 @@
                     datasets: [{
                         label: 'Истеъмолчилар кайфияти индекси башорати',
                         data: @json($monthlyAvg),
-                        borderWidth: 3,
-                        borderColor: 'rgb(232, 9, 9)',
-                        backgroundColor: 'rgb(232, 9, 9)',
+                        borderWidth: 2,
+                        borderColor: 'rgb(220, 53, 69)',
+                        fill: true,
                         yAxisID: 'y',
                     },
                     {
                         label: 'Истеъмолчилар кайфияти индекси',
                         data: @json($actualAvg),
-                        borderWidth: 3,
-                        borderColor: '#53a074',
-                        backgroundColor: '#bbdefb',
+                        borderWidth: 2,
+                        borderColor: 'rgb(83, 160, 116)',
+                        fill: true,
                         yAxisID: 'y',
                     }],
                 },
@@ -328,6 +328,17 @@
                         legend: {
                             display: true
                         },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + formatChartNumber(context.parsed.y);
+                                }
+                            }
+                        }
+                    },
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
                     },
                     responsive: true,
                     maintainAspectRatio: false,
