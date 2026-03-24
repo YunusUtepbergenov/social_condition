@@ -111,9 +111,8 @@ function calcDatasets(data, repAvg){
             {
                 label: 'Республик бўйича',
                 data: data,
-                borderWidth: 2,
-                borderColor: 'rgb(68, 119, 170)',
-                backgroundColor: (typeof chart !== 'undefined' && chart.ctx) ? createGradient(chart.ctx, 'rgb(68, 119, 170)', chart.height) : 'rgba(68, 119, 170, 0.15)',
+                borderColor: chartColors.primary,
+                pointBackgroundColor: chartColors.primary,
                 fill: true,
                 yAxisID: 'y',
             }
@@ -123,19 +122,18 @@ function calcDatasets(data, repAvg){
             {
                 label: 'Вилоят бўйича',
                 data: data,
-                borderWidth: 2,
-                borderColor: 'rgb(68, 119, 170)',
-                backgroundColor: (typeof chart !== 'undefined' && chart.ctx) ? createGradient(chart.ctx, 'rgb(68, 119, 170)', chart.height) : 'rgba(68, 119, 170, 0.15)',
+                borderColor: chartColors.primary,
+                pointBackgroundColor: chartColors.primary,
                 fill: true,
                 yAxisID: 'y',
             },
             {
                 label: 'Республика бўйича',
                 data: repAvg,
-                borderWidth: 2,
-                borderColor: 'rgb(220, 53, 69)',
-                backgroundColor: (typeof chart !== 'undefined' && chart.ctx) ? createGradient(chart.ctx, 'rgb(220, 53, 69)', chart.height) : 'rgba(220, 53, 69, 0.1)',
-                fill: true,
+                borderColor: chartColors.danger,
+                pointBackgroundColor: chartColors.danger,
+                borderDash: [5, 4],
+                fill: false,
                 yAxisID: 'y',
             }
         ]

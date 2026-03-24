@@ -1,46 +1,73 @@
-// Chart.js Global Theme
+// Chart.js Global Theme — Modern & Eye-catching
 // Loaded after chart.js CDN, before any chart initialization
 
 var chartColors = {
-    primary: 'rgb(68, 119, 170)',
-    success: 'rgb(4, 157, 60)',
-    danger: 'rgb(220, 53, 69)',
-    warning: 'rgb(250, 167, 63)',
-    neutral: 'rgb(115, 115, 115)',
-    purple: 'rgb(201, 99, 207)',
-    gray: 'rgb(160, 160, 160)',
+    primary: 'rgb(59, 130, 246)',    // vivid blue
+    secondary: 'rgb(16, 185, 129)',  // emerald green
+    danger: 'rgb(239, 68, 68)',      // bright red
+    warning: 'rgb(245, 158, 11)',    // amber
+    neutral: 'rgb(107, 114, 128)',   // cool gray
+    purple: 'rgb(139, 92, 246)',     // violet
+    gray: 'rgb(156, 163, 175)',      // light gray
 };
 
 // Global defaults
 Chart.defaults.font.family = "'Inter', 'Segoe UI', sans-serif";
 Chart.defaults.font.size = 12;
-Chart.defaults.color = '#6c757d';
-Chart.defaults.elements.line.tension = 0.3;
-Chart.defaults.elements.line.borderWidth = 2;
+Chart.defaults.color = '#4b5563';
+Chart.defaults.elements.line.tension = 0.35;
+Chart.defaults.elements.line.borderWidth = 2.5;
+Chart.defaults.elements.line.borderCapStyle = 'round';
+Chart.defaults.elements.line.borderJoinStyle = 'round';
 Chart.defaults.elements.point.radius = 0;
-Chart.defaults.elements.point.hoverRadius = 5;
-Chart.defaults.elements.point.hoverBorderWidth = 2;
-Chart.defaults.elements.point.backgroundColor = '#fff';
-Chart.defaults.elements.point.hoverBackgroundColor = '#fff';
+Chart.defaults.elements.point.hoverRadius = 6;
+Chart.defaults.elements.point.hoverBorderWidth = 3;
+Chart.defaults.elements.point.hoverBorderColor = '#fff';
+Chart.defaults.elements.point.hitRadius = 20;
+Chart.defaults.elements.bar.borderWidth = 0;
+Chart.defaults.elements.bar.borderRadius = 6;
 Chart.defaults.plugins.legend.labels.usePointStyle = true;
-Chart.defaults.plugins.legend.labels.padding = 16;
-Chart.defaults.plugins.tooltip.backgroundColor = 'rgba(0, 0, 0, 0.8)';
-Chart.defaults.plugins.tooltip.cornerRadius = 8;
-Chart.defaults.plugins.tooltip.padding = 10;
-Chart.defaults.plugins.tooltip.titleFont = { weight: '600' };
+Chart.defaults.plugins.legend.labels.pointStyleWidth = 10;
+Chart.defaults.plugins.legend.labels.padding = 20;
+Chart.defaults.plugins.legend.labels.font = { size: 12, weight: '600' };
+Chart.defaults.plugins.tooltip.backgroundColor = 'rgba(15, 23, 42, 0.9)';
+Chart.defaults.plugins.tooltip.titleColor = '#f1f5f9';
+Chart.defaults.plugins.tooltip.bodyColor = '#cbd5e1';
+Chart.defaults.plugins.tooltip.borderColor = 'rgba(148, 163, 184, 0.2)';
+Chart.defaults.plugins.tooltip.borderWidth = 1;
+Chart.defaults.plugins.tooltip.cornerRadius = 10;
+Chart.defaults.plugins.tooltip.padding = { top: 10, bottom: 10, left: 14, right: 14 };
+Chart.defaults.plugins.tooltip.titleFont = { size: 13, weight: '600' };
+Chart.defaults.plugins.tooltip.bodyFont = { size: 12 };
 Chart.defaults.plugins.tooltip.bodySpacing = 6;
 Chart.defaults.plugins.tooltip.usePointStyle = true;
-Chart.defaults.scale.grid.color = 'rgba(0, 0, 0, 0.06)';
+Chart.defaults.plugins.tooltip.boxPadding = 6;
+Chart.defaults.plugins.tooltip.displayColors = true;
+Chart.defaults.scale.grid.color = 'rgba(148, 163, 184, 0.08)';
 Chart.defaults.scale.grid.drawBorder = false;
 Chart.defaults.scale.ticks.padding = 8;
+Chart.defaults.scale.ticks.font = { size: 11, weight: '500' };
+Chart.defaults.scale.ticks.color = '#374151';
+
+// Plugin: trim day from date labels (2025-06-01 → 2025-06)
+Chart.register({
+    id: 'trimDateLabels',
+    beforeUpdate: function(chart) {
+        var labels = chart.data.labels;
+        if (!labels || !labels.length) return;
+        for (var i = 0; i < labels.length; i++) {
+            if (typeof labels[i] === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(labels[i])) {
+                labels[i] = labels[i].substring(0, 7);
+            }
+        }
+    }
+});
 
 // Convert any CSS color to rgba string
 function colorToRgba(color, alpha) {
-    // Handle rgb() format
     if (color.indexOf('rgb(') === 0) {
         return color.replace('rgb(', 'rgba(').replace(')', ', ' + alpha + ')');
     }
-    // Handle hex format
     if (color.indexOf('#') === 0) {
         var hex = color.slice(1);
         if (hex.length === 3) {
@@ -56,9 +83,11 @@ function colorToRgba(color, alpha) {
 
 // Helper: create vertical gradient fill for line charts
 function createGradient(ctx, color, height) {
-    var gradient = ctx.createLinearGradient(0, 0, 0, height || 300);
-    gradient.addColorStop(0, colorToRgba(color, 0.25));
-    gradient.addColorStop(1, colorToRgba(color, 0.02));
+    var h = height || 300;
+    var gradient = ctx.createLinearGradient(0, 0, 0, h);
+    gradient.addColorStop(0, colorToRgba(color, 0.20));
+    gradient.addColorStop(0.6, colorToRgba(color, 0.05));
+    gradient.addColorStop(1, colorToRgba(color, 0));
     return gradient;
 }
 
@@ -69,7 +98,6 @@ Chart.register({
         chart.data.datasets.forEach(function(dataset) {
             if (dataset.fill && dataset.type !== 'bar' && dataset.borderColor && chart.ctx) {
                 var bg = dataset.backgroundColor;
-                // Only apply gradient if backgroundColor is not already set or is a simple fill
                 if (!bg || typeof bg === 'string') {
                     var color = dataset.borderColor;
                     if (typeof color === 'string' && (color.indexOf('rgb') === 0 || color.indexOf('#') === 0)) {
@@ -78,6 +106,27 @@ Chart.register({
                 }
             }
         });
+    }
+});
+
+// Plugin: vertical hover line (crosshair)
+Chart.register({
+    id: 'hoverLine',
+    afterDraw: function(chart) {
+        if (chart.tooltip && chart.tooltip._active && chart.tooltip._active.length) {
+            var x = chart.tooltip._active[0].element.x;
+            var yAxis = chart.scales.y;
+            var ctx = chart.ctx;
+            ctx.save();
+            ctx.beginPath();
+            ctx.moveTo(x, yAxis.top);
+            ctx.lineTo(x, yAxis.bottom);
+            ctx.lineWidth = 1;
+            ctx.strokeStyle = 'rgba(148, 163, 184, 0.3)';
+            ctx.setLineDash([4, 4]);
+            ctx.stroke();
+            ctx.restore();
+        }
     }
 });
 

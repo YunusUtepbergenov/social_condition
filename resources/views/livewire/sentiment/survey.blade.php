@@ -152,8 +152,8 @@
                     datasets: [{
                         label: 'Республика бўйича',
                         data: @json($monthlyAvg),
-                        borderWidth: 2,
-                        borderColor: 'rgb(68, 119, 170)',
+                        borderColor: chartColors.primary,
+                        pointBackgroundColor: chartColors.primary,
                         fill: true,
                         yAxisID: 'y',
                     }],
