@@ -61,13 +61,13 @@ class Mood extends Component
     {
         $data = BsScorePrediction::where('district_code', $this->active_tum)->whereIn('date', $this->dates)->orderBy('date')->get()->pluck('score', 'date')->toArray();
         $dates = array_fill_keys($this->dates, null);
-        return array_merge($dates, $data);
+        return array_values(array_merge($dates, $data));
     }
 
     public function getTumActualAvg(): array
     {
         $dates = array_fill_keys($this->dates, null);
-        return array_merge($dates, BsScore::where('district_code', $this->active_tum)->whereIn('date', $this->dates)->orderBy('date')->get()->pluck('bs_score_cur', 'date')->toArray());
+        return array_values(array_merge($dates, BsScore::where('district_code', $this->active_tum)->whereIn('date', $this->dates)->orderBy('date')->get()->pluck('bs_score_cur', 'date')->toArray()));
     }
 
     public function loadDateData(): void
@@ -105,7 +105,7 @@ class Mood extends Component
 
     protected function loadRepublicData(): void
     {
-        $monthlyAvg1 = BsScorePrediction::select('date', DB::raw('AVG(score) as average'))->where('date', '<=', $this->date)->groupBy('date')->orderBy('date')->get()->pluck('average')->toArray();
+        $monthlyAvg1 = BsScorePrediction::select('date', DB::raw('AVG(score) as average'))->whereIn('date', $this->dates)->groupBy('date')->orderBy('date')->get()->pluck('average')->toArray();
         $this->actualAvg = BsScore::select('date', DB::raw('AVG(bs_score_cur) as average'))->whereIn('date', $this->dates)->groupBy('date')->orderBy('date')->get()->pluck('average')->toArray();
         $this->dispatch('updateChart', dates: $this->dates, data: $monthlyAvg1, actual: $this->actualAvg, participants: [], type: $this->getTypeString());
     }

@@ -57,9 +57,9 @@ class Protests extends Component
 
     public function getTumAvg(): array
     {
-        $data = ProtestPrediction::select('prediction as score', 'date')->where('district_code', $this->active_tum)->whereDate('date', '<=', $this->date)->orderBy('date')->get()->pluck('score', 'date')->toArray();
+        $data = ProtestPrediction::select('prediction as score', 'date')->where('district_code', $this->active_tum)->whereIn('date', $this->dates)->orderBy('date')->get()->pluck('score', 'date')->toArray();
         $dates = array_fill_keys($this->dates, null);
-        return array_merge($dates, $data);
+        return array_values(array_merge($dates, $data));
     }
 
     public function getTumActualAvg(): array
@@ -100,7 +100,9 @@ class Protests extends Component
         $actual_avg = $this->getTumActualAvg();
 
         $this->indicatorClass = (end($tum_avg) >= 10) ? 'highlightRed' : 'highlightGreen';
-        $participants = Protest::where('district_code', $tuman)->where('date', '<=', $this->date)->orderBy('date', 'ASC')->get()->pluck('participants')->toArray();
+        $participantsData = Protest::where('district_code', $tuman)->whereIn('date', $this->dates)->orderBy('date', 'ASC')->get()->pluck('participants', 'date')->toArray();
+        $participantsDates = array_fill_keys($this->dates, null);
+        $participants = array_values(array_merge($participantsDates, $participantsData));
         $this->indicators = $class->getIndicators($tuman, $this->date, $population, $tum_pop, $this->avg_indicators);
 
         $this->dispatch('changeTable', tuman: $tuman, data: $tum_avg, actual: $actual_avg, participants: $participants, dates: $this->dates, date: $this->date, type: $this->getTypeString());
@@ -113,7 +115,7 @@ class Protests extends Component
 
     protected function loadRepublicData(): void
     {
-        $monthlyAvg1 = ProtestPrediction::select('date', DB::raw('AVG(prediction) as average'))->where('date', '<=', $this->date)->groupBy('date')->orderBy('date')->get()->pluck('average')->toArray();
+        $monthlyAvg1 = ProtestPrediction::select('date', DB::raw('AVG(prediction) as average'))->whereIn('date', $this->dates)->groupBy('date')->orderBy('date')->get()->pluck('average')->toArray();
         $this->actualAvg = Protest::select('date', DB::raw('SUM(count) as average'))->whereIn('date', $this->dates)->groupBy('date')->orderBy('date')->get()->pluck('average')->toArray();
         $participants = Protest::select('date', DB::raw('SUM(participants) as score'))->whereIn('date', $this->dates)->groupBy('date')->orderBy('date')->get()->pluck('score')->toArray();
         $this->dispatch('updateChart', dates: $this->dates, data: $monthlyAvg1, actual: $this->actualAvg, participants: $participants, type: $this->getTypeString());

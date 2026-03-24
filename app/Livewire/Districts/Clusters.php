@@ -58,7 +58,9 @@ class Clusters extends Component
 
     public function getTumAvg(): array
     {
-        return DistrictCluster::select(DB::raw('cluster_id as score, date'))->where('district_code', $this->active_tum)->where('date', '<=', $this->date)->orderBy('date')->get()->pluck('score', 'date')->toArray();
+        $data = DistrictCluster::select(DB::raw('cluster_id as score, date'))->where('district_code', $this->active_tum)->whereIn('date', $this->dates)->orderBy('date')->get()->pluck('score', 'date')->toArray();
+        $dates = array_fill_keys($this->dates, null);
+        return array_values(array_merge($dates, $data));
     }
 
     public function getTumActualAvg(): array
@@ -88,7 +90,7 @@ class Clusters extends Component
 
     public function clusterModal(string $feature): void
     {
-        $data = ClusterDistance::select(DB::raw('value as score'), 'date')->where('indicator', $feature)->where('district_code', $this->active_tum)->whereIn('date', $this->dates)->orderBy('date')->get()->pluck('score', 'date')->toArray();
+        $data = array_values(ClusterDistance::select(DB::raw('value as score'), 'date')->where('indicator', $feature)->where('district_code', $this->active_tum)->whereIn('date', $this->dates)->orderBy('date')->get()->pluck('score', 'date')->toArray());
 
         $this->dispatch('showClusterModal', feature: $feature, district: $this->active_tum, data: $data, date: $this->date, dates: $this->dates);
         $this->regionClicked($this->active_tum);

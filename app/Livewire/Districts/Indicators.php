@@ -45,9 +45,9 @@ class Indicators extends Component
         $this->top_districts = $this->getDataClass()->getTopDistricts($this->activeRegion, $this->activeIndicator, $this->date);
 
         if (in_array($this->activeIndicator, $this->avg_indicators)) {
-            $this->monthlyAvg = MergedOrg::select('date', DB::raw('AVG(' . $this->activeIndicator . ') as sum'))->where('date', '<=', $this->date)->groupBy('date')->orderBy('date')->get()->pluck('sum')->toArray();
+            $this->monthlyAvg = MergedOrg::select('date', DB::raw('AVG(' . $this->activeIndicator . ') as sum'))->whereIn('date', $this->dates)->groupBy('date')->orderBy('date')->get()->pluck('sum')->toArray();
         } else {
-            $this->monthlyAvg = MergedOrg::select('date', DB::raw('SUM(' . $this->activeIndicator . ') as sum'))->where('date', '<=', $this->date)->groupBy('date')->orderBy('date')->get()->pluck('sum')->toArray();
+            $this->monthlyAvg = MergedOrg::select('date', DB::raw('SUM(' . $this->activeIndicator . ') as sum'))->whereIn('date', $this->dates)->groupBy('date')->orderBy('date')->get()->pluck('sum')->toArray();
         }
 
         $this->makeGeoJson();
@@ -83,7 +83,7 @@ class Indicators extends Component
     {
         $data = MergedOrg::select(DB::raw($this->activeIndicator . ' as score'), 'date')->where('district_code', $this->active_tum)->whereIn('date', $this->dates)->orderBy('date')->get()->pluck('score', 'date')->toArray();
         $dates = array_fill_keys($this->dates, null);
-        return array_merge($dates, $data);
+        return array_values(array_merge($dates, $data));
     }
 
     public function getTumActualAvg(): array
@@ -103,9 +103,9 @@ class Indicators extends Component
                     $this->regionChanged($this->activeRegion);
                 } else {
                     if (in_array($indicator, $this->avg_indicators)) {
-                        $indicatorSum = MergedOrg::select('date', DB::raw('AVG(' . $this->activeIndicator . ') as sum'))->where('date', '<=', $this->date)->groupBy('date')->orderBy('date')->get()->pluck('sum')->toArray();
+                        $indicatorSum = MergedOrg::select('date', DB::raw('AVG(' . $this->activeIndicator . ') as sum'))->whereIn('date', $this->dates)->groupBy('date')->orderBy('date')->get()->pluck('sum')->toArray();
                     } else {
-                        $indicatorSum = MergedOrg::select('date', DB::raw('SUM(' . $this->activeIndicator . ') as sum'))->where('date', '<=', $this->date)->groupBy('date')->orderBy('date')->get()->pluck('sum')->toArray();
+                        $indicatorSum = MergedOrg::select('date', DB::raw('SUM(' . $this->activeIndicator . ') as sum'))->whereIn('date', $this->dates)->groupBy('date')->orderBy('date')->get()->pluck('sum')->toArray();
                     }
                     $this->top_districts = MergedOrg::with('district')->select(['district_code', 'district_name', DB::raw($indicator . ' as score')])->where('date', $this->date)->orderByRaw('score DESC nulls last')->get();
                     $this->makeGeoJson();

@@ -148,6 +148,6 @@ class InfoModal extends Component
             ->first();
 
         $this->dispatch('openFormModal');
-        $this->dispatch('buildCharts', data: $data, dataAvg: $dataAvg, dates: $dates);
+        $this->dispatch('buildCharts', data: array_values($data), dataAvg: $dataAvg, dates: $dates);
     }
 }
