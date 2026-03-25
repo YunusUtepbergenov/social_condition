@@ -70,11 +70,13 @@ class Visualization extends Component
 
     public function openModal(string $feature): void
     {
-        $tum_pop = intval(Merged::select('demography_population as population')->where('date', $this->date)->where('district_code', $this->active_tum)->first()->population);
-        $population = intval(Merged::select(DB::raw('SUM(demography_population) as population'))->where('date', $this->date)->groupBy('date')->first()->population);
+        $tum_pop = intval(Merged::select('demography_population as population')->where('date', $this->date)->where('district_code', $this->active_tum)->first()?->population ?? 0);
+        $population = intval(Merged::select(DB::raw('SUM(demography_population) as population'))->where('date', $this->date)->groupBy('date')->first()?->population ?? 0);
 
         $data = Merged::select(DB::raw($feature . ' as score'), 'date')->where('district_code', $this->active_tum)->whereIn('date', $this->dates)->orderBy('date')->get()->pluck('score', 'date')->toArray();
-        $dataAvg = Merged::select(DB::raw($feature . ' / ' . $tum_pop . '*' . 100000 . ' as score'), 'date')->where('district_code', $this->active_tum)->whereIn('date', $this->dates)->orderBy('date')->get()->pluck('score')->toArray();
+        $dataAvg = ($tum_pop > 0)
+            ? Merged::select(DB::raw($feature . ' / ' . $tum_pop . '*' . 100000 . ' as score'), 'date')->where('district_code', $this->active_tum)->whereIn('date', $this->dates)->orderBy('date')->get()->pluck('score')->toArray()
+            : [];
 
         $this->dispatch('showInfoModal', feature: $feature, district: $this->active_tum, data: $data, dataAvg: $dataAvg, date: $this->date, dates: $this->dates, population: $population, tum_pop: $tum_pop);
         $this->regionClicked($this->active_tum);
@@ -168,8 +170,8 @@ class Visualization extends Component
                 $data = DistrictCluster::select(['date', 'cluster_id', DB::raw('COUNT(*) as total')])->where('district_code', 'Like', $this->activeRegion . '%')->groupBy('date', 'cluster_id')->orderBy('date', 'ASC')->get();
                 $total = DistrictCluster::select(['date', DB::raw('COUNT(*) as total')])->where('district_code', 'Like', $this->activeRegion . '%')->groupBy('date')->get();
                 $percentages = $data->map(function ($item) use ($total) {
-                    $totalForMonth = $total->firstWhere('date', $item->date)->total;
-                    $item->percentage = ($item->total / $totalForMonth) * 100;
+                    $totalForMonth = $total->firstWhere('date', $item->date)?->total ?? 0;
+                    $item->percentage = ($totalForMonth > 0) ? ($item->total / $totalForMonth) * 100 : 0;
                     return $item;
                 });
                 $this->makeGeoJson();
@@ -217,8 +219,8 @@ class Visualization extends Component
     {
         $participants = [];
         $actual_avg = [];
-        $population = intval(Merged::select(DB::raw('SUM(demography_population) as population'))->where('date', $this->date)->groupBy('date')->first()->population);
-        $tum_pop = intval(Merged::select('demography_population as population')->where('date', $this->date)->where('district_code', $tuman)->first()->population);
+        $population = intval(Merged::select(DB::raw('SUM(demography_population) as population'))->where('date', $this->date)->groupBy('date')->first()?->population ?? 0);
+        $tum_pop = intval(Merged::select('demography_population as population')->where('date', $this->date)->where('district_code', $tuman)->first()?->population ?? 0);
 
         $this->top_districts = $this->getTopDistricts();
         $this->active_tum = $tuman;
@@ -230,11 +232,13 @@ class Visualization extends Component
 
             $this->indicators->map(function ($indicator) use ($population, $tum_pop) {
                 if (in_array($indicator->feature_name, $this->avg_indicators)) {
-                    $indicator->average = (Merged::select(DB::raw('AVG(' . $indicator->feature_name . ') as avg'))->whereDate('date', $this->date)->groupBy('date')->first()->avg);
-                    $indicator->value = Merged::select($indicator->feature_name . ' as indicator')->whereDate('date', $this->date)->where('district_code', $this->active_tum)->first()->indicator;
+                    $indicator->average = Merged::select(DB::raw('AVG(' . $indicator->feature_name . ') as avg'))->whereDate('date', $this->date)->groupBy('date')->first()?->avg;
+                    $indicator->value = Merged::select($indicator->feature_name . ' as indicator')->whereDate('date', $this->date)->where('district_code', $this->active_tum)->first()?->indicator;
                 } else {
-                    $indicator->average = (Merged::select(DB::raw('SUM(' . $indicator->feature_name . ') as sum'))->where('date', $this->date)->groupBy('date')->first()->sum / $population) * 100000;
-                    $indicator->value = (Merged::select($indicator->feature_name . ' as indicator')->where('date', $this->date)->where('district_code', $this->active_tum)->first()->indicator / $tum_pop) * 100000;
+                    $sumResult = Merged::select(DB::raw('SUM(' . $indicator->feature_name . ') as sum'))->where('date', $this->date)->groupBy('date')->first();
+                    $indicator->average = ($population > 0 && $sumResult) ? ($sumResult->sum / $population) * 100000 : null;
+                    $valResult = Merged::select($indicator->feature_name . ' as indicator')->where('date', $this->date)->where('district_code', $this->active_tum)->first();
+                    $indicator->value = ($tum_pop > 0 && $valResult) ? ($valResult->indicator / $tum_pop) * 100000 : null;
                 }
                 return $indicator;
             });
@@ -244,11 +248,13 @@ class Visualization extends Component
 
             $this->indicators->map(function ($indicator) use ($population, $tum_pop) {
                 if (in_array($indicator->feature_name, $this->avg_indicators)) {
-                    $indicator->average = (Merged::select(DB::raw('AVG(' . $indicator->feature_name . ') as sum'))->whereDate('date', $this->date)->groupBy('date')->first()->avg);
-                    $indicator->value = Merged::select($indicator->feature_name . ' as indicator')->whereDate('date', $this->date)->where('district_code', $this->active_tum)->first()->indicator;
+                    $indicator->average = Merged::select(DB::raw('AVG(' . $indicator->feature_name . ') as sum'))->whereDate('date', $this->date)->groupBy('date')->first()?->avg;
+                    $indicator->value = Merged::select($indicator->feature_name . ' as indicator')->whereDate('date', $this->date)->where('district_code', $this->active_tum)->first()?->indicator;
                 } else {
-                    $indicator->average = (Merged::select(DB::raw('SUM(' . $indicator->feature_name . ') as sum'))->whereDate('date', $this->date)->groupBy('date')->first()->sum / $population) * 100000;
-                    $indicator->value = (Merged::select($indicator->feature_name . ' as indicator')->whereDate('date', $this->date)->where('district_code', $this->active_tum)->first()->indicator / $tum_pop) * 100000;
+                    $sumResult = Merged::select(DB::raw('SUM(' . $indicator->feature_name . ') as sum'))->whereDate('date', $this->date)->groupBy('date')->first();
+                    $indicator->average = ($population > 0 && $sumResult) ? ($sumResult->sum / $population) * 100000 : null;
+                    $valResult = Merged::select($indicator->feature_name . ' as indicator')->whereDate('date', $this->date)->where('district_code', $this->active_tum)->first();
+                    $indicator->value = ($tum_pop > 0 && $valResult) ? ($valResult->indicator / $tum_pop) * 100000 : null;
                 }
                 return $indicator;
             });

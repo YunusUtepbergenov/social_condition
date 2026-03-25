@@ -119,8 +119,8 @@ class Clusters extends Component
         $total = $totalQuery->get();
 
         return $data->map(function ($item) use ($total) {
-            $totalForMonth = $total->firstWhere('date', $item->date)->total;
-            $item->percentage = ($item->total / $totalForMonth) * 100;
+            $totalForMonth = $total->firstWhere('date', $item->date)?->total ?? 0;
+            $item->percentage = ($totalForMonth > 0) ? ($item->total / $totalForMonth) * 100 : 0;
             return $item;
         })->toArray();
     }

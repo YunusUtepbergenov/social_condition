@@ -74,6 +74,7 @@ function getColor(d, labell) {
 }
 
 function scale (number, inMin, inMax, outMin, outMax) {
+    if (inMax === inMin) return outMin;
     return (number - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
 }
 

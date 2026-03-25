@@ -11,6 +11,11 @@ class ReasonModal extends Component
 {
     protected $listeners = ['showReasonModal'];
 
+    public function toJSON(): array
+    {
+        return [];
+    }
+
     public mixed $reasons = [];
 
     public function showReasonModal(string $date, string $activeReg, ?string $activeTum): void

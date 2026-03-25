@@ -11,6 +11,11 @@ class ClusterModal extends Component
 {
     protected $listeners = ['showClusterModal'];
 
+    public function toJSON(): array
+    {
+        return [];
+    }
+
     public ?string $activeIndicator = null;
     public ?string $activeDistrict = null;
     public ?string $date = null;

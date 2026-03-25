@@ -55,11 +55,13 @@ class IndicatorType extends DataType
 
         return $indicators->map(function ($indicator) use ($tuman, $date, $population, $tum_pop, $avg_indicators) {
             if (in_array($indicator->feature_name, $avg_indicators)) {
-                $indicator->average = (MergedOrg::select(DB::raw('AVG(' . $indicator->feature_name . ') as avg'))->whereDate('date', $date)->groupBy('date')->first()->avg);
-                $indicator->value = MergedOrg::select($indicator->feature_name . ' as indicator')->whereDate('date', $date)->where('district_code', $tuman)->first()->indicator;
+                $indicator->average = MergedOrg::select(DB::raw('AVG(' . $indicator->feature_name . ') as avg'))->whereDate('date', $date)->groupBy('date')->first()?->avg;
+                $indicator->value = MergedOrg::select($indicator->feature_name . ' as indicator')->whereDate('date', $date)->where('district_code', $tuman)->first()?->indicator;
             } else {
-                $indicator->average = (MergedOrg::select(DB::raw('SUM(' . $indicator->feature_name . ') as sum'))->where('date', $date)->groupBy('date')->first()->sum / $population) * 100000;
-                $indicator->value = (MergedOrg::select($indicator->feature_name . ' as indicator')->where('date', $date)->where('district_code', $tuman)->first()->indicator / $tum_pop) * 100000;
+                $sumResult = MergedOrg::select(DB::raw('SUM(' . $indicator->feature_name . ') as sum'))->where('date', $date)->groupBy('date')->first();
+                $indicator->average = ($population > 0 && $sumResult) ? ($sumResult->sum / $population) * 100000 : null;
+                $valResult = MergedOrg::select($indicator->feature_name . ' as indicator')->where('date', $date)->where('district_code', $tuman)->first();
+                $indicator->value = ($tum_pop > 0 && $valResult) ? ($valResult->indicator / $tum_pop) * 100000 : null;
             }
             return $indicator;
         });

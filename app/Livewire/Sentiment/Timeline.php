@@ -12,6 +12,11 @@ class Timeline extends Component
 
     protected $listeners = ['changeMonths'];
 
+    public function toJSON(): array
+    {
+        return [];
+    }
+
     public function mount(): void
     {
         $this->months = Sentiment::select('date')

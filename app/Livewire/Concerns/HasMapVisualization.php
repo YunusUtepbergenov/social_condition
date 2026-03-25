@@ -29,6 +29,11 @@ trait HasMapVisualization
         "problems_narx_navo_narx_sohasida_davlat_siyosati", "product_prices_price",
     ];
 
+    public function toJSON(): array
+    {
+        return [];
+    }
+
     abstract public function getTypeString(): string;
 
     abstract public function getDataClass(): DataType;
@@ -93,8 +98,8 @@ trait HasMapVisualization
 
         if (in_array($feature, $columns)) {
             $mergedDate = Merged::where('district_code', $this->active_tum)->where('date', '<=', $this->date)->orderBy('date', 'DESC')->value('date') ?? $this->date;
-            $tum_pop = intval(Merged::select('demography_population as population')->where('date', $mergedDate)->where('district_code', $this->active_tum)->first()->population);
-            $population = intval(Merged::select(DB::raw('SUM(demography_population) as population'))->where('date', $mergedDate)->groupBy('date')->first()->population);
+            $tum_pop = intval(Merged::select('demography_population as population')->where('date', $mergedDate)->where('district_code', $this->active_tum)->first()?->population ?? 0);
+            $population = intval(Merged::select(DB::raw('SUM(demography_population) as population'))->where('date', $mergedDate)->groupBy('date')->first()?->population ?? 0);
 
             if ($this->getTypeString() != 'indicator') {
                 $date = date("Y-m-d", strtotime($this->date . "-2 month"));
@@ -104,7 +109,7 @@ trait HasMapVisualization
 
             $dates = MergedOrg::select('date')->distinct()->where('date', '<=', $date)->orderBy('date', 'ASC')->pluck('date')->toArray();
             $data = MergedOrg::select(DB::raw($feature . ' as score'), 'date')->where('district_code', $this->active_tum)->whereIn('date', $dates)->orderBy('date', 'ASC')->get()->pluck('score', 'date')->toArray();
-            $dataAvg = MergedOrg::select(DB::raw($feature . '* 100000 / demography_population as score'), 'date')->where('district_code', $this->active_tum)->whereIn('date', $dates)->orderBy('date', 'ASC')->get()->pluck('score')->toArray();
+            $dataAvg = MergedOrg::select(DB::raw('CASE WHEN demography_population > 0 THEN ' . $feature . ' * 100000 / demography_population ELSE NULL END as score'), 'date')->where('district_code', $this->active_tum)->whereIn('date', $dates)->orderBy('date', 'ASC')->get()->pluck('score')->toArray();
             $this->dispatch('showInfoModal', feature: $feature, district: $this->active_tum, data: $data, dataAvg: $dataAvg, date: $date, dates: $dates, population: $population, tum_pop: $tum_pop, avg_indicators: $this->avg_indicators);
             $this->regionClicked($this->active_tum);
         }

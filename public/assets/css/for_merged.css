@@ -45,6 +45,8 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
     margin-bottom: 0.5rem;
     padding: 0.5rem 1rem;
     background: var(--bg-card);
@@ -95,7 +97,7 @@
     color: var(--text-primary);
     cursor: pointer;
     font-weight: 500;
-    min-width: 200px;
+    min-width: 150px;
     box-shadow: var(--shadow-sm);
 }
 
@@ -109,7 +111,6 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    flex-wrap: wrap;
 }
 
 /* === MAP PANEL === */

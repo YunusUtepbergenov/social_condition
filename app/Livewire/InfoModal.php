@@ -13,6 +13,11 @@ class InfoModal extends Component
 {
     protected $listeners = ['showInfoModal'];
 
+    public function toJSON(): array
+    {
+        return [];
+    }
+
     public ?string $activeIndicator = null;
     public ?string $activeDistrict = null;
     public ?string $date = null;
@@ -63,7 +68,8 @@ class InfoModal extends Component
         $startYear = $this->getFirstDateOfYearUsingDateTime($date);
         $startOfLastYear = $this->getFirstDateOfYearUsingDateTime($lastYear);
 
-        $vil_pop = intval(Merged::select(DB::raw('SUM(demography_population) as population'))->where('date', $nextMonth)->where('district_code', 'LIKE', substr($district, 0, 4) . '%')->groupBy('date')->first()->population);
+        $vil_pop_record = Merged::select(DB::raw('SUM(demography_population) as population'))->where('date', $nextMonth)->where('district_code', 'LIKE', substr($district, 0, 4) . '%')->groupBy('date')->first();
+        $vil_pop = $vil_pop_record ? intval($vil_pop_record->population) : 0;
 
         $this->curVal = end($data);
 
@@ -78,44 +84,49 @@ class InfoModal extends Component
                 ['district_code', 'LIKE', substr($district, 0, 4) . '%'],
             ])->groupBY('date')->first();
 
-        $this->lastMonth = $data[$lastMonth];
-        $this->lastYear = $data[$lastYear];
+        $this->lastMonth = $data[$lastMonth] ?? null;
+        $this->lastYear = $data[$lastYear] ?? null;
 
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        $this->curValNor = MergedOrg::select(DB::raw($feature . ' as score'))
+        $curScore = MergedOrg::select(DB::raw($feature . ' as score'))
             ->where([
                 ['date', '=', $date],
                 ['district_code', '=', $district],
-            ])->first()->score / $tum_pop * $multiplier;
+            ])->first();
+        $this->curValNor = ($tum_pop > 0 && $curScore) ? $curScore->score / $tum_pop * $multiplier : null;
 
         if (in_array($feature, $avg_indicators)) {
             $this->repAvgNor = MergedOrg::select(DB::raw('AVG(' . $feature . ') as score'))->whereDate('date', $date)->groupBy('date')->first();
             $this->vilAvgNor = MergedOrg::select(DB::raw('AVG(' . $feature . ') as score'))->whereDate('date', $date)->where('district_code', 'LIKE', substr($district, 0, 4) . '%')->first();
         } else {
-            $this->repAvgNor = MergedOrg::select(DB::raw('SUM(' . $feature . ')' . ' / ' . $population . '*' . $multiplier . ' as score'))
+            $this->repAvgNor = ($population > 0) ? MergedOrg::select(DB::raw('SUM(' . $feature . ')' . ' / ' . $population . '*' . $multiplier . ' as score'))
                 ->where('date', '=', $date)
                 ->groupBY('date')
-                ->first();
+                ->first() : null;
 
-            $this->vilAvgNor = MergedOrg::select(DB::raw('SUM(' . $feature . ')' . ' / ' . $vil_pop . '*' . $multiplier . ' as score'))
+            $this->vilAvgNor = ($vil_pop > 0) ? MergedOrg::select(DB::raw('SUM(' . $feature . ')' . ' / ' . $vil_pop . '*' . $multiplier . ' as score'))
                 ->where([
                     ['date', '=', $date],
                     ['district_code', 'LIKE', substr($district, 0, 4) . '%'],
-                ])->groupBY('date')->first();
+                ])->groupBY('date')->first() : null;
         }
 
-        $this->lastMonthNor = MergedOrg::select(DB::raw($feature . ' as score'))
+        $lastMonthPop = $tum_pop_arr[$lastMonth] ?? 0;
+        $lastMonthScore = MergedOrg::select(DB::raw($feature . ' as score'))
             ->where([
                 ['date', '=', $lastMonth],
                 ['district_code', '=', $district],
-            ])->first()->score / $tum_pop_arr[$lastMonth] * $multiplier;
+            ])->first();
+        $this->lastMonthNor = ($lastMonthPop > 0 && $lastMonthScore) ? $lastMonthScore->score / $lastMonthPop * $multiplier : null;
 
-        $this->lastYearNor = MergedOrg::select(DB::raw($feature . ' as score'))
+        $lastYearPop = $tum_pop_arr[$lastYear] ?? 0;
+        $lastYearScore = MergedOrg::select(DB::raw($feature . ' as score'))
             ->where([
                 ['date', '=', $lastYear],
                 ['district_code', '=', $district],
-            ])->first()->score / $tum_pop_arr[$lastYear] * $multiplier;
+            ])->first();
+        $this->lastYearNor = ($lastYearPop > 0 && $lastYearScore) ? $lastYearScore->score / $lastYearPop * $multiplier : null;
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -124,19 +135,19 @@ class InfoModal extends Component
             ->whereBetween('date', [$startOfLastYear, $lastYear])
             ->first();
 
-        $this->cumilativeLastYearNor = MergedOrg::select(DB::raw('SUM(' . $feature . ')' . ' / ' . $tum_pop . '*' . $multiplier . 'as feature'))
+        $this->cumilativeLastYearNor = ($tum_pop > 0) ? MergedOrg::select(DB::raw('SUM(' . $feature . ')' . ' / ' . $tum_pop . '*' . $multiplier . ' as feature'))
             ->where('district_code', $district)
             ->whereBetween('date', [$startOfLastYear, $lastYear])
-            ->first();
+            ->first() : null;
 
         $this->cumilativeThisYear = MergedOrg::select(DB::raw('SUM(' . $feature . ') as feature'))
             ->where('district_code', $district)
             ->whereBetween('date', [$startYear, $date])
             ->first();
-        $this->cumilativeThisYearNor = MergedOrg::select(DB::raw('SUM(' . $feature . ')' . ' / ' . $tum_pop . '*' . $multiplier . 'as feature'))
+        $this->cumilativeThisYearNor = ($tum_pop > 0) ? MergedOrg::select(DB::raw('SUM(' . $feature . ')' . ' / ' . $tum_pop . '*' . $multiplier . ' as feature'))
             ->where('district_code', $district)
             ->whereBetween('date', [$startYear, $date])
-            ->first();
+            ->first() : null;
 
         $this->ovrReg = MergedOrg::select(DB::raw('SUM(' . $feature . ') as feature'))
             ->where('district_code', 'Like', $regionCode . '%')

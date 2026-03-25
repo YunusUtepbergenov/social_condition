@@ -23,8 +23,8 @@
                 <option value="1730">Фарғона вилояти</option>
                 <option value="1733">Хоразм вилояти</option>
             </select>
-            <div wire:ignore>
-                <select class="region-select" id="indicator-select" style="min-width:250px">
+            <div wire:ignore style="min-width:150px; max-width:250px; flex: 1 1 auto;">
+                <select class="region-select" id="indicator-select">
                     @foreach ($columns as $col)
                         <option value="{{ $col }}" data-value="{{ $col }}">{{ $translates[$col] ?? $col }}</option>
                     @endforeach
@@ -100,7 +100,7 @@
     @script
     <script>
         (function() {
-            $("#indicator-select").select2();
+            $("#indicator-select").select2({ width: '100%' });
 
             $(document).on('change', '#indicator-select', function (e) {
                 $wire.indicatorChanged($(this).find(':selected').data('value'));

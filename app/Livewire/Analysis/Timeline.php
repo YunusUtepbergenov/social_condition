@@ -26,6 +26,11 @@ class Timeline extends Component
             ->toArray();
     }
 
+    public function toJSON(): array
+    {
+        return [];
+    }
+
     public function render(): View
     {
         return view('livewire.analysis.timeline');

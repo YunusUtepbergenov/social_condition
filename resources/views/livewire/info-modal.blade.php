@@ -55,35 +55,35 @@
                                 <tr class="row-highlight">
                                     <td class="font-weight-bold">Туман кўрсаткичи</td>
                                     <td class="text-right font-weight-bold val-primary">{{ numberToWords($curVal) }}</td>
-                                    <td class="text-right font-weight-bold val-primary">{{ numberToWords($curValNor) }}</td>
+                                    <td class="text-right font-weight-bold val-primary">{{ $curValNor !== null ? numberToWords($curValNor) : '—' }}</td>
                                 </tr>
                                 <tr>
                                     <td>
                                         Республика ўртача
                                         <small class="d-block text-muted font-italic">Туманлар бўйича ўртача</small>
                                     </td>
-                                    <td class="text-right">{{ numberToWords($repAvg['score']) }}</td>
-                                    <td class="text-right">{{ numberToWords($repAvgNor['score']) }}</td>
+                                    <td class="text-right">{{ $repAvg ? numberToWords($repAvg['score']) : '—' }}</td>
+                                    <td class="text-right">{{ $repAvgNor ? numberToWords($repAvgNor['score']) : '—' }}</td>
                                 </tr>
                                 <tr>
                                     <td>
                                         Вилоят кўрсаткичи
                                         <small class="d-block text-muted font-italic">Туманлар бўйича ўртача</small>
                                     </td>
-                                    <td class="text-right">{{ numberToWords($vilAvg['score']) }}</td>
-                                    <td class="text-right">{{ numberToWords($vilAvgNor['score']) }}</td>
+                                    <td class="text-right">{{ $vilAvg ? numberToWords($vilAvg['score']) : '—' }}</td>
+                                    <td class="text-right">{{ $vilAvgNor ? numberToWords($vilAvgNor['score']) : '—' }}</td>
                                 </tr>
                                 <tr>
                                     <td>Ўтган ой кўрсаткичи</td>
-                                    <td class="text-right">{{ numberToWords($lastMonth) }}</td>
-                                    <td class="text-right">{{ numberToWords($lastMonthNor) }}</td>
+                                    <td class="text-right">{{ $lastMonth !== null ? numberToWords($lastMonth) : '—' }}</td>
+                                    <td class="text-right">{{ $lastMonthNor !== null ? numberToWords($lastMonthNor) : '—' }}</td>
                                 </tr>
                                 <tr>
                                     <td>Бир йил олдинги кўрсаткич</td>
-                                    <td class="text-right">{{ numberToWords($lastYear) }}</td>
-                                    <td class="text-right">{{ numberToWords($lastYearNor) }}</td>
+                                    <td class="text-right">{{ $lastYear !== null ? numberToWords($lastYear) : '—' }}</td>
+                                    <td class="text-right">{{ $lastYearNor !== null ? numberToWords($lastYearNor) : '—' }}</td>
                                 </tr>
-                                @if ($lastMonth != 0)
+                                @if ($lastMonth && $lastMonth != 0)
                                     @php $monthGrowth = round(($curVal - $lastMonth) * 100 / abs($lastMonth), 1); @endphp
                                     <tr class="row-growth">
                                         <td class="font-weight-bold">Ўтган ойга нисбатан ўсиш</td>
@@ -92,7 +92,7 @@
                                         </td>
                                     </tr>
                                 @endif
-                                @if ($lastYear)
+                                @if ($lastYear && $lastYear != 0)
                                     @php $yearGrowth = round(($curVal - $lastYear) * 100 / abs($lastYear), 1); @endphp
                                     <tr class="row-growth">
                                         <td class="font-weight-bold">Бир йил олдинга нисбатан ўсиш</td>
@@ -113,13 +113,13 @@
                                         <td class="text-right">{{ numberToWords($cumilativeLastYearNor['feature']) }}</td>
                                     </tr>
                                 @endif
-                                @if ($ovrReg['feature'])
+                                @if ($ovrReg && $ovrReg['feature'])
                                     <tr>
                                         <td>Вилоятдаги улуши</td>
                                         <td colspan="2" class="text-right">{{ numberToWords(($curVal / $ovrReg['feature']) * 100) }}%</td>
                                     </tr>
                                 @endif
-                                @if ($ovrRep['feature'])
+                                @if ($ovrRep && $ovrRep['feature'])
                                     <tr>
                                         <td>Республикадаги улуши</td>
                                         <td colspan="2" class="text-right">{{ numberToWords(($curVal / $ovrRep['feature']) * 100) }}%</td>
