@@ -35,6 +35,7 @@ class ProtestType extends DataType
         }
 
         $featureNames = $indicators->pluck('feature_name')->toArray();
+        validateColumns($featureNames, 'merged');
         $districtRow = Merged::where('date', $date)->where('district_code', $tuman)->first();
 
         $avgColumns = array_intersect($featureNames, $avg_indicators);

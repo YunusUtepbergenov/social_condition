@@ -60,6 +60,6 @@ Route::get('/task/download', function () {
     return response()->download(public_path('tasks/топширик.docx'));
 })->middleware(['auth'])->name('task.download');
 
-Route::get('table', [PageController::class, 'table']);
+Route::get('table', [PageController::class, 'table'])->middleware('auth');
 
 require __DIR__.'/auth.php';

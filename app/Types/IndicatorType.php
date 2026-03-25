@@ -12,10 +12,17 @@ class IndicatorType extends DataType
 {
     public function __construct(public ?string $activeIndicator = null)
     {
+        if ($activeIndicator) {
+            validateColumn($activeIndicator, 'merged_org');
+        }
     }
 
     public function getTopDistricts(string $activeRegion, ?string $activeIndicator, string $date): Collection
     {
+        if ($activeIndicator) {
+            validateColumn($activeIndicator, 'merged_org');
+        }
+
         if ($activeRegion == 'republic') {
             return MergedOrg::with('district')
                 ->select(['district_code', 'district_name', DB::raw($activeIndicator . ' as score')])
@@ -58,6 +65,7 @@ class IndicatorType extends DataType
         }
 
         $featureNames = $indicators->pluck('feature_name')->toArray();
+        validateColumns($featureNames, 'merged_org');
         $districtRow = MergedOrg::where('date', $date)->where('district_code', $tuman)->first();
 
         $avgColumns = array_intersect($featureNames, $avg_indicators);

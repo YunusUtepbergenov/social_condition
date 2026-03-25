@@ -53,6 +53,8 @@ class InfoModal extends Component
 
     public function showInfoModal(string $feature, string $district, array $data, array $dataAvg, string $date, array $dates, int $population, int $tum_pop, array $avg_indicators = []): void
     {
+        validateColumn($feature, 'merged_org');
+
         $multiplier = 100000;
         $this->activeDistrict = $district;
         $regionCode = substr($district, 0, 4);

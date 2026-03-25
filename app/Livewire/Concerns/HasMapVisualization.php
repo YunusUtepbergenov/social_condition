@@ -79,26 +79,22 @@ trait HasMapVisualization
     #[Renderless]
     public function openModal(string $feature): void
     {
-        $columns = Cache::remember("columns", 600 * 600, function () {
-            return \Illuminate\Support\Facades\Schema::getColumnListing('merged_org');
-        });
+        validateColumn($feature, 'merged_org');
 
-        if (in_array($feature, $columns)) {
-            $mergedDate = Merged::where('district_code', $this->active_tum)->where('date', '<=', $this->date)->orderBy('date', 'DESC')->value('date') ?? $this->date;
-            $tum_pop = intval(Merged::select('demography_population as population')->where('date', $mergedDate)->where('district_code', $this->active_tum)->first()?->population ?? 0);
-            $population = intval(Merged::select(DB::raw('SUM(demography_population) as population'))->where('date', $mergedDate)->groupBy('date')->first()?->population ?? 0);
+        $mergedDate = Merged::where('district_code', $this->active_tum)->where('date', '<=', $this->date)->orderBy('date', 'DESC')->value('date') ?? $this->date;
+        $tum_pop = intval(Merged::select('demography_population as population')->where('date', $mergedDate)->where('district_code', $this->active_tum)->first()?->population ?? 0);
+        $population = intval(Merged::select(DB::raw('SUM(demography_population) as population'))->where('date', $mergedDate)->groupBy('date')->first()?->population ?? 0);
 
-            if ($this->getTypeString() != 'indicator') {
-                $date = date("Y-m-d", strtotime($this->date . "-2 month"));
-            } else {
-                $date = $this->date;
-            }
-
-            $dates = MergedOrg::select('date')->distinct()->where('date', '<=', $date)->orderBy('date', 'ASC')->pluck('date')->toArray();
-            $data = MergedOrg::select(DB::raw($feature . ' as score'), 'date')->where('district_code', $this->active_tum)->whereIn('date', $dates)->orderBy('date', 'ASC')->get()->pluck('score', 'date')->toArray();
-            $dataAvg = MergedOrg::select(DB::raw('CASE WHEN demography_population > 0 THEN ' . $feature . ' * 100000 / demography_population ELSE NULL END as score'), 'date')->where('district_code', $this->active_tum)->whereIn('date', $dates)->orderBy('date', 'ASC')->get()->pluck('score')->toArray();
-            $this->dispatch('showInfoModal', feature: $feature, district: $this->active_tum, data: $data, dataAvg: $dataAvg, date: $date, dates: $dates, population: $population, tum_pop: $tum_pop, avg_indicators: $this->avg_indicators);
+        if ($this->getTypeString() != 'indicator') {
+            $date = date("Y-m-d", strtotime($this->date . "-2 month"));
+        } else {
+            $date = $this->date;
         }
+
+        $dates = MergedOrg::select('date')->distinct()->where('date', '<=', $date)->orderBy('date', 'ASC')->pluck('date')->toArray();
+        $data = MergedOrg::select(DB::raw($feature . ' as score'), 'date')->where('district_code', $this->active_tum)->whereIn('date', $dates)->orderBy('date', 'ASC')->get()->pluck('score', 'date')->toArray();
+        $dataAvg = MergedOrg::select(DB::raw('CASE WHEN demography_population > 0 THEN ' . $feature . ' * 100000 / demography_population ELSE NULL END as score'), 'date')->where('district_code', $this->active_tum)->whereIn('date', $dates)->orderBy('date', 'ASC')->get()->pluck('score')->toArray();
+        $this->dispatch('showInfoModal', feature: $feature, district: $this->active_tum, data: $data, dataAvg: $dataAvg, date: $date, dates: $dates, population: $population, tum_pop: $tum_pop, avg_indicators: $this->avg_indicators);
     }
 
     public function dateChanged(string $date): void

@@ -114,6 +114,7 @@ class Survey extends Component
 
     public function indicatorChanged(string $indicator): void
     {
+        validateColumn($indicator, 'pb_sentiment_merged');
         $this->activeRegion = 'republic';
         $this->activeIndicator = $indicator;
         $this->indicators = $this->descriptions[$this->activeIndicator];

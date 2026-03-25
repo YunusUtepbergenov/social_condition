@@ -70,6 +70,8 @@ class Visualization extends Component
     #[Renderless]
     public function openModal(string $feature): void
     {
+        validateColumn($feature, 'merged');
+
         $tum_pop = intval(Merged::select('demography_population as population')->where('date', $this->date)->where('district_code', $this->active_tum)->first()?->population ?? 0);
         $population = intval(Merged::select(DB::raw('SUM(demography_population) as population'))->where('date', $this->date)->groupBy('date')->first()?->population ?? 0);
 
@@ -182,6 +184,7 @@ class Visualization extends Component
 
     public function indicatorChanged(string $indicator): void
     {
+        validateColumn($indicator, 'merged_org');
         $this->activeIndicator = $indicator;
         if ($this->active_tum) {
             $this->regionClicked($this->active_tum);
@@ -413,6 +416,7 @@ class Visualization extends Component
         }
 
         $featureNames = $indicators->pluck('feature_name')->toArray();
+        validateColumns($featureNames, 'merged');
         $districtRow = Merged::where('date', $this->date)->where('district_code', $this->active_tum)->first();
 
         $avgColumns = array_intersect($featureNames, $this->avg_indicators);

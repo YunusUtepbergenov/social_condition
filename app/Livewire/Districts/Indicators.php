@@ -96,6 +96,7 @@ class Indicators extends Component
 
     public function indicatorChanged(string $indicator): void
     {
+        validateColumn($indicator, 'merged_org');
         if (in_array($indicator, $this->columns)) {
             $this->activeIndicator = $indicator;
             if ($this->active_tum) {
