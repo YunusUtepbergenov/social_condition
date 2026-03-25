@@ -56,8 +56,6 @@ function style1(feature, max, ranges) {
 }
 
 function getColor(d, labell) {
-    console.log(labell, d);
-    
     if(num == -1){
         return '#bababa'}
     else{        

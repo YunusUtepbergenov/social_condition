@@ -8,7 +8,7 @@ use App\Models\{Merged, Protest, ProtestPrediction};
 use App\Types\ProtestType;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\{Cache, DB};
 use Livewire\Component;
 
 class Protests extends Component
@@ -26,7 +26,6 @@ class Protests extends Component
         $this->monthlyAvg = ProtestPrediction::select('date', DB::raw('AVG(prediction) as average'))->whereIn('date', $this->dates)->groupBy('date')->orderBy('date')->get()->pluck('average')->toArray();
         $this->actualAvg = Protest::select('date', DB::raw('SUM(count) as average'))->whereIn('date', $this->dates)->groupBy('date')->orderBy('date')->get()->pluck('average')->toArray();
         $this->top_districts = $this->getDataClass()->getTopDistricts($this->activeRegion, null, $this->date);
-        $this->makeGeoJson();
         $this->dispatch('changeMonths', dates: $this->dates);
     }
 
@@ -47,12 +46,16 @@ class Protests extends Component
 
     public function getDates(): array
     {
-        return ProtestPrediction::select('date')->distinct('date')->where('date', '<=', $this->date)->orderBy('date', 'ASC')->pluck('date')->toArray();
+        return Cache::remember("dates_protest_prediction_{$this->date}", 3600, function () {
+            return ProtestPrediction::select('date')->distinct('date')->where('date', '<=', $this->date)->orderBy('date', 'ASC')->pluck('date')->toArray();
+        });
     }
 
     public function getLatestDate(): ?string
     {
-        return ProtestPrediction::orderBy('date', 'DESC')->first()?->date;
+        return Cache::remember('latest_date_protest_prediction', 3600, function () {
+            return ProtestPrediction::max('date');
+        });
     }
 
     public function getTumAvg(): array

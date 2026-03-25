@@ -19,7 +19,7 @@ class Ntl extends DataType
 
         return NtlData::with('district')
             ->where('date', $date)
-            ->where('district_code', 'LIKE', $activeRegion . '%')
+            ->where(fn($q) => whereDistrictPrefix($q, $activeRegion))
             ->orderByRaw('ntl_mean DESC nulls last')
             ->get();
     }

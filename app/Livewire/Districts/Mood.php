@@ -8,7 +8,7 @@ use App\Models\{BsScore, BsScorePrediction, Merged};
 use App\Types\MoodType;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\{Cache, DB};
 use Livewire\Component;
 
 class Mood extends Component
@@ -28,7 +28,6 @@ class Mood extends Component
         $this->monthlyAvg = $this->getAverage(BsScorePrediction::class);
         $this->actualAvg = $this->getAverage(BsScore::class, 'bs_score_cur');
         $this->top_districts = $this->getDataClass()->getTopDistricts($this->activeRegion, null, $this->date);
-        $this->makeGeoJson();
         $this->dispatch('changeMonths', dates: $this->dates);
     }
 
@@ -49,12 +48,16 @@ class Mood extends Component
 
     public function getDates(): array
     {
-        return BsScorePrediction::select('date')->distinct('date')->where('date', '<=', $this->date)->orderBy('date', 'ASC')->pluck('date')->toArray();
+        return Cache::remember("dates_bs_prediction_{$this->date}", 3600, function () {
+            return BsScorePrediction::select('date')->distinct('date')->where('date', '<=', $this->date)->orderBy('date', 'ASC')->pluck('date')->toArray();
+        });
     }
 
     public function getLatestDate(): ?string
     {
-        return BsScorePrediction::orderBy('date', 'DESC')->first()?->date;
+        return Cache::remember('latest_date_bs_prediction', 3600, function () {
+            return BsScorePrediction::max('date');
+        });
     }
 
     public function getTumAvg(): array
@@ -119,8 +122,7 @@ class Mood extends Component
 
     private function getAverage(string $model, string $column = 'score'): array
     {
-        return $model::with('district')
-            ->select('date', DB::raw("AVG($column) as average"))
+        return $model::select('date', DB::raw("AVG($column) as average"))
             ->whereIn('date', $this->dates)
             ->groupBy('date')
             ->orderBy('date')

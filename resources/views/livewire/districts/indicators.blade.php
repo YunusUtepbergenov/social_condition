@@ -87,7 +87,8 @@
 
     <script>
         const pageType = 'indicator';
-        const geoJsonData = @json($json);
+        const geoJsonUrl = "{{ asset('geojson/clean.json') }}";
+        const initialOverlay = @json($this->getScoreOverlay());
         const topDistrictScore = @json($top_districts[0]['score'] ?? null);
         const topDistrictScoreMin = @json($top_districts->last()['score'] ?? null);
         const scoreRanges = null;

@@ -13,7 +13,6 @@ class Survey extends Component
 
     public ?string $activeIndicator = null;
     public string $activeRegion = 'republic';
-    public ?array $json = null;
     public ?array $ranges = null;
     public ?string $date = null;
     public ?array $top_districts = null;
@@ -62,8 +61,21 @@ class Survey extends Component
         $this->top_districts = Sentiment_Merged::select(['region_code', 'region', DB::raw($this->activeIndicator . ' as value')])->where('date', $mergedDate)->orderByRaw('value DESC nulls last')->get()->toArray();
         $this->monthlyAvg = Sentiment_Republic::select('date', DB::raw($this->activeIndicator . ' as index'))->whereIn('date', $this->dates)->orderBy('date', 'ASC')->get()->pluck('index')->toArray();
 
-        $this->makeGeoJson();
         $this->dispatch('changeMonths', dates: $this->dates);
+    }
+
+    public function toJSON(): array
+    {
+        return [];
+    }
+
+    public function getScoreOverlay(): array
+    {
+        $overlay = [];
+        foreach ($this->top_districts as $d) {
+            $overlay[(string) $d['region_code']] = $d['value'];
+        }
+        return $overlay;
     }
 
     public function render(): View
@@ -84,8 +96,7 @@ class Survey extends Component
         $this->monthlyAvg = Sentiment_Republic::select('date', DB::raw($this->activeIndicator . ' as index'))->whereIn('date', $this->dates)->orderBy('date', 'ASC')->get()->pluck('index')->toArray();
         $this->repAvg = null;
 
-        $this->makeGeoJson();
-        $this->dispatch('updateMap', type: 'indicator', json: $this->json, top_districts: $this->top_districts, max: $this->max, ranges: $this->ranges);
+        $this->dispatch('updateMap', type: 'indicator', overlay: $this->getScoreOverlay(), top_districts: $this->top_districts, max: $this->max, ranges: $this->ranges);
         $this->dispatch('updateChart', type: 'indicator', dates: $this->dates, data: $this->monthlyAvg, repAvg: $this->repAvg);
     }
 
@@ -121,9 +132,7 @@ class Survey extends Component
         $mergedDate = $this->getClosestMergedDate($this->date);
         $this->top_districts = Sentiment_Merged::select(['region_code', 'region', DB::raw($indicator . ' as value')])->where('date', $mergedDate)->orderByRaw('value DESC nulls last')->get()->toArray();
         $this->repAvg = null;
-        $this->makeGeoJson();
-
-        $this->dispatch('updateMap', type: 'indicator', json: $this->json, top_districts: $this->top_districts, max: $this->max, ranges: $this->ranges);
+        $this->dispatch('updateMap', type: 'indicator', overlay: $this->getScoreOverlay(), top_districts: $this->top_districts, max: $this->max, ranges: $this->ranges);
         $this->dispatch('updateChart', type: 'indicator', dates: $this->dates, data: $this->monthlyAvg, repAvg: $this->repAvg);
     }
 
@@ -132,19 +141,4 @@ class Survey extends Component
         return Sentiment_Merged::where('date', '<=', $date)->orderBy('date', 'DESC')->value('date') ?? $date;
     }
 
-    public function makeGeoJson(): void
-    {
-        $path = public_path('geojson/regional.json');
-        $this->json = json_decode(file_get_contents($path), true);
-
-        foreach ($this->top_districts as $district) {
-            foreach ($this->json['features'] as $key => $feature) {
-                if ($district['region_code'] == $feature['properties']['region_code']) {
-                    $this->json['features'][$key]['factors']['score'] = $district['value'];
-                    $this->json['features'][$key]['factors']['label'] = $district['label'] ?? null;
-                    break;
-                }
-            }
-        }
-    }
 }

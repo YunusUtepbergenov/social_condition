@@ -25,7 +25,7 @@ class ReasonModal extends Component
         $endOfMonth = $date->copy()->endOfMonth();
         if ($activeTum === null) {
             if ($activeReg != 'republic') {
-                $this->reasons = ProtestReason::where('district_code', 'LIKE', $activeReg . '%')->whereBetween('date', [$startOfMonth, $endOfMonth])->orderBy('date')->get();
+                $this->reasons = ProtestReason::where(fn($q) => whereDistrictPrefix($q, $activeReg))->whereBetween('date', [$startOfMonth, $endOfMonth])->orderBy('date')->get();
             } else {
                 $this->reasons = ProtestReason::whereBetween('date', [$startOfMonth, $endOfMonth])->orderBy('date')->get();
             }

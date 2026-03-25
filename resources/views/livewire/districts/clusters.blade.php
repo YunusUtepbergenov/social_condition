@@ -83,7 +83,8 @@
 
     <script>
         const pageType = 'clusters';
-        const geoJsonData = @json($json);
+        const geoJsonUrl = "{{ asset('geojson/clean.json') }}";
+        const initialOverlay = @json($this->getScoreOverlay());
         const topDistrictScore = @json($top_districts[0]['score'] ?? null);
         const topDistrictScoreMin = null;
         const scoreRanges = null;

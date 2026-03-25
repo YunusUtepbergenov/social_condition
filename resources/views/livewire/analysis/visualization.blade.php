@@ -390,7 +390,6 @@
                             return styleProtestMap(feature, top_districts[0]['score']);
                         },
                     }).addTo(map);
-                    console.log(map);
                 }
                 else if(type == 'indicator'){
                     geojson = L.geoJSON(json, {

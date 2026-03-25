@@ -5,12 +5,12 @@ namespace App\Livewire\Concerns;
 use App\Abstracts\DataType;
 use App\Models\{Merged, MergedOrg};
 use Illuminate\Support\Facades\{Cache, DB};
+use Livewire\Attributes\Renderless;
 
 trait HasMapVisualization
 {
     public ?string $active_tum = null;
     public ?string $activeRegion = 'republic';
-    public ?array $json = null;
     public ?string $date = null;
     public array $dates = [];
     public mixed $top_districts = null;
@@ -50,25 +50,12 @@ trait HasMapVisualization
 
     abstract public function loadRegionClickedData(string $tuman): void;
 
-    public function makeGeoJson(): void
+    public function getScoreOverlay(): array
     {
-        $path = public_path('geojson/clean.json');
-        $this->json = Cache::remember('geojson_districts', 60 * 60 * 24, function () use ($path) {
-            return json_decode(file_get_contents($path), true);
-        });
-
-        $districtScores = $this->top_districts->pluck('score', 'district_code')->toArray();
-        $districtLabels = $this->top_districts->pluck('label', 'district_code')->toArray();
-
-        foreach ($this->json['features'] as &$feature) {
-            $districtCode = $feature['properties']['district_code'];
-            if (isset($districtScores[$districtCode])) {
-                $feature['factors']['score'] = $districtScores[$districtCode];
-                if (isset($districtLabels[$districtCode])) {
-                    $feature['factors']['label'] = $districtLabels[$districtCode];
-                }
-            }
-        }
+        return [
+            'scores' => $this->top_districts->pluck('score', 'district_code')->toArray(),
+            'labels' => $this->top_districts->pluck('label', 'district_code')->toArray(),
+        ];
     }
 
     public function regionChanged(string $region): void
@@ -86,10 +73,10 @@ trait HasMapVisualization
             $this->dateChanged($this->date);
         }
 
-        $this->makeGeoJson();
-        $this->dispatch('updateMap', type: $this->getTypeString(), json: $this->json, top_districts: $this->top_districts, ranges: $this->ranges ?? null);
+        $this->dispatch('updateMap', type: $this->getTypeString(), overlay: $this->getScoreOverlay(), top_districts: $this->top_districts, ranges: $this->ranges ?? null);
     }
 
+    #[Renderless]
     public function openModal(string $feature): void
     {
         $columns = Cache::remember("columns", 600 * 600, function () {
@@ -111,7 +98,6 @@ trait HasMapVisualization
             $data = MergedOrg::select(DB::raw($feature . ' as score'), 'date')->where('district_code', $this->active_tum)->whereIn('date', $dates)->orderBy('date', 'ASC')->get()->pluck('score', 'date')->toArray();
             $dataAvg = MergedOrg::select(DB::raw('CASE WHEN demography_population > 0 THEN ' . $feature . ' * 100000 / demography_population ELSE NULL END as score'), 'date')->where('district_code', $this->active_tum)->whereIn('date', $dates)->orderBy('date', 'ASC')->get()->pluck('score')->toArray();
             $this->dispatch('showInfoModal', feature: $feature, district: $this->active_tum, data: $data, dataAvg: $dataAvg, date: $date, dates: $dates, population: $population, tum_pop: $tum_pop, avg_indicators: $this->avg_indicators);
-            $this->regionClicked($this->active_tum);
         }
     }
 
@@ -126,16 +112,14 @@ trait HasMapVisualization
 
         if ($this->active_tum) {
             $this->regionClicked($this->active_tum);
-            $this->makeGeoJson();
-            $this->dispatch('updateMap', type: $this->getTypeString(), json: $this->json, top_districts: $this->top_districts, ranges: $this->ranges ?? null);
+            $this->dispatch('updateMap', type: $this->getTypeString(), overlay: $this->getScoreOverlay(), top_districts: $this->top_districts, ranges: $this->ranges ?? null);
         } else {
             if ($this->activeRegion != 'republic') {
                 $this->regionChanged($this->activeRegion);
             } else {
                 $this->top_districts = $class->getTopDistricts($this->activeRegion, $this->activeIndicator ?? null, $this->date);
                 $this->loadRepublicData();
-                $this->makeGeoJson();
-                $this->dispatch('updateMap', type: $this->getTypeString(), json: $this->json, top_districts: $this->top_districts, ranges: $this->ranges ?? null);
+                $this->dispatch('updateMap', type: $this->getTypeString(), overlay: $this->getScoreOverlay(), top_districts: $this->top_districts, ranges: $this->ranges ?? null);
             }
         }
     }

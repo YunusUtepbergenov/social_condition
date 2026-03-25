@@ -50,7 +50,6 @@ class Indicators extends Component
             $this->monthlyAvg = MergedOrg::select('date', DB::raw('SUM(' . $this->activeIndicator . ') as sum'))->whereIn('date', $this->dates)->groupBy('date')->orderBy('date')->get()->pluck('sum')->toArray();
         }
 
-        $this->makeGeoJson();
         $this->dispatch('changeMonths', dates: $this->dates);
     }
 
@@ -71,12 +70,16 @@ class Indicators extends Component
 
     public function getDates(): array
     {
-        return MergedOrg::select('date')->distinct('date')->where('date', '<=', $this->date)->orderBy('date', 'ASC')->pluck('date')->toArray();
+        return Cache::remember("dates_merged_org_{$this->date}", 3600, function () {
+            return MergedOrg::select('date')->distinct('date')->where('date', '<=', $this->date)->orderBy('date', 'ASC')->pluck('date')->toArray();
+        });
     }
 
     public function getLatestDate(): ?string
     {
-        return MergedOrg::orderBy('date', 'DESC')->first()?->date;
+        return Cache::remember('latest_date_merged_org', 3600, function () {
+            return MergedOrg::max('date');
+        });
     }
 
     public function getTumAvg(): array
@@ -108,10 +111,9 @@ class Indicators extends Component
                         $indicatorSum = MergedOrg::select('date', DB::raw('SUM(' . $this->activeIndicator . ') as sum'))->whereIn('date', $this->dates)->groupBy('date')->orderBy('date')->get()->pluck('sum')->toArray();
                     }
                     $this->top_districts = MergedOrg::with('district')->select(['district_code', 'district_name', DB::raw($indicator . ' as score')])->where('date', $this->date)->orderByRaw('score DESC nulls last')->get();
-                    $this->makeGeoJson();
 
                     $this->dispatch('updateChart', dates: $this->dates, data: $indicatorSum, actual: [], participants: [], type: $this->getTypeString());
-                    $this->dispatch('updateMap', type: $this->getTypeString(), json: $this->json, top_districts: $this->top_districts, ranges: null);
+                    $this->dispatch('updateMap', type: $this->getTypeString(), overlay: $this->getScoreOverlay(), top_districts: $this->top_districts, ranges: null);
                 }
             }
         }

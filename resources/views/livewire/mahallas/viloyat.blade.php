@@ -125,37 +125,54 @@
                 mapOptions.minZoom = 4;
                 mapOptions.zoom = 4;
             }
-            // var map = L.map('uzbekistan-map').setView([41.311, 64.2505], 6);
             var map = L.map('uzbekistan-map', mapOptions);
+            var geojson = null;
+            var initialOverlay = @json($this->getRegionOverlay());
+            var geoJsonUrl = "{{ asset('geojson/regional.json') }}";
 
-            var geojson = L.geoJSON(<?php echo json_encode($json); ?>, {
-                style: function (feature) {
-                    return styleRegion(feature);
-                },
-            }).addTo(map);
-
-            geojson.eachLayer(function (layer) {
-                layer.on('click', function(e) {
-                    var element = document.getElementById(this.feature.properties.region_code);
-
-                    Livewire.dispatch('regionClicked', { region_code: layer['feature']['properties']['region_code'] });
+            function applyRegionOverlay(data, overlay) {
+                data.features.forEach(function(f) {
+                    var code = f.properties.region_code || f.properties.code;
+                    if (overlay[code] !== undefined) {
+                        if (!f.factors) f.factors = {};
+                        f.factors.cluster = overlay[code];
+                    }
                 });
-            });
+                return data;
+            }
 
-            Livewire.on('updateMap', ({ json }) => {
-                map.remove();
-                
-                map = L.map('uzbekistan-map', mapOptions);
-                geojson = L.geoJSON(json, {
+            function bindLayerClicks(codeProperty) {
+                geojson.eachLayer(function (layer) {
+                    layer.on('click', function(e) {
+                        Livewire.dispatch('regionClicked', { region_code: layer['feature']['properties'][codeProperty] });
+                    });
+                });
+            }
+
+            fetch(geoJsonUrl).then(r => r.json()).then(function(data) {
+                applyRegionOverlay(data, initialOverlay);
+                geojson = L.geoJSON(data, {
                     style: function (feature) {
                         return styleRegion(feature);
                     },
                 }).addTo(map);
+                bindLayerClicks('region_code');
+            });
 
-                geojson.eachLayer(function (layer) {
-                    layer.on('click', function(e) {
-                        Livewire.dispatch('regionClicked', { region_code: layer['feature']['properties']['code'] });
-                    });
+            Livewire.on('updateMap', ({ overlay, geoJsonUrl }) => {
+                fetch(geoJsonUrl).then(r => r.json()).then(function(data) {
+                    applyRegionOverlay(data, overlay);
+                    if (geojson) {
+                        geojson.clearLayers();
+                        geojson.addData(data);
+                        geojson.setStyle(function(feature) { return styleRegion(feature); });
+                    } else {
+                        geojson = L.geoJSON(data, {
+                            style: function (feature) { return styleRegion(feature); },
+                        }).addTo(map);
+                    }
+                    bindLayerClicks('code');
+                    map.fitBounds(geojson.getBounds(), { animate: true, padding: [10, 10] });
                 });
             });
         });

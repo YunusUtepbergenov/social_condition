@@ -18,7 +18,7 @@ class ClusterType extends DataType
         return DistrictCluster::with('district')
             ->select(['district_code', DB::raw('cluster_id as score')])
             ->where('date', $date)
-            ->where('district_code', 'LIKE', $activeRegion . '%')
+            ->where(fn($q) => whereDistrictPrefix($q, $activeRegion))
             ->orderByRaw('score DESC nulls last')
             ->get();
     }

@@ -11,55 +11,111 @@ var mapOptions = {
 }
 
 var activeLayer = null;
+var baseGeoJsonData = null;
 
 if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)){
     mapOptions.dragging = false;
 }
 
 var map = L.map('map', mapOptions);
+var geojson = null;
 
-function getInitialStyle(feature) {
-    switch (pageType) {
+function applyOverlay(geoData, overlay) {
+    if (!overlay || !overlay.scores) return geoData;
+    var data = JSON.parse(JSON.stringify(geoData));
+    for (var i = 0; i < data.features.length; i++) {
+        var code = data.features[i].properties.district_code;
+        if (overlay.scores[code] !== undefined) {
+            if (!data.features[i].factors) data.features[i].factors = {};
+            data.features[i].factors.score = overlay.scores[code];
+            if (overlay.labels && overlay.labels[code] !== undefined) {
+                data.features[i].factors.label = overlay.labels[code];
+            }
+        }
+    }
+    return data;
+}
+
+function getStyleFunction(type, top_districts, ranges) {
+    switch (type) {
         case 'protests':
-            return styleProtestMap(feature, topDistrictScore);
+            return function(feature) { return styleProtestMap(feature, top_districts[0]['score']); };
         case 'indicator':
-            return styleIndicator(feature, topDistrictScore, topDistrictScoreMin);
+            return function(feature) { return styleIndicator(feature, top_districts[0]['score'], top_districts[top_districts.length - 1]['score']); };
         case 'clusters':
-            return styleCluster(feature);
+            return function(feature) { return styleCluster(feature); };
         default:
-            return style1(feature, topDistrictScore, scoreRanges);
+            return function(feature) { return style1(feature, top_districts[0]['score'], ranges); };
     }
 }
 
-var geojson = L.geoJSON(geoJsonData, {
-    style: getInitialStyle,
-}).addTo(map);
-
-requestAnimationFrame(function() {
-    map.invalidateSize();
-    map.fitBounds(geojson.getBounds(), { animate: false, padding: [10, 10] });
-});
-
-geojson.eachLayer(function (layer) {
-    layer.on('click', function(e) {
-        var element = document.getElementById(this.feature.properties.district_code);
-        element.scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"});
-        var $layer = e.target;
-        var highlightStyle = {
-            opacity: 1,
-            weight: 1,
-            color: 'black'
-        };
-        geojson.resetStyle();
-        $layer.bringToFront();
-        $layer.setStyle(highlightStyle);
-        Livewire.dispatch('regionClicked', { tuman: layer['feature']['properties']['district_code'] });
+function bindLayerClicks() {
+    geojson.eachLayer(function (layer) {
+        layer.on('click', function(e) {
+            var element = document.getElementById(this.feature.properties.district_code);
+            if (element) element.scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"});
+            var $layer = e.target;
+            geojson.resetStyle();
+            $layer.bringToFront();
+            $layer.setStyle({ opacity: 1, weight: 1, color: 'black' });
+            Livewire.dispatch('regionClicked', { tuman: layer['feature']['properties']['district_code'] });
+        });
     });
-});
+}
+
+function initMap(geoData, styleFn) {
+    geojson = L.geoJSON(geoData, { style: styleFn }).addTo(map);
+    bindLayerClicks();
+    requestAnimationFrame(function() {
+        map.invalidateSize();
+        map.fitBounds(geojson.getBounds(), { animate: false, padding: [10, 10] });
+    });
+}
+
+function updateMapLayers(geoData, styleFn) {
+    if (geojson) {
+        geojson.clearLayers();
+        geojson.addData(geoData);
+        geojson.setStyle(styleFn);
+    } else {
+        geojson = L.geoJSON(geoData, { style: styleFn }).addTo(map);
+    }
+    bindLayerClicks();
+    requestAnimationFrame(function() {
+        map.invalidateSize();
+        map.fitBounds(geojson.getBounds(), { animate: false, padding: [10, 10] });
+    });
+}
+
+// Fetch GeoJSON once, then init
+fetch(geoJsonUrl)
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        baseGeoJsonData = data;
+        var overlaid = applyOverlay(baseGeoJsonData, initialOverlay);
+
+        var styleFn;
+        switch (pageType) {
+            case 'protests':
+                styleFn = function(feature) { return styleProtestMap(feature, topDistrictScore); };
+                break;
+            case 'indicator':
+                styleFn = function(feature) { return styleIndicator(feature, topDistrictScore, topDistrictScoreMin); };
+                break;
+            case 'clusters':
+                styleFn = function(feature) { return styleCluster(feature); };
+                break;
+            default:
+                styleFn = function(feature) { return style1(feature, topDistrictScore, scoreRanges); };
+                break;
+        }
+
+        initMap(overlaid, styleFn);
+    });
 
 window.addEventListener('resize', function() {
     map.invalidateSize();
-    map.fitBounds(geojson.getBounds(), { animate: false, padding: [10, 10] });
+    if (geojson) map.fitBounds(geojson.getBounds(), { animate: false, padding: [10, 10] });
 });
 
 const ctx = document.getElementById('myChart1');
@@ -104,6 +160,7 @@ function getInitialChartConfig() {
 var chart = new Chart(ctx, getInitialChartConfig());
 
 Livewire.on('changeTable', ({ tuman, data, actual, participants, dates, date, type }) => {
+    if (!geojson) return;
     var keys = Object.keys(geojson._layers);
     var layer_id;
     if (activeLayer) {
@@ -122,8 +179,8 @@ Livewire.on('changeTable', ({ tuman, data, actual, participants, dates, date, ty
             weight: 1,
             color: '#000',
             fillOpacity: 1
-        });   
-    }    
+        });
+    }
 
     var string = '';
     switch (type) {
@@ -157,58 +214,11 @@ function resetLayerStyle(layer) {
     }
 }
 
-Livewire.on('updateMap', ({ type, json, top_districts, ranges }) => {
-    map.remove();
-    map = L.map('map', mapOptions);
-    if(type == 'mood'){
-        geojson = L.geoJSON(json, {
-            style: function (feature) {
-                return style1(feature, top_districts[0]['score'], ranges);
-            },
-        }).addTo(map);
-    }else if(type == 'protests'){
-        geojson = L.geoJSON(json, {style: function (feature) {
-                return styleProtestMap(feature, top_districts[0]['score']);
-            },
-        }).addTo(map);
-    }
-    else if(type == 'indicator'){
-        geojson = L.geoJSON(json, {
-            style: function (feature) {
-                return styleIndicator(feature, top_districts[0]['score'], top_districts[top_districts.length - 1]['score']);
-            },
-        }).addTo(map);
-    }
-    else if(type == 'clusters'){
-        geojson = L.geoJSON(json, {
-            style: function (feature) {
-                return styleCluster(feature);
-            },
-        }).addTo(map);
-    }
-
-    geojson.eachLayer(function (layer) {
-        layer.on('click', function(e) {
-            element = document.getElementById(this.feature.properties.district_code);
-            element.scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"});
-
-            var $layer = e.target;
-            var highlightStyle = {
-                opacity: 1,
-                weight: 1,
-                color: 'black'
-            };
-            geojson.resetStyle();
-            $layer.bringToFront();
-            $layer.setStyle(highlightStyle);
-            Livewire.dispatch('regionClicked', { tuman: layer['feature']['properties']['district_code'] });
-        });
-    });
-
-    requestAnimationFrame(function() {
-        map.invalidateSize();
-        map.fitBounds(geojson.getBounds(), { animate: false, padding: [10, 10] });
-    });
+Livewire.on('updateMap', ({ type, overlay, top_districts, ranges }) => {
+    if (!baseGeoJsonData) return;
+    var overlaid = applyOverlay(baseGeoJsonData, overlay);
+    var styleFn = getStyleFunction(type, top_districts, ranges);
+    updateMapLayers(overlaid, styleFn);
 });
 
 Livewire.on('updateChart', ({ dates, data, actual, participants, type }) => {

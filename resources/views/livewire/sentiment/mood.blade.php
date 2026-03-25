@@ -113,38 +113,56 @@
                 mapOptions.dragging = false;
             }
             var sentiment_ranges = @json($ranges);
+            var initialOverlay = @json($this->getScoreOverlay());
+            var geoJsonUrl = "{{ asset('geojson/regional.json') }}";
             var map = L.map('map', mapOptions);
-            var geojson = L.geoJSON(@json($json), {
-                style: function (feature) {
-                    return styleSentimentMap(feature, sentiment_ranges);
-                },
-            }).addTo(map);
+            var geojson = null;
+            var geoData = null;
 
-            requestAnimationFrame(function() {
-                map.invalidateSize();
-                map.fitBounds(geojson.getBounds(), { animate: false, padding: [10, 10] });
-            });
+            function applyOverlay(data, overlay) {
+                data.features.forEach(function(f) {
+                    var code = f.properties.region_code;
+                    if (overlay[code] !== undefined) {
+                        if (!f.factors) f.factors = {};
+                        f.factors.score = overlay[code].score;
+                        f.factors.label = overlay[code].label;
+                    }
+                });
+                return data;
+            }
 
-            geojson.eachLayer(function (layer) {
-                layer.on('click', function(e) {
-                    var element = document.getElementById(this.feature.properties.region_code);
-                    element.scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"});
-                    var $layer = e.target;
-                    var highlightStyle = {
-                        opacity: 1,
-                        weight: 1,
-                        color: 'black'
-                    };
-                    geojson.resetStyle();
-                    $layer.bringToFront();
-                    $layer.setStyle(highlightStyle);
-                    Livewire.dispatch('regionClicked', { region_code: layer['feature']['properties']['region_code'] });
+            function bindLayerClicks() {
+                geojson.eachLayer(function (layer) {
+                    layer.on('click', function(e) {
+                        var element = document.getElementById(this.feature.properties.region_code);
+                        if (element) element.scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"});
+                        var $layer = e.target;
+                        geojson.resetStyle();
+                        $layer.bringToFront();
+                        $layer.setStyle({ opacity: 1, weight: 1, color: 'black' });
+                        Livewire.dispatch('regionClicked', { region_code: layer['feature']['properties']['region_code'] });
+                    });
+                });
+            }
+
+            fetch(geoJsonUrl).then(r => r.json()).then(function(data) {
+                geoData = data;
+                applyOverlay(geoData, initialOverlay);
+                geojson = L.geoJSON(geoData, {
+                    style: function (feature) {
+                        return styleSentimentMap(feature, sentiment_ranges);
+                    },
+                }).addTo(map);
+                bindLayerClicks();
+                requestAnimationFrame(function() {
+                    map.invalidateSize();
+                    map.fitBounds(geojson.getBounds(), { animate: false, padding: [10, 10] });
                 });
             });
 
             window.addEventListener('resize', function() {
                 map.invalidateSize();
-                map.fitBounds(geojson.getBounds(), { animate: false, padding: [10, 10] });
+                if (geojson) map.fitBounds(geojson.getBounds(), { animate: false, padding: [10, 10] });
             });
 
             const ctx = document.getElementById('myChart1');
@@ -193,37 +211,16 @@
                 },
             });
 
-            Livewire.on('updateMap', ({ type, json, top_districts, max, ranges }) => {
-                map.remove();
-                map = L.map('map', mapOptions);
-                geojson = L.geoJSON(json, {
-                    style: function (feature) {
-                        return styleSentimentMap(feature, ranges);
-                    },
-                }).addTo(map);
-
-                geojson.eachLayer(function (layer) {
-                    layer.on('click', function(e) {
-                        element = document.getElementById(this.feature.properties.region_code);
-                        element.scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"});
-
-                        var $layer = e.target;
-                        var highlightStyle = {
-                            opacity: 1,
-                            weight: 1,
-                            color: 'black'
-                        };
-                        geojson.resetStyle();
-                        $layer.bringToFront();
-                        $layer.setStyle(highlightStyle);
-                        Livewire.dispatch('regionClicked', { region_code: layer['feature']['properties']['region_code'] });
-                    });
+            Livewire.on('updateMap', ({ type, overlay, top_districts, max, ranges }) => {
+                if (!geoData || !geojson) return;
+                sentiment_ranges = ranges;
+                applyOverlay(geoData, overlay);
+                geojson.clearLayers();
+                geojson.addData(geoData);
+                geojson.setStyle(function(feature) {
+                    return styleSentimentMap(feature, sentiment_ranges);
                 });
-
-                requestAnimationFrame(function() {
-                    map.invalidateSize();
-                    map.fitBounds(geojson.getBounds(), { animate: false, padding: [10, 10] });
-                });
+                bindLayerClicks();
             });
 
             Livewire.on('updateChart', ({ type, dates, data, repAvg }) => {

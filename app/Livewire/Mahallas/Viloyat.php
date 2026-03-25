@@ -10,7 +10,6 @@ use Livewire\Component;
 class Viloyat extends Component
 {
     public mixed $result = null;
-    public ?array $json = null;
     public ?string $activeRegion = null;
     public ?string $activeDistrict = null;
 
@@ -31,8 +30,6 @@ class Viloyat extends Component
             ->groupBy('mahallas_codes.region_code')
             ->orderBy('mahallas_codes.region_code')
             ->get();
-
-        $this->makeRegionGeoJson();
     }
 
     public function render(): View
@@ -40,18 +37,9 @@ class Viloyat extends Component
         return view('livewire.mahallas.viloyat');
     }
 
-    public function regionClicked(string $region_code): void
+    public function getRegionOverlay(): array
     {
-        $this->activeRegion = $region_code;
-
-        $this->makeDistrictsGeoJson();
-    }
-
-    public function makeRegionGeoJson(): void
-    {
-        $path = public_path('geojson\regional.json');
-        $this->json = json_decode(file_get_contents($path), true);
-
+        $overlay = [];
         foreach ($this->result as $region) {
             $clusters = [
                 1 => $region['cluster1'],
@@ -60,21 +48,14 @@ class Viloyat extends Component
                 4 => $region['cluster4'],
                 5 => $region['cluster5'],
             ];
-
-            foreach ($this->json['features'] as $key => $feature) {
-                if ($region->region_code == $feature['properties']['region_code']) {
-                    $mostClusters = array_keys($clusters, max($clusters))[0];
-                    $this->json['features'][$key]['factors']['cluster'] = $mostClusters;
-                    break;
-                }
-            }
+            $overlay[(string) $region->region_code] = array_keys($clusters, max($clusters))[0];
         }
+        return $overlay;
     }
 
-    public function makeDistrictsGeoJson(): void
+    public function regionClicked(string $region_code): void
     {
-        $path = public_path('geojson/mahalla/' . $this->activeRegion . '/' . $this->activeRegion . '.geojson');
-        $this->json = json_decode(file_get_contents($path), true);
+        $this->activeRegion = $region_code;
 
         $this->result = MahallasCode::join('mahalla_cluster', 'mahallas_codes.stir', '=', 'mahalla_cluster.stir')
             ->select(
@@ -91,6 +72,7 @@ class Viloyat extends Component
             ->orderBy('mahallas_codes.district_code')
             ->get();
 
+        $overlay = [];
         foreach ($this->result as $district) {
             $clusters = [
                 1 => $district['cluster1'],
@@ -99,16 +81,10 @@ class Viloyat extends Component
                 4 => $district['cluster4'],
                 5 => $district['cluster5'],
             ];
-
-            foreach ($this->json['features'] as $key => $feature) {
-                if ($district->district_code == $feature['properties']['code']) {
-                    $mostClusters = array_keys($clusters, max($clusters))[0];
-                    $this->json['features'][$key]['factors']['cluster'] = $mostClusters;
-                    break;
-                }
-            }
+            $overlay[$district->district_code] = array_keys($clusters, max($clusters))[0];
         }
 
-        $this->dispatch('updateMap', json: $this->json);
+        $geoJsonUrl = asset('geojson/mahalla/' . $this->activeRegion . '/' . $this->activeRegion . '.geojson');
+        $this->dispatch('updateMap', overlay: $overlay, geoJsonUrl: $geoJsonUrl);
     }
 }

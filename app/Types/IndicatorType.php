@@ -27,7 +27,7 @@ class IndicatorType extends DataType
         return MergedOrg::with('district')
             ->select(['district_code', 'district_name', DB::raw($activeIndicator . ' as score')])
             ->where('date', $date)
-            ->where('district_code', 'LIKE', $activeRegion . '%')
+            ->where(fn($q) => whereDistrictPrefix($q, $activeRegion))
             ->orderByRaw('score DESC nulls last')
             ->get();
     }
@@ -53,15 +53,38 @@ class IndicatorType extends DataType
     {
         $indicators = Indicator_Ranking::where('district_code', $tuman)->whereDate('date', $date)->orderBy('rank', 'DESC')->get();
 
-        return $indicators->map(function ($indicator) use ($tuman, $date, $population, $tum_pop, $avg_indicators) {
-            if (in_array($indicator->feature_name, $avg_indicators)) {
-                $indicator->average = MergedOrg::select(DB::raw('AVG(' . $indicator->feature_name . ') as avg'))->whereDate('date', $date)->groupBy('date')->first()?->avg;
-                $indicator->value = MergedOrg::select($indicator->feature_name . ' as indicator')->whereDate('date', $date)->where('district_code', $tuman)->first()?->indicator;
+        if ($indicators->isEmpty()) {
+            return $indicators;
+        }
+
+        $featureNames = $indicators->pluck('feature_name')->toArray();
+        $districtRow = MergedOrg::where('date', $date)->where('district_code', $tuman)->first();
+
+        $avgColumns = array_intersect($featureNames, $avg_indicators);
+        $sumColumns = array_diff($featureNames, $avg_indicators);
+
+        $avgValues = [];
+        if (!empty($avgColumns)) {
+            $selects = array_map(fn($col) => "AVG({$col}) as {$col}", $avgColumns);
+            $avgValues = (array) MergedOrg::selectRaw(implode(', ', $selects))->where('date', $date)->groupBy('date')->first()?->getAttributes();
+        }
+
+        $sumValues = [];
+        if (!empty($sumColumns)) {
+            $selects = array_map(fn($col) => "SUM({$col}) as {$col}", $sumColumns);
+            $sumValues = (array) MergedOrg::selectRaw(implode(', ', $selects))->where('date', $date)->groupBy('date')->first()?->getAttributes();
+        }
+
+        return $indicators->map(function ($indicator) use ($districtRow, $avgValues, $sumValues, $population, $tum_pop, $avg_indicators) {
+            $feature = $indicator->feature_name;
+            if (in_array($feature, $avg_indicators)) {
+                $indicator->average = $avgValues[$feature] ?? null;
+                $indicator->value = $districtRow?->{$feature};
             } else {
-                $sumResult = MergedOrg::select(DB::raw('SUM(' . $indicator->feature_name . ') as sum'))->where('date', $date)->groupBy('date')->first();
-                $indicator->average = ($population > 0 && $sumResult) ? ($sumResult->sum / $population) * 100000 : null;
-                $valResult = MergedOrg::select($indicator->feature_name . ' as indicator')->where('date', $date)->where('district_code', $tuman)->first();
-                $indicator->value = ($tum_pop > 0 && $valResult) ? ($valResult->indicator / $tum_pop) * 100000 : null;
+                $sumVal = $sumValues[$feature] ?? null;
+                $indicator->average = ($population > 0 && $sumVal !== null) ? ($sumVal / $population) * 100000 : null;
+                $distVal = $districtRow?->{$feature};
+                $indicator->value = ($tum_pop > 0 && $distVal !== null) ? ($distVal / $tum_pop) * 100000 : null;
             }
             return $indicator;
         });
@@ -80,7 +103,7 @@ class IndicatorType extends DataType
     public function getRegionPredicts(string $region, string $date): array
     {
         return MergedOrg::select('date', DB::raw('SUM(' . $this->activeIndicator . ') as sum'))
-            ->where('district_code', 'LIKE', $region . '%')
+            ->where(fn($q) => whereDistrictPrefix($q, $region))
             ->where('date', '<=', $date)
             ->groupBy('date')->orderBy('date')
             ->get()->pluck('sum')

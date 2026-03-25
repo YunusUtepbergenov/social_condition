@@ -86,7 +86,8 @@
 
     <script>
         const pageType = 'mood';
-        const geoJsonData = @json($json);
+        const geoJsonUrl = "{{ asset('geojson/clean.json') }}";
+        const initialOverlay = @json($this->getScoreOverlay());
         const topDistrictScore = @json($top_districts[0]['score']);
         const topDistrictScoreMin = null;
         const scoreRanges = @json($ranges);

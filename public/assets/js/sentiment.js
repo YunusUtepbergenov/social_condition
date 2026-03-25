@@ -3,7 +3,6 @@ function styleSentimentMap(feature, ranges) {
         num = -1
         label = null;
     }else{
-        console.log(ranges);
         range = ranges[0];
         score_val = feature.factors.score;
         label = feature.factors.label;

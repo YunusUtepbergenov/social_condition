@@ -18,6 +18,20 @@ if (!function_exists('findDistrict')) {
     }
 }
 
+if (!function_exists('whereDistrictPrefix')) {
+    /**
+     * Add a range-based prefix filter for bigint district_code columns.
+     * Replaces LIKE '{prefix}%' which requires text cast and prevents index usage.
+     */
+    function whereDistrictPrefix($query, string $prefix, string $column = 'district_code')
+    {
+        $len = strlen($prefix);
+        $min = intval($prefix) * pow(10, 7 - $len);
+        $max = (intval($prefix) + 1) * pow(10, 7 - $len);
+        return $query->where($column, '>=', $min)->where($column, '<', $max);
+    }
+}
+
 if (!function_exists('numberToWords')) {
     function numberToWords($number) {
         $isNegative = false;

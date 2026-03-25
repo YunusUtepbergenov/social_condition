@@ -7,7 +7,7 @@ use App\Livewire\Concerns\HasMapVisualization;
 use App\Models\{Cluster, ClusterDistance, DistrictCluster};
 use App\Types\ClusterType;
 use Illuminate\Contracts\View\View;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\{Cache, DB};
 use Livewire\Component;
 
 class Clusters extends Component
@@ -26,7 +26,6 @@ class Clusters extends Component
         $this->dates = $this->getDates();
         $this->top_districts = $this->getDataClass()->getTopDistricts($this->activeRegion, null, $this->date);
         $this->calcClusters();
-        $this->makeGeoJson();
         $this->clusterPercentages = $this->getClusterPercentages();
         $this->dispatch('changeMonths', dates: $this->dates);
     }
@@ -48,12 +47,16 @@ class Clusters extends Component
 
     public function getDates(): array
     {
-        return DistrictCluster::select('date')->distinct('date')->where('date', '<=', $this->date)->orderBy('date', 'ASC')->pluck('date')->toArray();
+        return Cache::remember("dates_district_cluster_{$this->date}", 3600, function () {
+            return DistrictCluster::select('date')->distinct('date')->where('date', '<=', $this->date)->orderBy('date', 'ASC')->pluck('date')->toArray();
+        });
     }
 
     public function getLatestDate(): ?string
     {
-        return DistrictCluster::orderBy('date', 'DESC')->first()?->date;
+        return Cache::remember('latest_date_district_cluster', 3600, function () {
+            return DistrictCluster::max('date');
+        });
     }
 
     public function getTumAvg(): array
@@ -111,8 +114,8 @@ class Clusters extends Component
             ->groupBy('date');
 
         if ($regionPrefix) {
-            $query->where('district_code', 'Like', $regionPrefix . '%');
-            $totalQuery->where('district_code', 'Like', $regionPrefix . '%');
+            whereDistrictPrefix($query, $regionPrefix);
+            whereDistrictPrefix($totalQuery, $regionPrefix);
         }
 
         $data = $query->get();

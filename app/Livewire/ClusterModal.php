@@ -53,14 +53,15 @@ class ClusterModal extends Component
             ->where([
                 ['indicator', $feature],
                 ['date', '=', $date],
-                ['district_code', 'LIKE', substr($district, 0, 4) . '%'],
+                ['district_code', '>=', intval(substr($district, 0, 4)) * 1000],
+                ['district_code', '<', (intval(substr($district, 0, 4)) + 1) * 1000],
             ])->groupBY('date')->first();
 
         $this->lastYear = $data[intval($date) - 1];
 
         $this->ovrReg = ClusterDistance::select(DB::raw('SUM(value) as feature'))
             ->where('indicator', $feature)
-            ->where('district_code', 'Like', $regionCode . '%')
+            ->where(fn($q) => whereDistrictPrefix($q, $regionCode))
             ->where('date', $date)
             ->first();
 

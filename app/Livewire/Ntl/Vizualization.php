@@ -18,7 +18,6 @@ class Vizualization extends Component
     public ?string $activeIndicator = null;
     public string $activeRegion = 'republic';
     public mixed $data = null;
-    public ?array $json = null;
     public mixed $ranges = null;
     public mixed $clusters = null;
     public ?string $date = null;
@@ -41,7 +40,20 @@ class Vizualization extends Component
         $this->top_districts = (new Ntl())->getTopDistricts($this->activeRegion, null, $this->date);
         $this->monthlyAvg = NtlData::with('district')->select('date', DB::raw('AVG(ntl_mean) as average'))->groupBy('date')->orderBy('date')->get()->pluck('average')->toArray();
         $this->calcClusters();
-        $this->makeGeoJson();
+    }
+
+    public function toJSON(): array
+    {
+        return [];
+    }
+
+    public function getScoreOverlay(): array
+    {
+        $overlay = [];
+        foreach ($this->top_districts as $district) {
+            $overlay[$district->district_code] = $district->cluster_ascending;
+        }
+        return $overlay;
     }
 
     public function render(): View
@@ -49,23 +61,6 @@ class Vizualization extends Component
         return view('livewire.ntl.vizualization');
     }
 
-    public function makeGeoJson(): void
-    {
-        $path = public_path('geojson\districts.json');
-        $this->json = json_decode(file_get_contents($path), true);
-
-        foreach ($this->top_districts as $district) {
-            foreach ($this->json['features'] as $key => $feature) {
-                if ($district->district_code == $feature['properties']['district_code']) {
-                    $this->json['features'][$key]['factors']['score'] = $district->cluster_ascending;
-                    if (isset($district->label)) {
-                        $this->json['features'][$key]['factors']['label'] = $district->label;
-                    }
-                    break;
-                }
-            }
-        }
-    }
 
     public function getDates(): array
     {

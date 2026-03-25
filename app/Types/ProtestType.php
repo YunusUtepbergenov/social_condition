@@ -21,7 +21,7 @@ class ProtestType extends DataType
         return ProtestPrediction::with('district')
             ->select(['district_code', 'prediction as score'])
             ->where('date', $date)
-            ->where('district_code', 'LIKE', $activeRegion . '%')
+            ->where(fn($q) => whereDistrictPrefix($q, $activeRegion))
             ->orderByRaw('score DESC nulls last')
             ->get();
     }
@@ -30,15 +30,38 @@ class ProtestType extends DataType
     {
         $indicators = MiProtest::select('feature_name')->where('district_code', $tuman)->whereDate('date', $date)->orderBy('mutual_info', 'DESC')->get();
 
-        return $indicators->map(function ($indicator) use ($tuman, $date, $population, $tum_pop, $avg_indicators) {
-            if (in_array($indicator->feature_name, $avg_indicators)) {
-                $indicator->average = Merged::select(DB::raw('AVG(' . $indicator->feature_name . ') as avg'))->whereDate('date', $date)->groupBy('date')->first()?->avg;
-                $indicator->value = Merged::select($indicator->feature_name . ' as indicator')->whereDate('date', $date)->where('district_code', $tuman)->first()?->indicator;
+        if ($indicators->isEmpty()) {
+            return $indicators;
+        }
+
+        $featureNames = $indicators->pluck('feature_name')->toArray();
+        $districtRow = Merged::where('date', $date)->where('district_code', $tuman)->first();
+
+        $avgColumns = array_intersect($featureNames, $avg_indicators);
+        $sumColumns = array_diff($featureNames, $avg_indicators);
+
+        $avgValues = [];
+        if (!empty($avgColumns)) {
+            $selects = array_map(fn($col) => "AVG({$col}) as {$col}", $avgColumns);
+            $avgValues = (array) Merged::selectRaw(implode(', ', $selects))->where('date', $date)->groupBy('date')->first()?->getAttributes();
+        }
+
+        $sumValues = [];
+        if (!empty($sumColumns)) {
+            $selects = array_map(fn($col) => "SUM({$col}) as {$col}", $sumColumns);
+            $sumValues = (array) Merged::selectRaw(implode(', ', $selects))->where('date', $date)->groupBy('date')->first()?->getAttributes();
+        }
+
+        return $indicators->map(function ($indicator) use ($districtRow, $avgValues, $sumValues, $population, $tum_pop, $avg_indicators) {
+            $feature = $indicator->feature_name;
+            if (in_array($feature, $avg_indicators)) {
+                $indicator->average = $avgValues[$feature] ?? null;
+                $indicator->value = $districtRow?->{$feature};
             } else {
-                $sumResult = Merged::select(DB::raw('SUM(' . $indicator->feature_name . ') as sum'))->whereDate('date', $date)->groupBy('date')->first();
-                $indicator->average = ($population > 0 && $sumResult) ? ($sumResult->sum / $population) * 100000 : null;
-                $valResult = Merged::select($indicator->feature_name . ' as indicator')->whereDate('date', $date)->where('district_code', $tuman)->first();
-                $indicator->value = ($tum_pop > 0 && $valResult) ? ($valResult->indicator / $tum_pop) * 100000 : null;
+                $sumVal = $sumValues[$feature] ?? null;
+                $indicator->average = ($population > 0 && $sumVal !== null) ? ($sumVal / $population) * 100000 : null;
+                $distVal = $districtRow?->{$feature};
+                $indicator->value = ($tum_pop > 0 && $distVal !== null) ? ($distVal / $tum_pop) * 100000 : null;
             }
             return $indicator;
         });
@@ -48,7 +71,7 @@ class ProtestType extends DataType
     {
         return ProtestPrediction::select('date', DB::raw('AVG(prediction) as average'))
             ->where('date', '<=', $date)
-            ->where('district_code', 'LIKE', $region . '%')
+            ->where(fn($q) => whereDistrictPrefix($q, $region))
             ->groupBy('date')->orderBy('date')
             ->get()
             ->pluck('average')
@@ -59,7 +82,7 @@ class ProtestType extends DataType
     {
         return Protest::select('date', DB::raw('SUM(count) as average'))
             ->where('date', '<=', $date)
-            ->where('district_code', 'LIKE', $region . '%')
+            ->where(fn($q) => whereDistrictPrefix($q, $region))
             ->groupBy('date')
             ->orderBy('date')
             ->get()
@@ -71,7 +94,7 @@ class ProtestType extends DataType
     {
         return Protest::select('date', DB::raw('SUM(participants) as score'))
             ->where('date', '<=', $date)
-            ->where('district_code', 'LIKE', $region . '%')
+            ->where(fn($q) => whereDistrictPrefix($q, $region))
             ->groupBy('date')
             ->orderBy('date')
             ->get()

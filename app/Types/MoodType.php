@@ -5,17 +5,21 @@ namespace App\Types;
 use App\Abstracts\DataType;
 use App\Models\{BsScore, BsScorePrediction, Merged, Mood_Ranking, MutualInfo, Range, SurveyRange};
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 
 class MoodType extends DataType
 {
+    protected static function isPredictionDate(string $date): bool
+    {
+        return Cache::remember("mood_is_prediction_{$date}", 3600, function () use ($date) {
+            $actualDates = BsScore::select('date')->distinct('date')->pluck('date')->toArray();
+            return !in_array($date, $actualDates) && BsScorePrediction::where('date', $date)->exists();
+        });
+    }
+
     public static function getRanges(string $date): Collection
     {
-        $actualDates = BsScore::select('date')->distinct('date')->get()->pluck('date')->toArray();
-        $predictionDates = BsScorePrediction::select('date')->distinct('date')->get()->pluck('date')->toArray();
-
-        $predictionDates = array_diff($predictionDates, $actualDates);
-
-        if (in_array($date, $predictionDates)) {
+        if (static::isPredictionDate($date)) {
             return Range::where('date', $date)->get();
         }
 
@@ -24,13 +28,10 @@ class MoodType extends DataType
 
     public function getTopDistricts(string $activeRegion, ?string $activeIndicator, string $date): Collection
     {
-        $actualDates = BsScore::select('date')->distinct('date')->get()->pluck('date')->toArray();
-        $predictionDates = BsScorePrediction::select('date')->distinct('date')->get()->pluck('date')->toArray();
-
-        $predictionDates = array_diff($predictionDates, $actualDates);
+        $isPrediction = static::isPredictionDate($date);
 
         if ($activeRegion == 'republic') {
-            if (!in_array($date, $predictionDates)) {
+            if (!$isPrediction) {
                 return BsScore::with('district')->selectRaw('district_code, label, date, bs_score_cur as score')
                     ->where('date', $date)
                     ->orderBy('score', 'DESC')
@@ -43,29 +44,24 @@ class MoodType extends DataType
                 ->get();
         }
 
-        if (in_array($date, $predictionDates)) {
+        if ($isPrediction) {
             return BsScorePrediction::with('district')
                 ->where('date', $date)
-                ->where('district_code', 'LIKE', $activeRegion . '%')
+                ->where(fn($q) => whereDistrictPrefix($q, $activeRegion))
                 ->orderByRaw('score DESC nulls last')
                 ->get();
         }
 
         return BsScore::with('district')->selectRaw('district_code, label,date, bs_score_cur as score')
             ->where('date', $date)
-            ->where('district_code', 'LIKE', $activeRegion . '%')
+            ->where(fn($q) => whereDistrictPrefix($q, $activeRegion))
             ->orderByRaw('score DESC nulls last')
             ->get();
     }
 
     public function getLabel(string $date, string $district): mixed
     {
-        $actualDates = BsScore::select('date')->distinct('date')->get()->pluck('date')->toArray();
-        $predictionDates = BsScorePrediction::select('date')->distinct('date')->get()->pluck('date')->toArray();
-
-        $predictionDates = array_diff($predictionDates, $actualDates);
-
-        if (in_array($date, $predictionDates)) {
+        if (static::isPredictionDate($date)) {
             return BsScorePrediction::where('district_code', $district)->where('date', $date)->first()->label;
         }
 
@@ -74,24 +70,44 @@ class MoodType extends DataType
 
     public function getIndicators(string $tuman, string $date, int $population, int $tum_pop, array $avg_indicators): Collection
     {
-        $actualDates = BsScore::select('date')->distinct('date')->get()->pluck('date')->toArray();
-        $predictionDates = BsScorePrediction::select('date')->distinct('date')->get()->pluck('date')->toArray();
-
-        $predictionDates = array_diff($predictionDates, $actualDates);
-
-        if (in_array($date, $predictionDates)) {
+        if (static::isPredictionDate($date)) {
             $indicators = MutualInfo::where('district_code', $tuman)->whereDate('date', $date)->orderBy('mutual_info', 'DESC')->get();
         } else {
             $indicators = Mood_Ranking::where('district_code', $tuman)->whereDate('date', $date)->orderBy('mutual_info', 'DESC')->get();
         }
 
-        return $indicators->map(function ($indicator) use ($tuman, $date, $population, $tum_pop, $avg_indicators) {
-            if (in_array($indicator->feature_name, $avg_indicators)) {
-                $indicator->average = (Merged::selectRaw('AVG(' . $indicator->feature_name . ') as avg')->whereDate('date', $date)->groupBy('date')->first()->avg);
-                $indicator->value = Merged::select($indicator->feature_name . ' as indicator')->whereDate('date', $date)->where('district_code', $tuman)->first()->indicator;
+        if ($indicators->isEmpty()) {
+            return $indicators;
+        }
+
+        $featureNames = $indicators->pluck('feature_name')->toArray();
+        $districtRow = Merged::where('date', $date)->where('district_code', $tuman)->first();
+
+        $avgColumns = array_intersect($featureNames, $avg_indicators);
+        $sumColumns = array_diff($featureNames, $avg_indicators);
+
+        $avgValues = [];
+        if (!empty($avgColumns)) {
+            $selects = array_map(fn($col) => "AVG({$col}) as {$col}", $avgColumns);
+            $avgValues = (array) Merged::selectRaw(implode(', ', $selects))->where('date', $date)->groupBy('date')->first()?->getAttributes();
+        }
+
+        $sumValues = [];
+        if (!empty($sumColumns)) {
+            $selects = array_map(fn($col) => "SUM({$col}) as {$col}", $sumColumns);
+            $sumValues = (array) Merged::selectRaw(implode(', ', $selects))->where('date', $date)->groupBy('date')->first()?->getAttributes();
+        }
+
+        return $indicators->map(function ($indicator) use ($districtRow, $avgValues, $sumValues, $population, $tum_pop, $avg_indicators) {
+            $feature = $indicator->feature_name;
+            if (in_array($feature, $avg_indicators)) {
+                $indicator->average = $avgValues[$feature] ?? null;
+                $indicator->value = $districtRow?->{$feature};
             } else {
-                $indicator->average = (Merged::selectRaw('SUM(' . $indicator->feature_name . ') as sum')->where('date', $date)->groupBy('date')->first()->sum / $population) * 100000;
-                $indicator->value = (Merged::select($indicator->feature_name . ' as indicator')->where('date', $date)->where('district_code', $tuman)->first()->indicator / $tum_pop) * 100000;
+                $sumVal = $sumValues[$feature] ?? null;
+                $indicator->average = ($population > 0 && $sumVal !== null) ? ($sumVal / $population) * 100000 : null;
+                $distVal = $districtRow?->{$feature};
+                $indicator->value = ($tum_pop > 0 && $distVal !== null) ? ($distVal / $tum_pop) * 100000 : null;
             }
             return $indicator;
         });
@@ -100,7 +116,7 @@ class MoodType extends DataType
     public function getRegionPredicts(string $region, string $date): array
     {
         return BsScorePrediction::selectRaw('date, AVG(score) as average')
-            ->where('district_code', 'LIKE', $region . '%')
+            ->where(fn($q) => whereDistrictPrefix($q, $region))
             ->where('date', '<=', $date)
             ->groupBy('date')->orderBy('date')
             ->get()->pluck('average')
@@ -111,7 +127,7 @@ class MoodType extends DataType
     {
         return BsScore::selectRaw('date, AVG(bs_score_cur) as average')
             ->where('date', '<=', $date)
-            ->where('district_code', 'LIKE', $region . '%')
+            ->where(fn($q) => whereDistrictPrefix($q, $region))
             ->groupBy('date')
             ->orderBy('date')
             ->get()

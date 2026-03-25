@@ -123,8 +123,6 @@
         });
 
         Livewire.on('buildClusterChart', ({ data: dataNominal, dates })=>{
-            console.log('eeeee');
-            console.log(dataNominal);
             clusterChart.data = {
                 labels: dates,
                 datasets: [{

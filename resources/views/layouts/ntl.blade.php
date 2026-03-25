@@ -60,10 +60,7 @@
     <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js" integrity="sha256-hlKLmzaRlE8SCJC1Kw8zoUbU8BxA+8kR3gseuKfMjxA=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/js/select2.full.min.js"></script>
     <script src="{{asset('assets/vendor/js/menu.js')}}"></script>
-    <script src="{{asset('assets/vendor/libs/apex-charts/apexcharts.js')}}"></script>
     <script src="{{asset('assets/js/main.js')}}"></script>
-    <script src="{{asset('assets/js/dashboards-analytics.js')}}"></script>
-    <script async defer src="https://buttons.github.io/buttons.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
     crossorigin=""></script>
