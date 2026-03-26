@@ -21,6 +21,7 @@
                 if (!d) return '';
                 if (typeof d === 'number') return String(d);
                 var parts = d.split('-');
+                if (parts.length < 2) return parts[0];
                 var months = ['Янв','Фев','Мар','Апр','Май','Июн','Июл','Авг','Сен','Окт','Ноя','Дек'];
                 return months[parseInt(parts[1]) - 1] + ' ' + parts[0];
             }
@@ -46,7 +47,8 @@
 
                     for (var i = 0; i < arrayLength; i++) {
                         if (i % step === 0 || i === arrayLength - 1) {
-                            var el = $('<label>' + (dates[i].substring(2, 7)) + '</label>').css('left', (i / vals * 100) + '%');
+                            var labelText = dates[i].indexOf('-') !== -1 ? dates[i].substring(2, 7) : dates[i];
+                            var el = $('<label>' + labelText + '</label>').css('left', (i / vals * 100) + '%');
                             $("#slider").append(el);
                         }
                     }
