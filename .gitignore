@@ -17,6 +17,7 @@ yarn-error.log
 /.claude
 /.codex
 /.gemini
+/public/build
 .mcp.json
 .AGENTS.md
 GEMINI.md
