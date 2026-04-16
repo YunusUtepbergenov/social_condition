@@ -38,7 +38,7 @@
                 <div class="rankings-panel-header">Тоифалар бўйича туманлар</div>
                 <div class="rankings-list top_districts">
                     @foreach($clusters as $cluster)
-                        <div style="padding: 0.375rem 0.75rem 0.125rem; font-size: 11px; font-weight: 600; color: var(--text-secondary);">
+                        <div class="cluster-group-header">
                             {{ $cluster->name }}
                         </div>
                         @foreach($cluster->clusters as $district)

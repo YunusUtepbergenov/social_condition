@@ -18,19 +18,15 @@
     $diffValue = $diff !== 0 ? abs($diff) : '';
 @endphp
 
-<div class="row px-1 py-1">
-    <div class="col-lg-5 user_name">
-        <div class="form-check">
-            <a href="#" id="{{ $district->district_code }}"
-               class="form-check-label district_label"
-               style="font-weight: {{ $district->district_code == $active_tum ? 'bold' : 'normal' }}"
-               wire:click="$dispatch('regionClicked', { tuman: '{{ $district->district_code }}' })">
-                {{ $district->district->name }}
-                <i class="{{ $iconClass }}">{{ $diffValue }}</i>
-            </a>
-        </div>
-    </div>
-    <div class="col-lg-7 progress_indicator">
+<div class="district-row {{ $district->district_code == $active_tum ? 'active-row' : '' }}"
+     wire:click="$dispatch('regionClicked', { tuman: '{{ $district->district_code }}' })">
+    <a href="#" id="{{ $district->district_code }}"
+       class="district_label {{ $district->district_code == $active_tum ? 'active-district' : '' }}"
+       wire:click.prevent="$dispatch('regionClicked', { tuman: '{{ $district->district_code }}' })">
+        {{ $district->district->name }}
+        <i class="{{ $iconClass }}">{{ $diffValue }}</i>
+    </a>
+    <div class="progress-wrap">
         <div class="progress">
             <div class="progress-bar"
                  role="progressbar"

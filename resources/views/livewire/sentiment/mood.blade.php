@@ -19,15 +19,15 @@
                 <div class="rankings-panel-header">Вилоятлар рейтинги</div>
                 <div class="rankings-list top_districts">
                     @foreach ($top_districts as $key => $district)
-                        <div class="district-row">
+                        <div class="district-row {{ $district['region_code'] == $activeRegion ? 'active-row' : '' }}"
+                             wire:click="$dispatch('regionClicked', { region_code: '{{ $district['region_code'] }}' })">
                             <span class="rank-num">{{ $key + 1 }}</span>
                             <a href="#" id="{{ $district['region_code'] }}"
-                               class="district_label"
-                               style="font-weight:{{ ($district['region_code'] == $activeRegion) ? '700' : '500' }};"
-                               wire:click="$dispatch('regionClicked', { region_code: '{{ $district['region_code'] }}' })">
+                               class="district_label {{ $district['region_code'] == $activeRegion ? 'active-district' : '' }}"
+                               wire:click.prevent="$dispatch('regionClicked', { region_code: '{{ $district['region_code'] }}' })">
                                 {{ $district['region'] }}
                             </a>
-                            <div style="width:90px;flex-shrink:0;">
+                            <div class="progress-wrap">
                                 <div class="progress">
                                     <div class="progress-bar"
                                         role="progressbar"
